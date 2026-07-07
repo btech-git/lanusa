@@ -1,0 +1,361 @@
+<?php
+
+class JournalVoucherController extends Controller {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'view' || $filterChain->action->id === 'create' || $filterChain->action->id === '/completion/account' || $filterChain->action->id === 'ajaxHtmlAddAccount' || $filterChain->action->id === 'ajaxHtmlRemoveAccount' || $filterChain->action->id === 'ajaxJsonTotalCredit' || $filterChain->action->id === 'ajaxJsonTotalDebit') {
+            if (!(Yii::app()->user->checkAccess('adjustmentJournalCreate') || Yii::app()->user->checkAccess('adjustmentJournalEdit')))
+                $this->redirect(array('/site/login'));
+        }
+        if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update') {
+            if (!(Yii::app()->user->checkAccess('adjustmentJournalEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionCreate() {
+        $journal = $this->instantiate(null);
+        $journal->header->admin_id = Yii::app()->user->id;
+
+        $branchId = isset($_GET['JournalVoucherHeader']['branch_id']) ? $_GET['JournalVoucherHeader']['branch_id'] : '';
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        if (!empty($branchId)) {
+            $accountDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $accountDataProvider->criteria->params[':branch_id'] = $branchId;
+        }
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($journal);
+            $journal->generateCodeNumber($journal->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($journal->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($journal->header->date)));
+
+            if ($journal->save(Yii::app()->db)) {
+                $this->redirect(array('view', 'id' => $journal->header->id));
+            }
+        }
+
+        $this->render('create', array(
+            'journal' => $journal,
+            'account' => $account,
+            'accountDataProvider' => $accountDataProvider,
+        ));
+    }
+
+    public function actionUpdate($id) {
+        $journal = $this->instantiate($id);
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        $accountDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+        $accountDataProvider->criteria->params[':branch_id'] = $journal->header->branch_id;
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($journal);
+
+            if ($journal->save(Yii::app()->db)) {
+                $this->redirect(array('view', 'id' => $journal->header->id));
+            }
+        }
+
+        $this->render('update', array(
+            'journal' => $journal,
+            'account' => $account,
+            'accountDataProvider' => $accountDataProvider,
+        ));
+    }
+
+    public function actionView($id) {
+        $journal = $this->loadModel($id);
+
+        $branch = $journal->branch(array('scopes' => 'resetScope'));
+        $admin = Admin::model()->resetScope()->findByPk($journal->admin_id);
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('journal_voucher_header_id', $journal->id);
+        $detailsDataProvider = new CActiveDataProvider('JournalVoucherDetail', array(
+            'criteria' => $criteria,
+        ));
+
+        $detailsDataProvider->criteria->with = array(
+            'account:resetScope'
+        );
+
+        $this->render('view', array(
+            'journal' => $journal,
+            'branch' => $branch,
+            'admin' => $admin,
+            'detailsDataProvider' => $detailsDataProvider,
+        ));
+    }
+
+    public function actionAdmin() {
+        $journal = Search::bind(new JournalVoucherHeader('search'), isset($_GET['JournalVoucherHeader']) ? $_GET['JournalVoucherHeader'] : array());
+        $dataProvider = $journal->search();
+
+        $this->render('admin', array(
+            'journal' => $journal,
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    public function actionMemo($id) {
+        $journal = $this->loadModel($id);
+        $admin = Admin::model()->resetScope()->findByPk($journal->admin_id);
+
+        $this->memoToExcel($journal, $admin);
+
+    }
+
+    protected function memoToExcel($journal, $admin) {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('Lanusa');
+        $documentProperties->setTitle('Jurnal Penyesuaian');
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Jurnal Penyesuaian');
+
+        $worksheet->getStyle('A1:G7')->getFont()->setBold(true);
+        $worksheet->getStyle('A1:G2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->mergeCells('A1:G1');
+        $worksheet->mergeCells('A2:G2');
+        $worksheet->mergeCells('D4:G4');
+        $worksheet->mergeCells('D5:G5');
+        $worksheet->mergeCells('D6:G6');
+        $worksheet->mergeCells('D7:G7');
+        
+        $worksheet->setCellValue('A1', CHtml::value($journal, 'branch.name'));
+        $worksheet->setCellValue('A2', 'Jurnal Penyesuaian');
+        
+        $worksheet->setCellValue('B4', 'Jurnal #');
+        $worksheet->setCellValue("C4", ':');
+        $worksheet->setCellValue("D4", $journal->getCodeNumber(JournalVoucherHeader::CN_CONSTANT));
+
+        $worksheet->setCellValue("B5", 'Tanggal');
+        $worksheet->setCellValue("C5", ':');
+        $worksheet->setCellValue("D5", Yii::app()->dateFormatter->format("d MMMM yyyy", $journal->date));
+
+        $worksheet->setCellValue("B6", 'Pembuat');
+        $worksheet->setCellValue("C6", ':');
+        $worksheet->setCellValue("D6", $admin->username);
+
+        $worksheet->setCellValue("B7", 'Catatan');
+        $worksheet->setCellValue("C7", ':');
+        $worksheet->setCellValue("D7", $journal->note);
+
+        $worksheet->getStyle('A9:G9')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A9:G9')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle('A9:G9')->getFont()->setBold(true);
+        $worksheet->mergeCells('C9:D9');
+        $worksheet->setCellValue('A9', 'No.');
+        $worksheet->setCellValue('B9', 'Kode Akun');
+        $worksheet->setCellValue('C9', 'Nama Akun');
+        $worksheet->setCellValue('E9', 'Debit');
+        $worksheet->setCellValue('F9', 'Kredit');
+        $worksheet->setCellValue('G9', 'Memo');
+
+        $counter = 10;
+        $itemNumber = 1;
+        $totalDebit = '0.00';
+        $totalCredit = '0.00';
+        foreach ($journal->journalVoucherDetails as $i => $detail) {
+            $debitAmount = CHtml::value($detail, 'debit');
+            $creditAmount = CHtml::value($detail, 'credit');
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("C{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("G{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $worksheet->mergeCells("C{$counter}:D{$counter}");
+            
+            $worksheet->setCellValue("A{$counter}", $itemNumber);
+            $worksheet->setCellValue("B{$counter}", CHtml::value($detail, 'account.code'));
+            $worksheet->setCellValue("C{$counter}", CHtml::value($detail, 'account.name'));
+            $worksheet->setCellValue("E{$counter}", $debitAmount);
+            $worksheet->setCellValue("F{$counter}", $creditAmount);
+            $worksheet->setCellValue("G{$counter}", CHtml::value($detail, 'memo'));
+
+            $totalDebit += $debitAmount;
+            $totalCredit += $creditAmount;
+            
+            $counter++;
+            $itemNumber++;
+        }
+
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+        $worksheet->mergeCells("A{$counter}:D{$counter}");
+        $worksheet->setCellValue("A{$counter}", 'TOTAL');
+        $worksheet->setCellValue("E{$counter}", $totalDebit);
+        $worksheet->setCellValue("F{$counter}", $totalCredit);
+
+        $counter++;$counter++;
+
+        $worksheet->mergeCells("A{$counter}:G{$counter}");
+        $worksheet->getRowDimension("{$counter}")->setRowHeight(80);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->setCellValue("A{$counter}", 'Approved by,');
+
+        for ($col = 'A'; $col !== 'Z'; $col++) {
+            $objPHPExcel->getActiveSheet()
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
+        }
+
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="print_jurnal_penyesuaian.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
+    }
+
+    public function actionAjaxHtmlAddAccount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $journal = $this->instantiate($id);
+            $this->loadState($journal);
+
+            if (isset($_POST['AccountId'])) {
+                $journal->addDetail($_POST['AccountId']);
+            }
+
+            $this->renderPartial('_detail', array(
+                'journal' => $journal,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlRemoveAccount($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $journal = $this->instantiate($id);
+            $this->loadState($journal);
+            $journal->removeDetailAt($index);
+
+            $this->renderPartial('_detail', array(
+                'journal' => $journal,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonTotalDebit($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $journal = $this->instantiate($id);
+            $this->loadState($journal);
+
+            $debit = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($journal->details[$index], 'debit')));
+            $totalDebit = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $journal->totalDebit));
+
+            echo CJSON::encode(array(
+                'debit' => $debit,
+                'totalDebit' => $totalDebit,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonTotalCredit($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $journal = $this->instantiate($id);
+            $this->loadState($journal);
+
+            $credit = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($journal->details[$index], 'credit')));
+            $totalCredit = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $journal->totalCredit));
+
+            echo CJSON::encode(array(
+                'credit' => $credit,
+                'totalCredit' => $totalCredit,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonCodeNumber($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $journal = $this->instantiate($id);
+            $this->loadState($journal);
+
+            $journal->generateCodeNumber($journal->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($journal->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($journal->header->date)));
+            $codeNumber = CHtml::encode($journal->header->getCodeNumber(JournalVoucherHeader::CN_CONSTANT));
+
+            echo CJSON::encode(array(
+                'codeNumber' => $codeNumber,
+            ));
+        }
+    }
+
+    public function instantiate($id) {
+        if (empty($id)) {
+            $journal = new JournalVoucher(new JournalVoucherHeader(), array());
+        } else {
+            $journalVoucherHeader = $this->loadModel($id);
+            $journal = new JournalVoucher($journalVoucherHeader, $journalVoucherHeader->journalVoucherDetails);
+        }
+
+        return $journal;
+    }
+
+    public function loadModel($id) {
+        $model = JournalVoucherHeader::model()->findByPk($id);
+
+        if ($model === null) {
+            throw new CHttpException(404, 'The requested page does not exist.');
+        }
+
+        return $model;
+    }
+
+    protected function loadState($journal) {
+        if (isset($_POST['JournalVoucherHeader'])) {
+            $journal->header->attributes = $_POST['JournalVoucherHeader'];
+        }
+
+        if (isset($_POST['JournalVoucherDetail'])) {
+            foreach ($_POST['JournalVoucherDetail'] as $i => $item) {
+                if (isset($journal->details[$i])) {
+                    $journal->details[$i]->attributes = $item;
+                } else {
+                    $detail = new JournalVoucherDetail();
+                    $detail->attributes = $item;
+                    $journal->details[] = $detail;
+                }
+                if (count($_POST['JournalVoucherDetail']) < count($journal->details)) {
+                    array_splice($journal->details, $i + 1);
+                }
+            }
+        } else {
+            $journal->details = array();
+        }
+    }
+}

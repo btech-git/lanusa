@@ -1,0 +1,8 @@
+<?php
+	//$customer as Customer model
+?>
+
+<div id="customer_div" class="row" style="background-color: #DFDFDF">
+	Customer
+	<?php echo CHtml::dropDownlist('CustomerId', $customerId, CHtml::listData($customer, 'id', 'company'), array('empty'=>'-- Customer --')); ?>
+</div>

@@ -1,0 +1,71 @@
+<?php
+
+class PurchasePaymentHeader extends PurchasePaymentHeaderBase {
+    const CN_CONSTANT = 'PPY';
+
+    const NOT_USING_CHEQUE = 0;
+    const USING_CHEQUE = 1;
+    const NOT_USING_CHEQUE_LITERAL = 'Tidak Menggunakan Cek/Giro';
+    const USING_CHEQUE_LITERAL = 'Menggunakan Cek/Giro';
+
+    public static function model($className = __CLASS__) {
+        return parent::model($className);
+    }
+
+    public function getChequeUsage() {
+        return ((int) $this->is_using_cheque === self::NOT_USING_CHEQUE) ? self::NOT_USING_CHEQUE_LITERAL : self::USING_CHEQUE_LITERAL;
+    }
+    
+    public function getTotalPurchase() {
+        return $total = ($this->purchaseReceiptHeader === null) ? 0.00 : $this->purchaseReceiptHeader->grandTotal;
+    }
+
+    public function getPayment() {
+        $payment = ($this->purchaseReceiptHeader === null) ? 0.00 : $this->purchaseReceiptHeader->payment;
+
+        foreach ($this->purchasePaymentDetails as $detail) {
+            $payment += $detail->amount;
+        }
+
+        return $payment;
+    }
+
+    public function getRemaining() {
+        return $this->totalPurchase - $this->payment;
+    }
+
+    public function getAmountPaid() {
+        $total = 0.00;
+
+        foreach ($this->purchasePaymentDetails as $detail) {
+            if ($detail->is_inactive == 0) {
+                $total += $detail->amount;
+            }
+        }
+
+        return $total;
+    }
+
+    public function searchWithPaging() {
+        $criteria = new CDbCriteria;
+
+        $criteria->compare('id', $this->id);
+        $criteria->compare('t.cn_ordinal', $this->cn_ordinal);
+        $criteria->compare('t.cn_month', $this->cn_month);
+        $criteria->compare('t.cn_year', $this->cn_year);
+        $criteria->compare('t.date', $this->date, true);
+        $criteria->compare('note', $this->note, true);
+        $criteria->compare('purchase_receipt_header_id', $this->purchase_receipt_header_id);
+        $criteria->compare('admin_id', $this->admin_id);
+        $criteria->compare('branch_id', $this->branch_id);
+        $criteria->compare('is_non_tax', $this->is_non_tax);
+        $criteria->compare('t.is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this, array(
+            'criteria'=>$criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState( 'pageSize', Yii::app()->params[ 'defaultPageSize' ] ),
+            ),
+        ));
+    }
+}

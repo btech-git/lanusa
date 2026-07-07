@@ -1,0 +1,69 @@
+<?php
+$this->breadcrumbs = array(
+    'Receive' => array('/transaction/receive/create'),
+    'View',
+);
+?>
+
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $receive,
+    'attributes' => array(
+        array(
+            'label' => 'Penerimaan #',
+            'value' => $receive->getCodeNumber(ReceiveHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $receive->date),
+        ),
+        array(
+            'label' => 'Pembelian #',
+            'value' => $purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'No SJ Supplier #',
+            'value' => $receive->reference,
+        ),
+        array(
+            'label' => 'Supplier',
+            'value' => $purchaseHeader->supplier->company,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $receive->note,
+        ),
+        array(
+            'label' => 'Pembuat',
+            'value' => $receive->admin->username,
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'purchase-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        'product.name: Nama Barang',
+        'product.size: Ukuran',
+        array(
+            'header' => 'Jumlah Terima',
+            'value' => 'number_format($data->quantity, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'product.unit.name: Satuan',
+        'warehouse.name: Gudang'
+    ),
+));
+?>
+
+<div id="link">
+<?php echo CHtml::link('Create', array('create')); ?>
+<?php echo CHtml::link('Manage', array('admin')); ?>
+</div>

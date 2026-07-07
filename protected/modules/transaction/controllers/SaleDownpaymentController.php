@@ -1,0 +1,266 @@
+<?php
+
+class SaleDownpaymentController extends SelectionController {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'view' || $filterChain->action->id === 'create' || $filterChain->action->id === 'ajaxJsonCodeNumberAccount' || $filterChain->action->id === 'ajaxJsonCustomer' || $filterChain->action->id === 'ajaxJsonAmount' || $filterChain->action->id === 'memo' || $filterChain->action->id === 'taxForm') {
+            if (!(Yii::app()->user->checkAccess('saleDownpaymentCreate') || Yii::app()->user->checkAccess('saleDownpaymentEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update' || $filterChain->action->id === 'delete') {
+            if (!(Yii::app()->user->checkAccess('saleDownpaymentEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionCreate() {
+        $saleDownpayment = $this->instantiate(null);
+        $saleDownpayment->header->admin_id = Yii::app()->user->id;
+
+        $branchId = isset($_GET['SaleDownpayment']['branch_id']) ? $_GET['SaleDownpayment']['branch_id'] : '';
+
+        $customer = Search::bind(new Customer('search'), isset($_GET['Customer']) ? $_GET['Customer'] : array());
+        $dataProvider = $customer->search();
+        $dataProvider->criteria->with = array(
+            'account:resetScope',
+        );
+        $error = false;
+
+        if (!empty($branchId)) {
+            $dataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $dataProvider->criteria->params[':branch_id'] = $branchId;
+        }
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($saleDownpayment);
+            $saleDownpayment->generateCodeNumber($saleDownpayment->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($saleDownpayment->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($saleDownpayment->header->date)));
+
+            if ($saleDownpayment->save(Yii::app()->db)) {
+                Yii::app()->session['saleDownPaymentMemoAllowed'] = true;
+                $this->redirect(array('view', 'id' => $saleDownpayment->header->id));
+            } else
+                $error = true;
+        }
+
+        $this->render('create', array(
+            'saleDownpayment' => $saleDownpayment,
+            'customer' => $customer,
+            'dataProvider' => $dataProvider,
+            'error' => $error,
+        ));
+    }
+
+    public function actionUpdate($id) {
+        $saleDownpayment = $this->instantiate($id);
+        $saleDownpayment->header->admin_id = Yii::app()->user->id;
+
+        $customer = Search::bind(new Customer('search'), isset($_GET['Customer']) ? $_GET['Customer'] : array());
+        $dataProvider = $customer->search();
+        $dataProvider->criteria->with = array(
+            'account:resetScope',
+        );
+        $error = false;
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($saleDownpayment);
+            if ($saleDownpayment->save(Yii::app()->db))
+                $this->redirect(array('view', 'id' => $saleDownpayment->header->id));
+            else
+                $error = true;
+        }
+
+        $this->render('update', array(
+            'saleDownpayment' => $saleDownpayment,
+            'customer' => $customer,
+            'dataProvider' => $dataProvider,
+            'error' => $error,
+        ));
+    }
+
+    public function actionView($id) {
+        $saleDownpayment = $this->loadModel($id);
+
+        $customer = $saleDownpayment->customer(array('scopes' => 'resetScope'));
+        $board = $saleDownpayment->board(array('scopes' => 'resetScope'));
+        $account = $saleDownpayment->account(array('scopes' => 'resetScope'));
+        $branch = $saleDownpayment->branch(array('scopes' => 'resetScope'));
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('sale_downpayment_id', $saleDownpayment->id);
+
+        $this->render('view', array(
+            'saleDownpayment' => $saleDownpayment,
+            'customer' => $customer,
+            'board' => $board,
+            'account' => $account,
+            'branch' => $branch,
+        ));
+    }
+
+    public function actionMemo($id) {
+        if (!(Yii::app()->user->checkAccess('administrator'))) {
+            if (!(isset(Yii::app()->session['saleDownpaymentMemoAllowed']) && Yii::app()->session['saleDownpaymentMemoAllowed'] === true))
+                $this->redirect(array('admin'));
+        }
+
+        Yii::app()->session->remove('saleDownpaymentMemoAllowed');
+
+        $saleDownpayment = $this->loadModel($id);
+
+        $customer = $saleDownpayment->customer(array('scopes' => 'resetScope'));
+        $branch = $saleDownpayment->branch(array('scopes' => 'resetScope'));
+
+//        $saleDownpaymentCustomer = ($saleDownpayment->is_non_tax) ? $saleDownpayment->customer->name : $saleDownpayment->customer->company;
+//        $saleDownpaymentHeaderText = ($saleDownpayment->is_non_tax) ? '' : 'PT. Lanusa';
+
+        $this->render('memo', array(
+            'saleDownpayment' => $saleDownpayment,
+            'customer' => $customer,
+            'branch' => $branch,
+//            'saleDownpaymentCustomer' => $saleDownpaymentCustomer,
+//            'saleDownpaymentHeaderText' => $saleDownpaymentHeaderText,
+        ));
+    }
+
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            $saleDownpayment = $this->loadModel($id);
+            if ($saleDownpayment !== null) {
+                $saleDownpayment->is_inactive = ActiveRecord::INACTIVE;
+                $saleDownpayment->update(array('is_inactive'));
+            }
+
+            if (!isset($_GET['ajax']))
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionAdmin() {
+        $saleDownpayment = Search::bind(new SaleDownpayment('search'), isset($_GET['SaleDownpayment']) ? $_GET['SaleDownpayment'] : array());
+
+        if (isset($_GET['pageSize'])) {
+            Yii::app()->user->setState('pageSize', (int) $_GET['pageSize']);
+            unset($_GET['pageSize']);
+        }
+
+        $dataProvider = $saleDownpayment->resetScope()->search();
+        $dataProvider->criteria->with = array(
+            'customer:resetScope',
+            'account:resetScope',
+        );
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+
+        if ($startDate != '' || $endDate != '') {
+            $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
+            $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
+
+            $dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
+        }
+
+        $this->render('admin', array(
+            'saleDownpayment' => $saleDownpayment,
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    public function actionTaxform($id) {
+        $saleDownpayment = $this->loadModel($id);
+
+        $customer = $saleDownpayment->customer(array('scopes' => 'resetScope'));
+        $branch = $saleDownpayment->branch(array('scopes' => 'resetScope'));
+
+        $this->render('taxform', array(
+            'saleDownpayment' => $saleDownpayment,
+            'customer' => $customer,
+            'branch' => $branch,
+        ));
+    }
+
+    public function actionAjaxJsonAmount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleDownpayment = $this->instantiate($id);
+
+            $this->loadState($saleDownpayment);
+
+            $amount = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($saleDownpayment->header, 'amount')));
+
+            echo CJSON::encode(array(
+                'amount' => $amount,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonCustomer($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleDownpayment = $this->instantiate($id);
+
+            $this->loadState($saleDownpayment);
+
+            $saleDownpaymentCustomer = $saleDownpayment->header->customer(array('scopes' => 'resetScope'));
+
+            $object = array(
+                'customer_id' => $saleDownpaymentCustomer->id,
+                'customer_company' => $saleDownpaymentCustomer->company,
+                'customer_address' => $saleDownpaymentCustomer->address,
+            );
+            echo CJSON::encode($object);
+        }
+    }
+
+    public function actionAjaxJsonCodeNumberAccount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleDownpayment = $this->instantiate($id);
+            $this->loadState($saleDownpayment);
+
+            $saleDownpayment->generateCodeNumber($saleDownpayment->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($saleDownpayment->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($saleDownpayment->header->date)));
+            $codeNumber = CHtml::encode($saleDownpayment->header->getCodeNumber(SaleDownpayment::CN_CONSTANT));
+
+            $accounts = Account::model()->findAllByAttributes(array('branch_id' => $saleDownpayment->header->branch_id), array('order' => 't.name', 'condition' => 'account_category_id IN (1, 2)'));
+            $accountList = CHtml::listData($accounts, 'id', 'name');
+            $htmlOptions = array('empty' => '-- Pilih Akun --');
+            $accountOptions = CHtml::listOptions('', $accountList, $htmlOptions);
+
+            echo CJSON::encode(array(
+                'codeNumber' => $codeNumber,
+                'accountOptions' => $accountOptions,
+            ));
+        }
+    }
+
+    public function instantiate($id) {
+        if (empty($id))
+            $saleDownpayment = new SaleDownpaymentTransaction(new SaleDownpayment(), array());
+        else {
+            $saleDownpayment = $this->loadModel($id);
+            $saleDownpayment = new SaleDownpaymentTransaction($saleDownpayment);
+        }
+
+        return $saleDownpayment;
+    }
+
+    public function loadModel($id) {
+        $model = SaleDownpayment::model()->findByPk($id);
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        return $model;
+    }
+
+    protected function loadState($saleDownpayment) {
+        if (isset($_POST['SaleDownpayment'])) {
+            $saleDownpayment->header->attributes = $_POST['SaleDownpayment'];
+        }
+    }
+
+}

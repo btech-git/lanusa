@@ -1,0 +1,323 @@
+<?php
+
+class DepositController extends Controller {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'view' || $filterChain->action->id === 'create' || $filterChain->action->id === '/completion/account' || $filterChain->action->id === 'ajaxJsonCodeNumberAccount' || $filterChain->action->id === 'ajaxHtmlAddAccount' || $filterChain->action->id === 'ajaxJsonTotal' || $filterChain->action->id === 'ajaxHtmlRemoveAccount' || $filterChain->action->id === 'memo') {
+            if (!(Yii::app()->user->checkAccess('bankDepositCreate') || Yii::app()->user->checkAccess('cashDepositCreate') || Yii::app()->user->checkAccess('cashDepositEdit') || Yii::app()->user->checkAccess('bankDepositEdit')))
+                $this->redirect(array('/site/login'));
+        }
+        if ($filterChain->action->id === 'admin') {
+            if (!(Yii::app()->user->checkAccess('cashDepositEdit') || Yii::app()->user->checkAccess('bankDepositEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionCreate() {
+        $deposit = $this->instantiate(null);
+        $deposit->header->admin_id = Yii::app()->user->id;
+
+        $branchId = isset($_GET['DepositHeader']['branch_id']) ? $_GET['DepositHeader']['branch_id'] : '';
+
+        $deposit->header->is_bank = intval(isset($_GET['bank']));
+        $depositHeaderText = ($deposit->header->is_bank) ? 'Jurnal Penerimaan Bank' : 'Jurnal Penerimaan Kas';
+        $depositAccountCategory = ($deposit->header->is_bank) ? '2' : '1';
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        if (!empty($branchId)) {
+            $accountDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $accountDataProvider->criteria->params[':branch_id'] = $branchId;
+        }
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($deposit);
+            $deposit->generateCodeNumber($deposit->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($deposit->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($deposit->header->date)));
+
+            if ($deposit->save(Yii::app()->db)) {
+                Yii::app()->session['DepositMemoAllowed'] = true;
+                if ($deposit->header->is_bank) {
+                    $this->redirect(array('view', 'id' => $deposit->header->id, 'bank' => 1));
+                } else {
+                    $this->redirect(array('view', 'id' => $deposit->header->id));
+                }
+            }
+        }
+
+        $this->render('create', array(
+            'deposit' => $deposit,
+            'account' => $account,
+            'accountDataProvider' => $accountDataProvider,
+            'depositHeaderText' => $depositHeaderText,
+            'depositAccountCategory' => $depositAccountCategory,
+        ));
+    }
+
+    public function actionUpdate($id) {
+        $deposit = $this->instantiate($id);
+        $deposit->header->admin_id = Yii::app()->user->id;
+
+        $depositHeaderText = ((int) $deposit->header->is_bank === 1) ? 'Revisi Jurnal Penerimaan Bank' : 'Revisi Jurnal Penerimaan Kas';
+        $depositAccountCategory = ((int) $deposit->header->is_bank === 1) ? '2' : '1';
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($deposit);
+//			$deposit->generateCodeNumber($deposit->header->branch_id, date('m'), date('y'));
+
+            if ($deposit->save(Yii::app()->db)) {
+                Yii::app()->session['DepositMemoAllowed'] = true;
+                $this->redirect(array('view', 'id' => $deposit->header->id));
+            }
+        }
+
+        $this->render('update', array(
+            'deposit' => $deposit,
+            'account' => $account,
+            'accountDataProvider' => $accountDataProvider,
+            'depositHeaderText' => $depositHeaderText,
+            'depositAccountCategory' => $depositAccountCategory,
+        ));
+    }
+
+    public function actionView($id) {
+        $deposit = $this->loadModel($id);
+
+        $account = $deposit->account(array('scopes' => 'resetScope'));
+        $branch = $deposit->branch(array('scopes' => 'resetScope'));
+
+        $deposit->is_bank = intval(isset($_GET['bank']));
+
+        if ($deposit->is_bank) {
+            $depositCnConstant = DepositHeader::CN_CONSTANT_BANK;
+        } else {
+            $depositCnConstant = DepositHeader::CN_CONSTANT_CASH;
+        }
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('deposit_header_id', $deposit->id);
+        $detailsDataProvider = new CActiveDataProvider('DepositDetail', array(
+            'criteria' => $criteria,
+        ));
+
+        $detailsDataProvider->criteria->with = array(
+            'account:resetScope'
+        );
+
+        $this->render('view', array(
+            'deposit' => $deposit,
+            'account' => $account,
+            'branch' => $branch,
+            'detailsDataProvider' => $detailsDataProvider,
+            'depositCnConstant' => $depositCnConstant
+        ));
+    }
+
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            $deposit = $this->loadModel($id);
+
+            if ($deposit->is_bank) {
+                $depositHeaderConstant = DepositHeader::CN_CONSTANT_BANK;
+            } else {
+                $depositHeaderConstant = DepositHeader::CN_CONSTANT_CASH;
+            }
+
+            JournalAccounting::model()->deleteAllByAttributes(array(
+                'transaction_number' => $deposit->getCodeNumber($depositHeaderConstant),
+                'branch_id' => $deposit->branch_id,
+                'type' => 1,
+            ));
+
+            if ($deposit !== null) {
+                $deposit->is_inactive = ActiveRecord::INACTIVE;
+                $deposit->update(array('is_inactive'));
+
+                foreach ($deposit->depositDetails as $depositDetail) {
+                    $depositDetail->is_inactive = ActiveRecord::INACTIVE;
+                    $depositDetail->update(array('is_inactive'));
+                }
+            }
+
+            if (!isset($_GET['ajax'])) {
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+            }
+        } else {
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionMemo($id) {
+        if (!(Yii::app()->user->checkAccess('administrator'))) {
+            if (!(isset(Yii::app()->session['DepositMemoAllowed']) && Yii::app()->session['DepositMemoAllowed'] === true)) {
+                $this->redirect(array('admin'));
+            }
+        }
+
+        Yii::app()->session->remove('DepositMemoAllowed');
+
+        $deposit = $this->loadModel($id);
+
+        $account = $deposit->account(array('scopes' => 'resetScope'));
+        $branch = $deposit->branch(array('scopes' => 'resetScope'));
+
+        $depositDetails = $deposit->depositDetails(array(
+            'with' => array(
+                'account:resetScope'
+            ),
+        ));
+
+        $this->render('memo', array(
+            'deposit' => $deposit,
+            'account' => $account,
+            'branch' => $branch,
+            'depositDetails' => $depositDetails,
+        ));
+    }
+
+    public function actionAdmin() {
+        $deposit = Search::bind(new DepositHeader('search'), isset($_GET['DepositHeader']) ? $_GET['DepositHeader'] : array());
+
+        $dataProvider = $deposit->search();
+        $dataProvider->criteria->with = array(
+            'account:resetScope',
+        );
+
+        $this->render('admin', array(
+            'deposit' => $deposit,
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    public function actionAjaxHtmlAddAccount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $deposit = $this->instantiate($id);
+
+            $this->loadState($deposit);
+
+            if (isset($_POST['AccountId'])) {
+                $deposit->addDetail($_POST['AccountId']);
+            }
+
+            $this->renderPartial('_detail', array(
+                'deposit' => $deposit,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlRemoveAccount($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $deposit = $this->instantiate($id);
+
+            $this->loadState($deposit);
+
+            $deposit->removeDetailAt($index);
+
+            $this->renderPartial('_detail', array(
+                'deposit' => $deposit,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonTotal($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $deposit = $this->instantiate($id);
+
+            $this->loadState($deposit);
+
+            $amount = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($deposit->details[$index], 'amount')));
+            $total = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $deposit->total));
+
+            echo CJSON::encode(array(
+                'amount' => $amount,
+                'total' => $total,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonCodeNumberAccount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $deposit = $this->instantiate($id);
+            $this->loadState($deposit);
+
+            $deposit->generateCodeNumber($deposit->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($deposit->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($deposit->header->date)));
+
+            if ($deposit->header->is_bank) {
+                $codeNumber = CHtml::encode($deposit->header->getCodeNumber(DepositHeader::CN_CONSTANT_BANK));
+            } else {
+                $codeNumber = CHtml::encode($deposit->header->getCodeNumber(DepositHeader::CN_CONSTANT_CASH));
+            }
+
+            $accounts = Account::model()->findAllByAttributes(array('branch_id' => $deposit->header->branch_id), array('order' => 't.name', 'condition' => 'account_category_id IN (1, 2)'));
+            $accountList = CHtml::listData($accounts, 'id', 'name');
+            $htmlOptions = array('empty' => '-- Pilih Akun --');
+            $accountOptions = CHtml::listOptions('', $accountList, $htmlOptions);
+
+            echo CJSON::encode(array(
+                'codeNumber' => $codeNumber,
+                'accountOptions' => $accountOptions,
+            ));
+        }
+    }
+
+    public function instantiate($id) {
+        if (empty($id)) {
+            $deposit = new Deposit(new DepositHeader(), array());
+        } else {
+            $depositHeader = $this->loadModel($id);
+            $deposit = new Deposit($depositHeader, $depositHeader->depositDetails);
+        }
+
+        return $deposit;
+    }
+
+    public function loadModel($id) {
+        $model = DepositHeader::model()->findByPk($id);
+        
+        if ($model === null) {
+            throw new CHttpException(404, 'The requested page does not exist.');
+        }
+        
+        return $model;
+    }
+
+    protected function loadState($deposit) {
+        if (isset($_POST['DepositHeader'])) {
+            $deposit->header->attributes = $_POST['DepositHeader'];
+        }
+        if (isset($_POST['DepositDetail'])) {
+            foreach ($_POST['DepositDetail'] as $i => $item) {
+                if (isset($deposit->details[$i])) {
+                    $deposit->details[$i]->attributes = $item;
+                } else {
+                    $detail = new DepositDetail();
+                    $detail->attributes = $item;
+                    $deposit->details[] = $detail;
+                }
+            }
+            if (count($_POST['DepositDetail']) < count($deposit->details)) {
+                array_splice($deposit->details, $i + 1);
+            }
+        } else {
+            $deposit->details = array();
+        }
+    }
+
+}

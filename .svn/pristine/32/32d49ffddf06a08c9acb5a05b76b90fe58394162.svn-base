@@ -1,0 +1,199 @@
+<?php
+
+class PurchaseReceipt extends CComponent {
+
+    public $header;
+    public $details;
+    public $accountingJournalDebits = array();
+
+    public function __construct($header, array $details) {
+        $this->header = $header;
+        $this->details = $details;
+    }
+
+    public function generateCodeNumber($branchId, $currentMonth, $currentYear) {
+        $purchaseReceiptHeader = PurchaseReceiptHeader::model()->find(array(
+            'order' => 'cn_month DESC, cn_ordinal DESC',
+            'condition' => 'branch_id = :branch_id AND cn_year = :cn_year AND cn_month = :cn_month',
+            'params' => array(':branch_id' => $branchId, ':cn_year' => $currentYear, ':cn_month' => $currentMonth),
+        ));
+
+        if ($purchaseReceiptHeader !== null)
+            $this->header->setCodeNumber($purchaseReceiptHeader->cn_ordinal, $purchaseReceiptHeader->cn_month, $purchaseReceiptHeader->cn_year, $purchaseReceiptHeader->branch_id);
+
+        $this->header->setCodeNumberByNext($currentMonth, $currentYear);
+    }
+
+    public function addDetail($id) {
+        $receiveHeader = ReceiveHeader::model()->findByPk($id);
+
+        if ($receiveHeader !== null) {
+            $exist = false;
+            foreach ($this->details as $i => $detail) {
+                if ($receiveHeader->id === $detail->receive_header_id) {
+                    $exist = true;
+                    break;
+                }
+            }
+
+            if (!$exist) {
+                $detail = new PurchaseReceiptDetail();
+                $detail->receive_header_id = $receiveHeader->id;
+                $this->details[] = $detail;
+            }
+        }
+    }
+
+    public function resetDetail() {
+        $this->details = array();
+    }
+
+    public function removeDetailAt($index) {
+        array_splice($this->details, $index, 1);
+    }
+
+    public function validate() {
+        $valid = $this->header->validate();
+
+        if ($this->header->isNewRecord) {
+            $valid = $this->validateDetailsCount() && $valid;
+        }
+
+        if (count($this->details) > 0) {
+            foreach ($this->details as $detail) {
+                $fields = array('memo', 'receive_header_id');
+                $valid = $detail->validate($fields) && $valid;
+            }
+        }
+
+        return $valid;
+    }
+
+    public function validateDetailsCount() {
+        $valid = true;
+        if (count($this->details) === 0) {
+            $valid = false;
+            $this->header->addError('error', 'Form tidak ada data untuk insert database. Minimal satu data detail untuk melakukan penyimpanan.');
+        }
+
+        return $valid;
+    }
+
+    public function flush() {
+        $this->header->grand_total = $this->getTotalReceivePrice();
+        $valid = $this->header->save(false);
+
+        JournalAccounting::model()->deleteAllByAttributes(array(
+            'transaction_number' => $this->header->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+            'branch_id' => $this->header->branch_id,
+            'type' => 5,
+        ));
+
+        foreach ($this->details as $detail) {
+            if ($detail->isNewRecord) {
+                $detail->purchase_receipt_header_id = $this->header->id;
+            }
+
+            $valid = $detail->save(false) && $valid;
+
+            //delete journal accounting if inactive, add new if active
+            if ((int) $detail->is_inactive == 0) {
+                $accountingJournalDebitSubTotal = AccountingJournalHelper::make(
+                    'debit',
+                    $this->header->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+                    $this->header->date,
+                    $this->getCode($this->header->branch_id),
+                    $this->header->branch_id,
+                    $detail->purchaseAmount,
+                    5,
+                    $detail->memo
+                );
+                $valid = $accountingJournalDebitSubTotal->save() && $valid;
+
+                if ($detail->calculatedTax > 0) {
+                    $accountingJournalDebitTotalTax = AccountingJournalHelper::make(
+                        'debit',
+                        $this->header->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+                        $this->header->date,
+                        $this->getTaxCode($this->header->branch_id),
+                        $this->header->branch_id,
+                        $detail->calculatedTax,
+                        5,
+                        $detail->memo
+                    );
+                    $valid = $accountingJournalDebitTotalTax->save() && $valid;
+                }
+            }
+        }
+
+        $accountingJournalCredit = AccountingJournalHelper::make(
+            'credit',
+            $this->header->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+            $this->header->date,
+            $this->header->supplier->account_id,
+            $this->header->branch_id,
+            $this->header->totalPurchase,
+            5,
+            $this->header->note
+        );
+        $valid = $accountingJournalCredit->save() && $valid;
+        
+        return $valid;
+    }
+
+    public function save($dbConnection) {
+        $dbTransaction = $dbConnection->beginTransaction();
+        try {
+            $valid = $this->validate() && IdempotentManager::build()->save() && $this->flush();
+            if ($valid)
+                $dbTransaction->commit();
+            else
+                $dbTransaction->rollback();
+        } catch (Exception $e) {
+            $dbTransaction->rollback();
+            $valid = false;
+        }
+
+        return $valid;
+    }
+
+    public function getTotalReceivePrice() {
+        $total = 0.00;
+
+        foreach ($this->details as $detail) {
+            if ($detail->is_inactive == 0) {
+                $total += ($detail->purchaseAmount + $detail->calculatedTax);
+            }
+        }
+
+        return $total;
+    }
+
+    public function getCode($branchId) {
+        $code = 0;
+        if ($branchId == 1)
+            $code = 275;
+        else if ($branchId == 2)
+            $code = 789;
+        else if ($branchId == 3)
+            $code = 1063;
+        else if ($branchId == 4)
+            $code = 1991;
+
+        return $code;
+    }
+
+    public function getTaxCode($branchId) {
+        $code = 0;
+        if ($branchId == 1)
+            $code = 120;
+        else if ($branchId == 2)
+            $code = 598;
+        else if ($branchId == 3)
+            $code = 978;
+        else if ($branchId == 4)
+            $code = 1802;
+
+        return $code;
+    }
+}

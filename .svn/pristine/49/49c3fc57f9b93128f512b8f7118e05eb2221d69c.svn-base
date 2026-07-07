@@ -1,0 +1,197 @@
+<?php
+
+class Account extends AccountBase {
+
+    public $accountBalance;
+    
+    public static function model($className = __CLASS__) {
+        return parent::model($className);
+    }
+
+    public function getCodeAndName() {
+        return $this->code . ' - ' . $this->name;
+    }
+
+    public function getNameAndBranch() {
+        return $this->name . ' - ' . $this->branch->name;
+    }
+
+    public function getBeginningBalance($accountId, $startDate, $branchId) {
+        $sql = SqlGenerator::beginningBalance();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':start_date' => $startDate,
+            ':branch_id' => $branchId,
+        ));
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getEndingBalance($accountId, $endDate, $branchId) {
+        $sql = SqlGenerator::endingBalance();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':end_date' => $endDate,
+            ':branch_id' => $branchId,
+        ));
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getBalanceTotal($endDate, $branchId) {
+        $balanceTotal = 0.00;
+
+        $accountingJournals = $this->getRelated('journalAccountings', false, array(
+            'condition' => "branch_id = :branch_id AND date <= :endDate",
+            'params' => array(
+                ':endDate' => $endDate,
+                ':branch_id' => $branchId,
+            ),
+        ));
+
+        if ($accountingJournals != null) {
+
+            if ($this->accountCategory->account_category_type_id == 2
+                    || $this->accountCategory->account_category_type_id == 4
+                    || $this->accountCategory->account_category_type_id == 5
+                    || $this->accountCategory->account_category_type_id == 7) {
+                foreach ($accountingJournals as $accountingJournal)
+                    $balanceTotal += $accountingJournal->credit - $accountingJournal->debit;
+            } else if ($this->accountCategory->account_category_type_id == 1
+                    || $this->accountCategory->account_category_type_id == 3
+                    || $this->accountCategory->account_category_type_id == 6) {
+                foreach ($accountingJournals as $accountingJournal)
+                    $balanceTotal += $accountingJournal->debit - $accountingJournal->credit;
+            }
+        }
+        
+        return $balanceTotal;
+    }
+
+    public function searchByCategory() {
+        $criteria = new CDbCriteria;
+
+        $criteria->condition = 't.account_category_id=1 OR t.account_category_id=2';
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+        ));
+    }
+
+    public function getBeginningBalanceLedger($accountId, $startDate) {
+        $sql = SqlGenerator::beginningBalanceLedger();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':start_date' => $startDate,
+        ));
+
+        $this->accountBalance = $value;
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getEndBalanceLedger($accountId, $endDate) {
+        $sql = SqlGenerator::endBalanceLedger();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':end_date' => $endDate,
+        ));
+
+        $this->accountBalance = $value;
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getEndDebitLedger($accountId, $startDate, $endDate) {
+        $sql = SqlGenerator::endDebitLedger();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':end_date' => $endDate,
+            ':start_date' => $startDate,
+        ));
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getEndCreditLedger($accountId, $startDate, $endDate) {
+        $sql = SqlGenerator::endCreditLedger();
+
+        $value = CActiveRecord::$db->createCommand($sql)->queryScalar(array(
+            ':account_id' => $accountId,
+            ':end_date' => $endDate,
+            ':start_date' => $startDate,
+        ));
+
+        return ($value === false) ? 0 : $value;
+    }
+
+    public function getCustomerReceivableBalance($branchId, $endDate) {
+        $balanceTotal = 0.00;
+
+        $accountingJournals = $this->getRelated('journalAccountings', false, array(
+            'condition' => "journalAccountings.branch_id = :branch_id AND journalAccountings.date <= :end_date",
+            'params' => array(
+                ':branch_id' => $branchId,
+                ':end_date' => $endDate,
+            ),
+        ));
+
+        if ($accountingJournals != null) {
+            foreach ($accountingJournals as $accountingJournal)
+                $balanceTotal += $accountingJournal->debit - $accountingJournal->credit;
+        }
+
+        return $balanceTotal;
+    }
+
+    public function getSupplierPayableBalance($branchId, $endDate) {
+        $balanceTotal = 0.00;
+
+        $accountingJournals = $this->getRelated('journalAccountings', false, array(
+            'condition' => "branch_id = :branch_id AND journalAccountings.date <= :end_date",
+            'params' => array(
+                ':branch_id' => $branchId,
+                ':end_date' => $endDate,
+            ),
+        ));
+
+        if ($accountingJournals != null) {
+            foreach ($accountingJournals as $accountingJournal)
+                $balanceTotal += $accountingJournal->credit - $accountingJournal->debit;
+        }
+
+        return $balanceTotal;
+    }
+
+    public function searchByAccountReceivable() {
+        $criteria = new CDbCriteria;
+
+        $criteria->condition = 't.account_category_id = 3';
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+        ));
+    }
+
+    public function search() {
+        $criteria = new CDbCriteria;
+//		$criteria->with = array('tblla_journal_accounting');
+        $criteria->compare('id', $this->id);
+        $criteria->compare('t.code', $this->code, true);
+        $criteria->compare('t.name', $this->name, true);
+        $criteria->compare('description', $this->description, true);
+        $criteria->compare('account_category_id', $this->account_category_id);
+        $criteria->compare('branch_id', $this->branch_id);
+        $criteria->compare('is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+        ));
+    }
+
+}

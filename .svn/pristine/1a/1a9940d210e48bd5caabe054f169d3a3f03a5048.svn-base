@@ -1,0 +1,253 @@
+<?php
+
+class PurchaseHeader extends PurchaseHeaderBase {
+    const CN_CONSTANT = 'PRC';
+    
+	const NON_TAX = 1;
+	const INCLUDE_TAX = 2;
+	const EXCLUDE_TAX = 3;
+	const NON_TAX_LITERAL = 'NON TAX';
+	const INCLUDE_TAX_LITERAL = 'INCLUDE TAX';
+	const EXCLUDE_TAX_LITERAL = 'EXCLUDE TAX';
+
+    public static function model($className = __CLASS__) {
+        return parent::model($className);
+    }
+
+    public function getTaxType($type) {
+        switch($type) {
+            case self::NON_TAX: return self::NON_TAX_LITERAL;
+            case self::INCLUDE_TAX: return self::INCLUDE_TAX_LITERAL;
+            case self::EXCLUDE_TAX: return self::EXCLUDE_TAX_LITERAL;
+            default: return '';
+        }
+    }
+    
+    public function searchByReceive($isNonTax = null) {
+        //search purchase header which purchased quantity is not fully received yet
+        $criteria = new CDbCriteria;
+
+        $criteria->condition = "EXISTS (
+            SELECT p.quantity - COALESCE(SUM(r.quantity), 0) AS quantity_purchased
+            FROM " . PurchaseDetail::model()->tableName() . " p
+            LEFT OUTER JOIN " . ReceiveDetail::model()->tableName() . " r ON r.purchase_detail_id = p.id AND r.is_inactive = 0
+            LEFT OUTER JOIN " . Product::model()->tableName() . " pr ON pr.id = p.product_id  
+            WHERE t.id = p.purchase_header_id AND p.is_inactive = 0 AND pr.is_inactive = 0
+            GROUP BY p.id
+            HAVING quantity_purchased > 0
+        )";
+
+        if ($isNonTax !== null) {
+            $criteria->addCondition('t.is_non_tax = :is_non_tax');
+            $criteria->params[':is_non_tax'] = intval($isNonTax);
+        }
+
+        $criteria->compare('t.cn_ordinal', $this->cn_ordinal, true);
+        $criteria->compare('t.cn_month', $this->cn_month, true);
+        $criteria->compare('t.cn_year', $this->cn_year, true);
+        $criteria->compare('t.date', $this->date, true);
+        $criteria->compare('t.supplier_id', $this->supplier_id);
+        $criteria->compare('t.branch_id', $this->branch_id);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+        ));
+    }
+
+    public function searchByPurchaseInvoice() {
+        $criteria = new CDbCriteria;
+
+        $criteria->condition = "t.id NOT IN (
+            SELECT purchase_header_id 
+            FROM " . PurchaseInvoiceDetail::model()->tableName() . "
+            WHERE is_inactive = 0
+        )";
+
+        $criteria->compare('cn_ordinal', $this->cn_ordinal);
+        $criteria->compare('cn_month', $this->cn_month);
+        $criteria->compare('cn_year', $this->cn_year);
+        $criteria->compare('date', $this->date, true);
+        $criteria->compare('supplier_id', $this->supplier_id);
+
+        return new CActiveDataProvider(get_class($this), array(
+            'criteria' => $criteria,
+        ));
+    }
+
+    public function normalizeCnMonthBy($romanNum) {
+        $arr = array_flip(array('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'));
+
+        if ($romanNum === '')
+            $this->cn_month = '';
+        else {
+            $romanNum = strtoupper($romanNum);
+            $this->cn_month = isset($arr[$romanNum]) ? $arr[$romanNum] + 1 : 0;
+        }
+    }
+
+    public function getBranchTax() {
+        return ((int) $this->branch->is_tax === 0) ? 0 : $this->tax;
+    }
+    
+    public function getTotalQuantity() {
+        $total = 0;
+        
+        foreach ($this->purchaseDetails as $detail) {
+            $total += $detail->quantity;
+        }
+            
+        return $total;
+    }
+
+    public function getSubTotal() {
+        $total = 0.00;
+        
+        foreach ($this->purchaseDetails as $detail) {
+            $total += $detail->total;
+        }
+        
+        return ((int)$this->is_non_tax == self::INCLUDE_TAX) ? $total / (1 + ($this->tax / 100)) : $total;
+    }
+
+    public function getTotalBeforeTax() {
+        return $this->subTotal - $this->discount;
+    }
+
+    public function getCalculatedTax() {
+        return $this->totalBeforeTax * ($this->tax / 100);
+    }
+
+    public function getGrandTotal() {
+        return $this->totalBeforeTax + $this->calculatedTax + $this->shipping_fee;
+    }
+
+    public function getTotalPayment() {
+        $total = $this->grandTotal;
+
+        foreach ($this->purchaseInvoices as $purchaseInvoice) {
+            foreach ($purchaseInvoice->purchaseReturnHeaders as $purchaseReturnHeader) {
+                $total -= $purchaseReturnHeader->grandTotal;
+            }
+        }
+
+        return $total;
+    }
+
+    public function getTotalReceiveReport() {
+        $total = 0.00;
+
+        foreach ($this->receiveHeaders as $receiveHeader) {
+            $total += $receiveHeader->grandTotalReceipt;
+        }
+
+        return $total;
+    }
+
+    public function getOutstandingReceive() {
+
+        return $this->grandTotal - $this->totalReceiveReport;
+    }
+
+    public function searchWithPaging() {
+        $criteria = new CDbCriteria;
+
+        $criteria->compare('id', $this->id);
+        $criteria->compare('t.cn_ordinal', $this->cn_ordinal);
+        $criteria->compare('t.cn_month', $this->cn_month);
+        $criteria->compare('t.cn_year', $this->cn_year);
+        $criteria->compare('t.date', $this->date, true);
+        $criteria->compare('tax', $this->tax);
+        $criteria->compare('discount', $this->discount, true);
+        $criteria->compare('shipping_fee', $this->shipping_fee, true);
+        $criteria->compare('t.note', $this->note, true);
+        $criteria->compare('t.branch_id', $this->branch_id);
+        $criteria->compare('t.admin_id', $this->admin_id);
+        $criteria->compare('t.supplier_id', $this->supplier_id);
+        $criteria->compare('is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState('pageSize', Yii::app()->params['defaultPageSize']),
+            ),
+            'sort' => array(
+                'defaultOrder' => 't.id DESC',
+            ),
+        ));
+    }
+
+    public static function makeChartAxisY($chartData, $part) {
+        $total = 0;
+        foreach ($chartData as $data) {
+            if ($total < $data[1])
+                $total = $data[1];
+        }
+
+        $top = $total * (1 + 1 / ($part * 2));
+
+        $n = 0;
+        while (floor($top) >= 100) {
+            $top /= 10;
+            $n++;
+        }
+
+        $top = floor($top);
+
+        $top += $part - $top % $part;
+
+        for ($i = 0; $i < $n; $i++) {
+            $top *= 10;
+        }
+
+        return array('min' => 0, 'max' => $top, 'tickSize' => floor($top / $part));
+    }
+
+    public static function makeChartAxisX($chartData) {
+        $labels = array();
+        foreach ($chartData as $data)
+            $labels[] = array($data[0], substr($data[2], 6, 8));
+
+        return array('min' => 0, 'max' => count($chartData) + 1, 'ticks' => $labels);
+    }
+
+    public static function makeChartData($backNum) {
+        $data = array();
+        $data['color'] = 'blue';
+        $data['data'] = array();
+
+        $dataRows = array();
+        $dateList = array();
+        for ($i = $backNum; $i >= 0; $i--) {
+            $date = date('Y-m', strtotime("-{$i} months"));
+            $dataRows[$date] = array('total' => 0);
+            $dateList[] = $date;
+        }
+
+        $sql = "SELECT SUBSTRING(h.date, 1, 7) AS date, SUM(d.quantity * d.unit_price) AS total
+				FROM " . PurchaseHeader::model()->tableName() . " h 
+                INNER JOIN " . PurchaseDetail::model()->tableName() . " d ON h.id = d.purchase_header_id 
+				WHERE SUBSTRING(h.date, 1, 7) <= :end AND SUBSTRING(h.date, 1, 7) >= :start
+				GROUP BY SUBSTRING(h.date, 1, 7)";
+
+        $rows = CActiveRecord::$db->createCommand($sql)->queryAll(true, array(
+            ':start' => $dateList[0],
+            ':end' => $dateList[$backNum],
+                ));
+
+        foreach ($rows as $row) {
+            if (in_array($row['date'], $dateList))
+                $dataRows[$row['date']]['total'] = $row['total'];
+        }
+
+        $counter = 1;
+        foreach ($dataRows as $dateLiteral => $dataRow) {
+            $tickLabel = date('M Y', strtotime($dateLiteral));
+            $total = number_format($dataRow['total'], 2);
+            $tooltip = "DATE: {$tickLabel}<br />TOTAL: {$total}";
+            $data['data'][] = array($counter, $dataRow['total'], $tooltip);
+            $counter++;
+        }
+
+        return $data;
+    }
+}

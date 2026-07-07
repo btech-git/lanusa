@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * @property integer $id
+ * @property integer $cn_ordinal
+ * @property integer $cn_month
+ * @property integer $cn_year
+ * @property string $date
+ * @property integer $quantity
+ * @property string $amount
+ * @property integer $tax
+ * @property string $note
+ * @property string $tax_number
+ * @property integer $customer_id
+ * @property integer $board_id
+ * @property integer $account_id
+ * @property integer $branch_id
+ * @property integer $admin_id
+ * @property integer $is_non_tax
+ * @property integer $is_inactive
+ *
+ * @property Admin $admin
+ * @property Customer $customer
+ * @property Account $account
+ * @property Board $board
+ * @property Branch $branch
+ * @property SaleHeader[] $saleHeaders
+ * @property TaxForm[] $taxForms
+ */
+class SaleDownpaymentBase extends MonthlyTransactionActiveRecord
+{
+	public function tableName()
+	{
+		return 'tblla_sale_downpayment';
+	}
+
+	public function rules()
+	{
+		return array(
+			array('cn_ordinal, cn_month, cn_year, date, tax_number, customer_id, board_id, account_id, branch_id, admin_id', 'required'),
+			array('cn_ordinal, cn_month, cn_year, quantity, tax, customer_id, board_id, account_id, branch_id, admin_id, is_non_tax, is_inactive', 'numerical', 'integerOnly'=>true),
+			array('amount', 'length', 'max'=>18),
+			array('tax_number', 'length', 'max'=>60),
+			array('note', 'safe'),
+			// The following rule is used by search().
+			array('id, cn_ordinal, cn_month, cn_year, date, quantity, amount, tax, note, tax_number, customer_id, board_id, account_id, branch_id, admin_id, is_non_tax, is_inactive', 'safe', 'on'=>'search'),
+		);
+	}
+
+	public function relations()
+	{
+		return array(
+			'admin' => array(self::BELONGS_TO, 'Admin', 'admin_id'),
+			'customer' => array(self::BELONGS_TO, 'Customer', 'customer_id'),
+			'account' => array(self::BELONGS_TO, 'Account', 'account_id'),
+			'board' => array(self::BELONGS_TO, 'Board', 'board_id'),
+			'branch' => array(self::BELONGS_TO, 'Branch', 'branch_id'),
+			'saleHeaders' => array(self::HAS_MANY, 'SaleHeader', 'sale_downpayment_id'),
+			'taxForms' => array(self::HAS_MANY, 'TaxForm', 'sale_downpayment_id'),
+		);
+	}
+
+	public function attributeLabels()
+	{
+		return array(
+			'id' => 'ID',
+			'cn_ordinal' => 'Cn Ordinal',
+			'cn_month' => 'Cn Month',
+			'cn_year' => 'Cn Year',
+			'date' => 'Date',
+			'quantity' => 'Quantity',
+			'amount' => 'Amount',
+			'tax' => 'Tax',
+			'note' => 'Note',
+			'tax_number' => 'Tax Number',
+			'customer_id' => 'Customer',
+			'board_id' => 'Board',
+			'account_id' => 'Account',
+			'branch_id' => 'Branch',
+			'admin_id' => 'Admin',
+			'is_non_tax' => 'Is Non Tax',
+			'is_inactive' => 'Is Inactive',
+		);
+	}
+
+	public function search()
+	{
+		$criteria = new CDbCriteria;
+
+		$criteria->compare('t.id', $this->id);
+		$criteria->compare('t.cn_ordinal', $this->cn_ordinal);
+		$criteria->compare('t.cn_month', $this->cn_month);
+		$criteria->compare('t.cn_year', $this->cn_year);
+		$criteria->compare('t.date', $this->date, true);
+		$criteria->compare('t.quantity', $this->quantity);
+		$criteria->compare('t.amount', $this->amount, true);
+		$criteria->compare('t.tax', $this->tax);
+		$criteria->compare('t.note', $this->note, true);
+		$criteria->compare('t.tax_number', $this->tax_number, true);
+		$criteria->compare('t.customer_id', $this->customer_id);
+		$criteria->compare('t.board_id', $this->board_id);
+		$criteria->compare('t.account_id', $this->account_id);
+		$criteria->compare('t.branch_id', $this->branch_id);
+		$criteria->compare('t.admin_id', $this->admin_id);
+		$criteria->compare('t.is_non_tax', $this->is_non_tax);
+		$criteria->compare('t.is_inactive', $this->is_inactive);
+
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+}

@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @property integer $id
+ * @property string $quantity
+ * @property integer $delivery_header_id
+ * @property integer $sale_detail_id
+ * @property integer $product_id
+ * @property integer $warehouse_id
+ * @property integer $is_inactive
+ *
+ * @property SaleDetail $saleDetail
+ * @property Product $product
+ * @property DeliveryHeader $deliveryHeader
+ * @property Warehouse $warehouse
+ */
+class DeliveryDetailBase extends ActiveRecord {
+
+    public function tableName() {
+        return 'tblla_delivery_detail';
+    }
+
+    public function rules() {
+        return array(
+            array('delivery_header_id, sale_detail_id, product_id, warehouse_id', 'required'),
+            array('delivery_header_id, sale_detail_id, product_id, warehouse_id, is_inactive', 'numerical', 'integerOnly' => true),
+            array('quantity', 'length', 'max' => 10),
+            // The following rule is used by search().
+            array('id, quantity, delivery_header_id, sale_detail_id, product_id, warehouse_id, is_inactive', 'safe', 'on' => 'search'),
+        );
+    }
+
+    public function relations() {
+        return array(
+            'saleDetail' => array(self::BELONGS_TO, 'SaleDetail', 'sale_detail_id'),
+            'product' => array(self::BELONGS_TO, 'Product', 'product_id'),
+            'deliveryHeader' => array(self::BELONGS_TO, 'DeliveryHeader', 'delivery_header_id'),
+            'warehouse' => array(self::BELONGS_TO, 'Warehouse', 'warehouse_id'),
+        );
+    }
+
+    public function attributeLabels() {
+        return array(
+            'id' => 'ID',
+            'quantity' => 'Quantity',
+            'delivery_header_id' => 'Delivery Header',
+            'sale_detail_id' => 'Sale Detail',
+            'product_id' => 'Product',
+            'warehouse_id' => 'Warehouse',
+            'is_inactive' => 'Is Inactive',
+        );
+    }
+
+    public function search() {
+        $criteria = new CDbCriteria;
+
+        $criteria->compare('t.id', $this->id);
+        $criteria->compare('t.quantity', $this->quantity, true);
+        $criteria->compare('t.delivery_header_id', $this->delivery_header_id);
+        $criteria->compare('t.sale_detail_id', $this->sale_detail_id);
+        $criteria->compare('t.product_id', $this->product_id);
+        $criteria->compare('t.warehouse_id', $this->warehouse_id);
+        $criteria->compare('t.is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this->resetScope(), array(
+            'criteria' => $criteria,
+        ));
+    }
+
+}

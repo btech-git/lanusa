@@ -1,0 +1,125 @@
+<?php
+
+class SaleInvoice extends SaleInvoiceBase {
+
+    const CN_CONSTANT = 'SIN';
+
+    public $customerCompany;
+    public $customerId;
+
+    public static function model($className = __CLASS__) {
+        return parent::model($className);
+    }
+
+    public function searchBySaleReturn() {
+        $dataProvider = $this->search();
+
+        $dataProvider->criteria->addCondition('EXISTS (
+            ' . SqlViewGenerator::quantityDelivery() . '
+            WHERE t.id = invoice.id
+            HAVING quantity_returned > 0
+        )');
+
+        return $dataProvider;
+    }
+
+    public function searchByReceipt() {
+        $dataProvider = $this->search();
+
+        $dataProvider->criteria->addCondition("
+            t.id NOT IN (
+                SELECT sale_invoice_id 
+                FROM  " . SaleReceiptDetail::model()->tableName() . "
+                WHERE is_inactive = 0
+            )
+        ");
+
+        return $dataProvider;
+    }
+
+    public function searchByUnprocessedReceipt() {
+        $criteria = new CDbCriteria;
+
+        $criteria->condition = "
+            t.id NOT IN (
+                SELECT sale_invoice_id 
+                FROM " . SaleReceiptDetail::model()->tableName() . "
+                WHERE is_inactive = 0
+            ) AND t.is_inactive = 0
+        ";
+
+        $criteria->compare('t.id', $this->id);
+        $criteria->compare('t.cn_ordinal', $this->cn_ordinal);
+        $criteria->compare('t.cn_month', $this->cn_month);
+        $criteria->compare('t.cn_year', $this->cn_year);
+        $criteria->compare('t.date', $this->date, true);
+        $criteria->compare('t.reference', $this->reference, true);
+        $criteria->compare('t.discount', $this->discount, true);
+        $criteria->compare('t.shipping_fee', $this->shipping_fee, true);
+        $criteria->compare('t.note', $this->note, true);
+        $criteria->compare('t.delivery_header_id', $this->delivery_header_id);
+        $criteria->compare('t.branch_id', $this->branch_id);
+        $criteria->compare('t.admin_id', $this->admin_id);
+        $criteria->compare('t.is_non_tax', $this->is_non_tax);
+        $criteria->compare('t.is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState('pageSize', Yii::app()->params['defaultPageSize']),
+            ),
+        ));
+    }
+
+    public function getTotalBeforeTax() {
+        $subTotal = empty($this->delivery_header_id) ? 0.00 : $this->deliveryHeader->subTotal;
+        
+        return $subTotal - $this->discount + $this->shipping_fee;
+    }
+
+    public function getCalculatedTax() {
+        $subTotal = ($this->deliveryHeader === null) ? 0.00 : $this->deliveryHeader->subTotal;
+        $tax = ($this->deliveryHeader === null) ? 0.00 : $this->deliveryHeader->saleHeader->tax;
+
+        return ($subTotal - $this->discount + $this->shipping_fee) * $tax / 100;
+    }
+
+    public function getGrandTotal() {
+
+        return $this->totalBeforeTax + $this->calculatedTax;
+    }
+
+    public function getCodeNumberInvoice($cnConstant = '', $cnOrdinal, $cnMonth, $cnYear) {
+        $arr = array('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII');
+        $month = $this->cn_month ? $this->cn_month - 1 : 0;
+        $branchCode = ($this->branch === null) ? '' : $this->branch->code;
+        return sprintf('%04d/%s/%s/%s/%02d', $cnOrdinal, $cnConstant, $branchCode, $arr[$cnMonth - 1], $cnYear);
+    }
+
+    public function searchWithPaging() {
+        $criteria = new CDbCriteria;
+
+        $criteria->compare('t.id', $this->id);
+        $criteria->compare('t.cn_ordinal', $this->cn_ordinal);
+        $criteria->compare('t.cn_month', $this->cn_month);
+        $criteria->compare('t.cn_year', $this->cn_year);
+        $criteria->compare('t.date', $this->date, true);
+        $criteria->compare('t.reference', $this->reference, true);
+        $criteria->compare('t.discount', $this->discount, true);
+        $criteria->compare('t.shipping_fee', $this->shipping_fee, true);
+        $criteria->compare('t.note', $this->note, true);
+        $criteria->compare('t.delivery_header_id', $this->delivery_header_id);
+        $criteria->compare('t.branch_id', $this->branch_id);
+        $criteria->compare('t.admin_id', $this->admin_id);
+        $criteria->compare('t.is_non_tax', $this->is_non_tax);
+        $criteria->compare('t.is_inactive', $this->is_inactive);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState('pageSize', Yii::app()->params['defaultPageSize']),
+            ),
+        ));
+    }
+
+}

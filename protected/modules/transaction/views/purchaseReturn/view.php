@@ -1,0 +1,94 @@
+<?php
+$this->breadcrumbs = array(
+    'Purchase Return' => array('/transaction/purchaseReturn/create'),
+    'View',
+);
+?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $purchaseReturn,
+    'attributes' => array(
+        array(
+            'label' => 'Branch',
+            'value' => $branch->name,
+        ),
+        array(
+            'label' => 'Retur #',
+            'value' => $purchaseReturn->getCodeNumber(PurchaseReturnHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $purchaseReturn->date),
+        ),
+        array(
+            'label' => 'Supplier',
+            'value' => $receiveHeader->purchaseHeader->supplier->company,
+        ),
+        array(
+            'label' => 'Faktur Pembelian #',
+            'value' => $receiveHeader->getCodeNumber(ReceiveHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'PPN(%)',
+            'value' => $purchaseReturn->tax,
+        ),
+        array(
+            'label' => 'Ongkos Kirim',
+            'value' => $purchaseReturn->shipping_fee,
+        ),
+        array(
+            'label' => 'Gudang',
+            'value' => $warehouse->name,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $purchaseReturn->note,
+        ),
+        array(
+            'label' => 'Pembuat',
+            'value' => $purchaseReturn->admin->username,
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'purchase-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        'product.name: Nama Barang',
+        'product.size: Ukuran',
+        array(
+            'header' => 'Jumlah Retur',
+            'value' => 'number_format($data->quantity, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'product.unit.name: Satuan',
+        array(
+            'header' => 'Harga Satuan',
+            'value' => 'number_format($data->unitPrice, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        array(
+            'header' => 'Total',
+            'value' => 'number_format($data->total, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+    ),
+));
+?>
+
+<div id="link">
+    <?php echo CHtml::link('Create', array('create')); ?>
+    <?php echo CHtml::link('Manage', array('admin')); ?>
+    <?php echo CHtml::link('Print', array('memo', 'id' => $purchaseReturn->id), array('target' => '_blank')); ?>
+</div>

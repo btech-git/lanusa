@@ -1,0 +1,71 @@
+<?php $this->breadcrumbs = array(
+    'Purchase Payment' => array('/transaction/purchasePayment/create'),
+    'View',
+); ?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php $this->widget('zii.widgets.CDetailView', array(
+    'data' => $purchasePayment,
+    'attributes' => array(
+        array(
+            'label' => 'Branch',
+            'value' => $purchasePayment->branch->name,
+        ),
+        array(
+            'label' => 'Pembayaran #',
+            'value' => $purchasePayment->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value'=>Yii::app()->dateFormatter->format("d MMMM yyyy", $purchasePayment->date),
+        ),
+        array(
+            'label' => 'Supplier',
+            'value' => $purchaseReceiptHeader->supplier->company,
+        ),
+        array(
+            'label' => 'Tanda Terima #',
+            'value' => $purchaseReceiptHeader->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal Tanda Terima',
+            'value' => $purchasePayment->purchaseReceiptHeader->date,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $purchasePayment->note,
+        ),
+    ),
+)); ?>
+
+<?php $this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'purchase-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        'account.name: Nama Akun',
+        'paymentType.name: Jenis Pembayaran',
+        array(
+            'header' => 'Jumlah',
+            'value' => 'number_format($data->amount, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'memo',
+    ),
+)); ?>
+
+<div>
+    <table>
+        <tr>
+            <td style="text-align: right; font-weight: bold">Total Payment</td>
+            <td style="text-align: left; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment, 'amountPaid'))); ?></td>
+        </tr>
+    </table>
+</div>
+
+<div id="link">
+    <?php echo CHtml::link('Create', array('create')); ?>
+    <?php echo CHtml::link('Manage', array('admin')); ?>
+    <?php echo CHtml::link('Print', array('memo', 'id' => $purchasePayment->id)); ?>
+</div>

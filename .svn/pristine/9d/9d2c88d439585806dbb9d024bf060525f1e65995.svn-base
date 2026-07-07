@@ -1,0 +1,145 @@
+<?php
+
+class SalePayment extends CComponent {
+
+    public $header;
+    public $details;
+
+    public function __construct($header, array $details) {
+        $this->header = $header;
+        $this->details = $details;
+    }
+
+    public function generateCodeNumber($branchId, $currentMonth, $currentYear) {
+        $salePaymentHeader = SalePaymentHeader::model()->find(array(
+            'order' => 'cn_month DESC, cn_ordinal DESC',
+            'condition' => 'branch_id = :branch_id AND cn_year = :cn_year AND cn_month = :cn_month',
+            'params' => array(':branch_id' => $branchId, ':cn_year' => $currentYear, ':cn_month' => $currentMonth),
+        ));
+
+        if ($salePaymentHeader !== null)
+            $this->header->setCodeNumber($salePaymentHeader->cn_ordinal, $salePaymentHeader->cn_month, $salePaymentHeader->cn_year, $salePaymentHeader->branch_id);
+
+        $this->header->setCodeNumberByNext($currentMonth, $currentYear);
+    }
+
+    public function validate() {
+        $valid = $this->header->validate();
+
+        $valid = $this->validateDetailsCount() && $valid;
+
+        if (count($this->details) > 0) {
+            foreach ($this->details as $detail) {
+                $fields = array('amount');
+                $valid = $detail->validate($fields) && $valid;
+            }
+        } else
+            $valid = false;
+
+        return $valid;
+    }
+
+    public function validateDetailsCount() {
+        $valid = true;
+        if (count($this->details) === 0) {
+            $valid = false;
+            $this->header->addError('error', 'Form tidak ada data untuk insert database. Minimal satu data detail untuk melakukan penyimpanan.');
+        }
+
+        return $valid;
+    }
+
+    public function save($dbConnection) {
+        $dbTransaction = $dbConnection->beginTransaction();
+        try {
+            $valid = $this->validate() && IdempotentManager::build()->save() && $this->flush();
+            if ($valid)
+                $dbTransaction->commit();
+            else
+                $dbTransaction->rollback();
+        } catch (Exception $e) {
+            $dbTransaction->rollback();
+            $this->header->addError('error', $e->getMessage());
+            $valid = false;
+        }
+
+        return $valid;
+    }
+
+    public function flush() {
+        $valid = $this->header->save(false);
+
+        JournalAccounting::model()->deleteAllByAttributes(array(
+            'transaction_number' => $this->header->getCodeNumber(SalePaymentHeader::CN_CONSTANT),
+            'branch_id' => $this->header->branch_id,
+            'type' => 4,
+        ));
+
+        foreach ($this->details as $detail) {
+            if ($detail->amount <= 0)
+                continue;
+
+            if ($detail->isNewRecord)
+                $detail->sale_payment_header_id = $this->header->id;
+
+            $valid = $detail->save(false) && $valid;
+
+            //delete journal accounting if inactive, add new if active
+            if ($detail->is_inactive == 0) {
+                $accountingJournalDebit = AccountingJournalHelper::make(
+                                'debit', $this->header->getCodeNumber(SalePaymentHeader::CN_CONSTANT), $this->header->date, $detail->account_id, $this->header->branch_id, $detail->amount, 4, $detail->memo
+                );
+                $valid = $accountingJournalDebit->save() && $valid;
+
+                $accountingJournalCredit = AccountingJournalHelper::make(
+                                'credit', $this->header->getCodeNumber(SalePaymentHeader::CN_CONSTANT), $this->header->date, $this->header->saleReceiptHeader->customer->account_id, $this->header->branch_id, $detail->amount, 4, $this->header->note
+                );
+                $valid = $accountingJournalCredit->save() && $valid;
+            }
+        }
+
+        $saleReceipt = SaleReceiptHeader::model()->findByPk($this->header->sale_receipt_header_id);
+        $saleReceipt->total_payment = $saleReceipt->getPayment();
+        $valid = $saleReceipt->update(array('total_payment')) && $valid;
+
+        return $valid;
+    }
+
+    public function addDetail($id) {
+        $account = Account::model()->findByPk($id);
+
+        if ($account !== null) {
+            $detail = new SalePaymentDetail();
+            $detail->account_id = $account->id;
+            $this->details[] = $detail;
+        }
+    }
+
+    public function removeDetailAt($index) {
+        array_splice($this->details, $index, 1);
+    }
+
+    public function getTotalInvoice() {
+        return ($this->header->saleReceiptHeader === null) ? 0.00 : $this->header->saleReceiptHeader->totalInvoice;
+    }
+
+    public function getPaidReceipt() {
+        return ($this->header->saleReceiptHeader === null) ? 0.00 : $this->header->saleReceiptHeader->payment;
+    }
+
+    public function getRemaining() {
+        return $this->totalInvoice - $this->paidReceipt;
+    }
+
+    public function getTotalPayment() {
+        $total = 0.00;
+
+        foreach ($this->details as $detail) {
+            if ((int) $detail->is_inactive === 0) {
+                $total += $detail->amount;
+            }
+        }
+
+        return $total;
+    }
+}

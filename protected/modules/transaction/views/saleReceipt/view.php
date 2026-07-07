@@ -1,0 +1,81 @@
+<?php
+$this->breadcrumbs = array(
+    'Receipt' => array('/transaction/saleReceipt/create'),
+    'View',
+);
+?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $saleReceipt,
+    'attributes' => array(
+        array(
+            'label' => 'Tanda Terima Penjualan #',
+            'value' => $saleReceipt->getCodeNumber(SaleReceiptHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $saleReceipt->date),
+        ),
+        array(
+            'label' => 'Jatuh Tempo',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $saleReceipt->due_date),
+        ),
+        array(
+            'label' => 'Customer',
+            'value' => $customer->company,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $saleReceipt->note,
+        ),
+        array(
+            'label' => 'Pembuat',
+            'value' => $saleReceipt->admin->username,
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'receipt-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        array(
+            'header' => 'Invoice #',
+            'value' => '$data->saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT)',
+        ),
+        array(
+            'header' => 'Tanggal',
+            'name' => 'date',
+            'value' => 'Yii::app()->dateFormatter->format("d MMMM yyyy", $data->saleInvoice->date)'
+        ),
+//		'saleInvoice.deliveryHeader.customer.company: Customer',
+        array(
+            'header' => 'Total(Rp)',
+            'value' => 'number_format($data->saleInvoice->grandTotal, 0)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'memo: Memo',
+    ),
+));
+?>
+
+<div>
+    <table>
+        <tr>
+            <td style="font-weight: bold; text-align: right; width: 70%">Grand Total</td>
+            <td><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleReceipt->grand_total)); ?></td>
+        </tr>
+    </table>
+</div>
+
+<div id="link">
+<?php echo CHtml::link('Create', array('create')); ?>
+<?php echo CHtml::link('Manage', array('admin')); ?>
+<?php echo CHtml::link('Print', array('memo', 'id' => $saleReceipt->id)); ?>
+</div>

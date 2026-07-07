@@ -1,0 +1,240 @@
+<div class="form">
+
+    <?php echo CHtml::beginForm(); ?>
+    <div class="container">
+        <div class="span-12">
+            <div class="row">
+                <?php echo CHtml::label('Pembayaran #', false); ?>
+                <span id="code_number">
+                    <?php echo CHtml::encode($purchasePayment->header->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT)); ?>
+                </span>	
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::label('Tanggal Pembayaran', false); ?>
+                <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+                    'model' => $purchasePayment->header,
+                    'attribute' => 'date',
+                    // additional javascript options for the date picker plugin
+                    'options' => array(
+                        'dateFormat' => 'yy-mm-dd',
+                    ),
+                    'htmlOptions' => array(
+                        'readonly' => true,
+                    ),
+                )); ?>
+                <?php echo CHtml::error($purchasePayment->header, 'date'); ?>
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::label('Catatan', ''); ?>
+                <?php echo CHtml::activeTextArea($purchasePayment->header, 'note', array('rows' => 5, 'cols' => 30)); ?>
+                <?php echo CHtml::error($purchasePayment->header, 'note'); ?>
+            </div>
+        </div>
+
+        <div class="span-12 last">
+            <div class="row">
+                <?php echo CHtml::activeLabelEx($purchasePayment->header, 'branch_id'); ?>
+                <?php if ($purchasePayment->header->isNewRecord): ?>
+                    <?php echo CHtml::activeDropDownList($purchasePayment->header, 'branch_id', CHtml::listData(Branch::model()->findAll(array('order' => 't.name')), 'id', 'name'), array('empty' => '-- Pilih Perusahaan --',
+                        'onchange' => CHtml::ajax(array(
+                            'type' => 'POST',
+                            'dataType' => "JSON",
+                            'url' => CController::createUrl('ajaxJsonCodeNumber', array('id' => $purchasePayment->header->id)),
+                            'success' => 'function(data) {
+                                $("#code_number").html(data.codeNumber);
+                            }',
+                        )) . '$.fn.yiiGridView.update("purchase-receipt-header-grid", {
+                            data: $("form").serialize()
+                        }); $.fn.yiiGridView.update("account-grid", {
+                            data: $("form").serialize()
+                        });',
+                    )); ?>
+                    <?php echo CHtml::error($purchasePayment->header, 'branch_id'); ?>
+                <?php else: ?>
+                    <?php echo CHtml::encode(CHtml::value($purchasePayment->header, 'branch.name')); ?>
+                <?php endif; ?>
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::label('Tanda Terima Pembelian #', ''); ?>
+                <?php if ($purchasePayment->header->isNewRecord): ?>
+                    <?php echo CHtml::activeTextField($purchasePayment->header, 'purchase_receipt_header_id', array('readonly' => true, 'onclick' => '$("#purchase-receipt-header-dialog").dialog("open"); return false;', 'onkeypress' => 'if (event.keyCode == 13) { $("#purchase-receipt-header-dialog").dialog("open"); return false; }')); ?>
+                    <?php echo CHtml::openTag('span', array('id' => 'purchase_receipt_header_codeNumber')); ?>
+                    <?php echo CHtml::encode(CHtml::value($purchasePayment->header, 'purchaseReceiptHeader.codeNumber')); ?>
+                    <?php echo CHtml::closeTag('span'); ?>
+                    <?php echo CHtml::error($purchasePayment->header, 'purchase_receipt_header_id'); ?>
+
+                    <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+                        'id' => 'purchase-receipt-header-dialog',
+                        // additional javascript options for the dialog plugin
+                        'options' => array(
+                            'title' => 'Purchase Receipt Header',
+                            'autoOpen' => false,
+                            'width' => 'auto',
+                            'modal' => true,
+                        ),
+                    )); ?>
+                
+                    <?php $this->widget('zii.widgets.grid.CGridView', array(
+                        'id' => 'purchase-receipt-header-grid',
+                        'dataProvider' => $purchaseReceiptDataProvider,
+                        'filter' => $purchaseReceiptHeader,
+                        'selectionChanged' => 'js:function(id) {
+                            $("#' . CHtml::activeId($purchasePayment->header, 'purchase_receipt_header_id') . '").val($.fn.yiiGridView.getSelection(id));
+                            $("#purchase-receipt-header-dialog").dialog("close");
+                            if ($.fn.yiiGridView.getSelection(id) == "") {
+                                $("#purchase_receipt_header_codeNumber").html("");
+                                $("#purchase_payment_header_codeNumber").html("");
+                                $("#purchase_receipt_header_date").html("");
+                                $("#purchase_receipt_header_supplier").html("");
+                                $("#total").html("");
+                            } else {
+                                $.ajax({
+                                    type: "POST",
+                                    dataType: "JSON",
+                                    url: "' . CController::createUrl('AjaxJsonPurchaseReceipt', array('id' => $purchasePayment->header->id)) . '",
+                                    data: $("form").serialize(),
+                                    success: function(data) {
+                                        $("#purchase_receipt_header_codeNumber").html(data.purchase_receipt_header_codeNumber);
+                                        $("#purchase_payment_header_codeNumber").html(data.purchase_payment_header_codeNumber);
+                                        $("#purchase_receipt_header_date").html(data.purchase_receipt_header_date);
+                                        $("#purchase_receipt_header_supplier").html(data.purchase_receipt_header_supplier);
+                                        $("#total").html(data.total);
+                                    },
+                                });
+                            }
+                        }',
+                        'columns' => array(
+                            array(
+                                'name' => 'cn_ordinal',
+                                'header' => 'Tanda Terima Pembelian #',
+                                'filter' => '<div style="display: inline-block">' . CHtml::activeTextField($purchaseReceiptHeader, 'cn_ordinal', array('maxLength' => 4, 'size' => 2)) . '</div>' .
+                                '<div style="display: inline-block"> &nbsp; /' . PurchaseReceiptHeader::CN_CONSTANT . '/ &nbsp; </div>' .
+                                '<div style="display: inline-block">' . CHtml::activeDropDownList($purchaseReceiptHeader, 'cn_month', array(1 => 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'), array('empty' => '')) . '</div>' .
+                                '<div style="display: inline-block"> &nbsp; / &nbsp; </div>' .
+                                '<div style="display: inline-block">' . CHtml::activeTextField($purchaseReceiptHeader, 'cn_year', array('maxLength' => 2, 'size' => 2)) . '</div>',
+                                'value' => '$data->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT)',
+                                'htmlOptions' => array('style' => 'width: 200px'),
+                            ),
+                            array(
+                                'header' => 'Tanggal',
+                                'name' => 'date',
+                                'value' => 'Yii::app()->dateFormatter->format("d MMMM yyyy", $data->date)'
+                            ),
+                            array(
+                                'name' => 'supplier_id',
+                                'filter' => CHtml::textField('SupplierCompany', $supplierCompany, array('maxLength' => 60, 'size' => 10)),
+                                'value' => 'CHtml::value($data, "supplier.company")',
+                            ),
+                            array(
+                                'header' => 'Total',
+                                'filter' => false,
+                                'value' => 'Yii::app()->numberFormatter->format("#,##0.00", $data->grand_total)',
+                                'htmlOptions' => array(
+                                    'style' => 'text-align: right',
+                                ),
+                            ),
+                            array(
+                                'header' => 'Payment',
+                                'filter' => false,
+                                'value' => 'Yii::app()->numberFormatter->format("#,##0.00", $data->payment)',
+                                'htmlOptions' => array(
+                                    'style' => 'text-align: right',
+                                ),
+                            ),
+                        )
+                    )); ?>
+                <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+            <?php else: ?>
+                <?php echo CHtml::encode($purchasePayment->header->purchaseReceiptHeader->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT)); ?>
+            <?php endif; ?>
+            </div>
+                <?php $purchasePaymentReceipt = $purchasePayment->header->purchaseReceiptHeader(array(
+                    'scopes' => 'resetScope',
+                    'with' => array(
+                        'supplier:resetScope',
+                    ),
+                )); ?>
+            <div class="row">
+                <?php echo CHtml::activeLabelEx($purchasePayment->header, 'Tanggal Tanda Terima'); ?>
+                <?php echo CHtml::openTag('span', array('id' => 'purchase_receipt_header_date')); ?>
+                <?php echo CHtml::encode(CHtml::value($purchasePaymentReceipt, 'date')); ?>
+                <?php echo CHtml::closeTag('span'); ?>
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::activeLabelEx($purchasePayment->header, 'purchaseReceiptHeader.supplier_id'); ?>
+                <?php echo CHtml::openTag('span', array('id' => 'purchase_receipt_header_supplier')); ?>
+                <?php echo CHtml::encode(CHtml::value($purchasePaymentReceipt, 'supplier.company')); ?>
+                <?php echo CHtml::closeTag('span'); ?>
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::label('Menggunakan Cek/Giro?', ''); ?>
+                <?php echo CHtml::activeCheckBox($purchasePayment->header, 'is_using_cheque'); ?>
+                <?php echo CHtml::error($purchasePayment->header, 'is_using_cheque'); ?>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <?php echo CHtml::error($purchasePayment->header, 'error'); ?>
+    </div>
+
+    <div class="row buttons">
+        <?php echo CHtml::button('Cari Akun', array('name' => 'Search', 'onclick' => '$("#account-dialog").dialog("open"); return false;', 'onkeypress' => 'if (event.keyCode == 13) { $("#account-dialog").dialog("open"); return false; }')); ?>
+        <?php echo CHtml::hiddenField('AccountId'); ?>
+    </div>
+
+    <div id="detail_div">
+        <?php $this->renderPartial('_detail', array('purchasePayment' => $purchasePayment)); ?>
+    </div>
+
+    <div class="row buttons">
+        <?php echo CHtml::submitButton('Submit', array('name' => 'Submit', 'confirm' => 'Are you sure you want to save?')); ?>
+    </div>
+    <?php echo IdempotentManager::generate(); ?>
+
+    <?php echo CHtml::endForm(); ?>
+
+</div><!-- form -->
+
+<div>
+    <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+        'id' => 'account-dialog',
+        // additional javascript options for the dialog plugin
+        'options' => array(
+            'title' => 'Accounts',
+            'autoOpen' => false,
+            'width' => 'auto',
+            'modal' => true,
+        ),
+    )); ?>
+
+    <?php $this->widget('zii.widgets.grid.CGridView', array(
+        'id' => 'account-grid',
+        'dataProvider' => $accountDataProvider,
+        'filter' => $account,
+        'selectionChanged' => 'js:function(id) {
+            $("#AccountId").val($.fn.yiiGridView.getSelection(id));
+            $("#account-dialog").dialog("close");
+            $.ajax({
+                type: "POST",
+                url: "' . CController::createUrl('AjaxHtmlAddAccount', array('id' => $purchasePayment->header->id, 'nt' => $purchasePayment->header->is_non_tax)) . '",
+                data: $("form").serialize(),
+                success: function(html) { $("#detail_div").html(html); },
+            });
+        }',
+        'columns' => array(
+            'code: Kode',
+            'name:nama Akun',
+            'branch.name: Cabang',
+        ),
+    )); ?>
+
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+</div>

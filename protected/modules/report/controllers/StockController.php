@@ -1,0 +1,202 @@
+<?php
+
+class StockController extends Controller {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'summary') {
+            if (!(Yii::app()->user->checkAccess('stockReport')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionSummary() {
+		set_time_limit(0);
+		ini_set('memory_limit', '1024M');
+
+        $product = Search::bind(new Product('search'), isset($_GET['Product']) ? $_GET['Product'] : array());
+        //$branch = Branch::model()->findByPk(Yii::app()->user->branch_id);
+//		$branch = isset($_GET['branch']) ? $_GET['branch'] : '';
+//		$listData = CHtml::listData(Branch::model()->findAll(), 'id', 'name');
+        $listDataCategory = CHtml::listData(Category::model()->findAll(array('order' => 'name ASC')), 'id', 'name');
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : date('Y-m-d');
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : date('Y-m-d');
+        $pageSize = (isset($_GET['PageSize'])) ? $_GET['PageSize'] : '';
+        $currentPage = (isset($_GET['page'])) ? $_GET['page'] : '';
+        $currentSort = (isset($_GET['sort'])) ? $_GET['sort'] : '';
+        $category = (isset($_GET['category'])) ? $_GET['category'] : '';
+
+        $stockSummary = new StockSummary($product->searchByGlobalStock());
+        $stockSummary->setupLoading($startDate, $endDate);
+        $stockSummary->setupPaging($pageSize, $currentPage);
+        $stockSummary->setupSorting();
+        $stockSummary->setupFilter($startDate, $endDate, $category);
+        //$stockSummary->setupBranch($branch);
+
+        if (isset($_GET['SaveExcel']))
+            $this->saveToExcel($stockSummary, $stockSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+
+        $this->render('summary', array(
+            'product' => $product,
+            'stockSummary' => $stockSummary,
+//			'branch' => $branch,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'currentSort' => $currentSort,
+//            'warehouseId'=>$warehouseId,
+//			'listData' => $listData,
+            'listDataCategory' => $listDataCategory,
+            'category' => $category,
+        ));
+    }
+
+    protected function reportTotalStock($dataProvider) {
+        $grandTotal = 0.00;
+
+        foreach ($dataProvider->data as $data)
+            $grandTotal += $data->getGlobalStock();
+
+        return $grandTotal;
+    }
+
+    protected function reportTotalStockPrice($dataProvider) {
+        $grandTotal = 0.00;
+
+        foreach ($dataProvider->data as $data)
+            $grandTotal += $data->getGlobalStockPrice();
+
+        return $grandTotal;
+    }
+
+//	protected function reportStockBeginning($dataProvider, $startDate)
+//	{
+//		$grandTotal = 0.00;
+//
+//		foreach ($dataProvider->data as $data)
+//			$grandTotal += $data->getStockBeginning($startDate);
+//
+//		return $grandTotal;
+//	}
+//
+//	protected function reportStockEnding($dataProvider, $endDate)
+//	{
+//		$grandTotal = 0.00;
+//
+//		foreach ($dataProvider->data as $data)
+//			$grandTotal += $data->getStockEnding($endDate);
+//
+//		return $grandTotal;
+//	}
+//
+//	protected function reportStockIn($dataProvider, $startDate, $endDate)
+//	{
+//		$grandTotal = 0.00;
+//
+//		foreach ($dataProvider->data as $data)
+//			$grandTotal += $data->getStockIn($startDate, $endDate);
+//
+//		return $grandTotal;
+//	}
+//
+//	protected function reportStockOut($dataProvider, $startDate, $endDate)
+//	{
+//		$grandTotal = 0.00;
+//
+//		foreach ($dataProvider->data as $data)
+//			$grandTotal += $data->getStockOut($startDate, $endDate);
+//
+//		return $grandTotal;
+//	}
+
+    protected function saveToExcel($stockSummary, $dataProvider, array $options = array()) {
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('Lanusa');
+        $documentProperties->setTitle('Laporan Stok');
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Stok');
+
+        $worksheet->getColumnDimension('A')->setAutoSize(true);
+        $worksheet->getColumnDimension('B')->setAutoSize(true);
+        $worksheet->getColumnDimension('C')->setAutoSize(true);
+        $worksheet->getColumnDimension('D')->setAutoSize(true);
+        $worksheet->getColumnDimension('E')->setAutoSize(true);
+        $worksheet->getColumnDimension('F')->setAutoSize(true);
+        $worksheet->getColumnDimension('G')->setAutoSize(true);
+        $worksheet->getColumnDimension('H')->setAutoSize(true);
+        $worksheet->getColumnDimension('I')->setAutoSize(true);
+
+        $worksheet->mergeCells('A1:I1');
+        $worksheet->mergeCells('A2:I2');
+        $worksheet->mergeCells('A3:I3');
+
+        $worksheet->getStyle('A1:I5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A1:I5')->getFont()->setBold(true);
+
+        $worksheet->setCellValue('A1', '');
+        $worksheet->setCellValue('A2', 'Laporan Stok Barang Global');
+        $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['startDate'])) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['endDate'])));
+
+        $worksheet->getStyle('A5:I5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+        $worksheet->setCellValue('A5', 'Kategori');
+        $worksheet->setCellValue('B5', 'Nama Produk');
+        $worksheet->setCellValue('C5', 'Ukuran');
+        $worksheet->setCellValue('D5', 'Stok Begin');
+        $worksheet->setCellValue('E5', 'Stok In');
+        $worksheet->setCellValue('F5', 'Stok Out');
+        $worksheet->setCellValue('G5', 'Stok End');
+        $worksheet->setCellValue('H5', 'Hrg Average');
+        $worksheet->setCellValue('I5', 'Total');
+
+        $worksheet->getStyle('A5:I5')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+        $counter = 6;
+        foreach ($dataProvider->data as $header) {
+            $worksheet->getStyle("A{$counter}:C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+            $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+            $worksheet->setCellValue("A{$counter}", CHtml::encode(CHtml::value($header, 'category.name')));
+            $worksheet->setCellValue("B{$counter}", CHtml::encode(CHtml::value($header, 'name')));
+            $worksheet->setCellValue("C{$counter}", htmlspecialchars_decode(CHtml::encode(CHtml::value($header, 'size'))));
+            $worksheet->setCellValue("D{$counter}", CHtml::encode($header->getStockBeginning($options['startDate'])));
+            $worksheet->setCellValue("E{$counter}", CHtml::encode($header->getStockIn($options['startDate'], $options['endDate'])));
+            $worksheet->setCellValue("F{$counter}", CHtml::encode($header->getStockOut($options['startDate'], $options['endDate'])));
+            $worksheet->setCellValue("G{$counter}", CHtml::encode($header->getStockEnding($options['endDate'])));
+            $worksheet->setCellValue("H{$counter}", CHtml::encode($header->getGlobalStockItemPrice()));
+            $worksheet->setCellValue("I{$counter}", CHtml::encode($header->getGlobalStockPrice()));
+            $counter++;
+        }
+
+
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("C{$counter}", 'TOTAL');
+        $worksheet->setCellValue("G{$counter}", CHtml::encode($this->reportTotalStock($stockSummary->dataProvider)));
+        $worksheet->setCellValue("I{$counter}", CHtml::encode($this->reportTotalStockPrice($stockSummary->dataProvider)));
+
+        header('Content-Type: application/xlsx');
+        header('Content-Disposition: attachment;filename="Laporan Stok Barang Global.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
+    }
+
+}

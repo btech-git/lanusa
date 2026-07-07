@@ -1,0 +1,113 @@
+<?php
+$this->breadcrumbs = array(
+    'Invoice' => array('/transaction/saleInvoice/create'),
+    'View',
+);
+?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $saleInvoice,
+    'attributes' => array(
+        array(
+            'label' => 'Invoice #',
+            'value' => $saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $saleInvoice->date),
+        ),
+        array(
+            'label' => 'Pengiriman #',
+            'value' => $deliveryHeader->getCodeNumber(DeliveryHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Customer',
+            'value' => CHtml::encode(CHtml::value($deliveryHeader, 'saleHeader.customer.company')),
+        ),
+        array(
+            'label' => 'Nomor Faktur Pajak',
+            'value' => $saleInvoice->reference,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $saleInvoice->note,
+        ),
+        array(
+            'label' => 'Pembuat',
+            'value' => CHtml::encode(CHtml::value($saleInvoice, 'admin.username')),
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'invoice-detail-grid',
+    'dataProvider' => new CArrayDataProvider($saleInvoice->deliveryHeader->deliveryDetails),
+    'columns' => array(
+        array(
+            'header' => 'Nama Barang',
+            'value' => '$data->getProductName()',
+        ),
+        'quantity: Jumlah',
+        array(
+            'header' => 'Satuan',
+            'value' => '$data->getProductUnit()',
+        ),
+        array(
+            'header' => 'Harga Satuan',
+            'value' => 'number_format($data->getUnitPrice(), 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        array(
+            'header' => 'Total',
+            'value' => 'number_format($data->getTotal(), 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+    ),
+));
+?>
+<div>
+    <table>
+        <tr>
+            <td style="text-align: right">Sub Total</td>
+            <td style="text-align: right; width: 20%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal)); ?>
+            </td>
+        </tr>
+    <tr>
+        <td style="text-align: right;">DPP lain-lain</td>
+        <td style="text-align: right;">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($saleInvoice, 'costOfGoodsSold'))); ?>
+        </td>
+    </tr>
+        <tr>
+            <td style="text-align: right">Diskon</td>
+            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount)); ?></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">Ongkos Kirim</td>
+            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee)); ?></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">PPn <?php echo CHtml::encode(CHtml::value($saleInvoice, 'tax_percentage')); ?>%</td>
+            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax)); ?></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">Grand Total</td>
+            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal)); ?></td>
+        </tr>
+    </table>
+</div>
+<div id="link">
+<?php echo CHtml::link('Create', array('create')); ?>
+<?php echo CHtml::link('Manage', array('admin')); ?>
+<?php echo CHtml::link('Print', array('memo', 'id' => $saleInvoice->id)); ?>
+<?php echo CHtml::link('Print Faktur Pajak', array('taxform', 'id' => $saleInvoice->id)); ?>
+</div>

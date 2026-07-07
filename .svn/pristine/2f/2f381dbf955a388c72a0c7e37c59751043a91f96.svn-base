@@ -1,0 +1,89 @@
+<?php
+$this->breadcrumbs = array(
+    'sale Return' => array('/transaction/saleReturn/create'),
+    'View',
+);
+?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $saleReturn,
+    'attributes' => array(
+        array(
+            'label' => 'Retur #',
+            'value' => $saleReturn->getCodeNumber(SaleReturnHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value'=>Yii::app()->dateFormatter->format("d MMMM yyyy", $saleReturn->date),
+        ),
+        array(
+            'label' => 'Invoice #',
+            'value' => $saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Customer',
+            'value' => $saleInvoice->deliveryHeader->saleHeader->customer->company,
+        ),
+        array(
+            'label' => 'Gudang',
+            'value' => $warehouse->name,
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $saleReturn->note,
+        ),
+        array(
+            'label' => 'Branch',
+            'value' => $branch->name,
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'purchase-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        'product.name: Nama Barang',
+        'product.size: Ukuran',
+                array(
+                        'header'=>'Jumlah Terjual',
+                        'value'=>'number_format($data->quantitySold, 0)',
+                        'htmlOptions'=>array(
+                                'style'=>'text-align: right',
+                        ),
+                ),
+        array(
+            'header' => 'Jumlah Retur',
+            'value' => 'number_format($data->quantity, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'product.unit.name: Satuan',
+        array(
+            'header' => 'Harga Satuan',
+            'value' => 'number_format($data->unitPrice, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        array(
+            'header' => 'Total',
+            'value' => 'number_format($data->total, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+    ),
+));
+?>
+
+<div id="link">
+	<?php echo CHtml::link('Create', array('create')); ?>
+	<?php echo CHtml::link('Manage', array('admin')); ?>
+    <?php echo CHtml::link('Print', array('memo', 'id' => $saleReturn->id), array('target' => '_blank')); ?>
+</div>

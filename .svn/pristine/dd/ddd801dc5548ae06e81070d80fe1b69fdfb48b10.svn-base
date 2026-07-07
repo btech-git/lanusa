@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @property integer $id
+ * @property string $amount
+ * @property string $memo
+ * @property integer $sale_payment_header_id
+ * @property integer $payment_type_id
+ * @property integer $account_id
+ * @property integer $is_inactive
+ *
+ * @property PaymentType $paymentType
+ * @property Account $account
+ * @property SalePaymentHeader $salePaymentHeader
+ */
+class SalePaymentDetailBase extends ActiveRecord
+{
+	public function tableName()
+	{
+		return 'tblla_sale_payment_detail';
+	}
+
+	public function rules()
+	{
+		return array(
+			array('sale_payment_header_id, payment_type_id, account_id', 'required'),
+			array('sale_payment_header_id, payment_type_id, account_id, is_inactive', 'numerical', 'integerOnly'=>true),
+			array('amount', 'length', 'max'=>18),
+			array('memo', 'length', 'max'=>200),
+			// The following rule is used by search().
+			array('id, amount, memo, sale_payment_header_id, payment_type_id, account_id, is_inactive', 'safe', 'on'=>'search'),
+		);
+	}
+
+	public function relations()
+	{
+		return array(
+			'paymentType' => array(self::BELONGS_TO, 'PaymentType', 'payment_type_id'),
+			'account' => array(self::BELONGS_TO, 'Account', 'account_id'),
+			'salePaymentHeader' => array(self::BELONGS_TO, 'SalePaymentHeader', 'sale_payment_header_id'),
+		);
+	}
+
+	public function attributeLabels()
+	{
+		return array(
+			'id' => 'ID',
+			'amount' => 'Amount',
+			'memo' => 'Memo',
+			'sale_payment_header_id' => 'Sale Payment Header',
+			'payment_type_id' => 'Payment Type',
+			'account_id' => 'Account',
+			'is_inactive' => 'Is Inactive',
+		);
+	}
+
+	public function search()
+	{
+		$criteria = new CDbCriteria;
+
+		$criteria->compare('t.id', $this->id);
+		$criteria->compare('t.amount', $this->amount, true);
+		$criteria->compare('t.memo', $this->memo, true);
+		$criteria->compare('t.sale_payment_header_id', $this->sale_payment_header_id);
+		$criteria->compare('t.payment_type_id', $this->payment_type_id);
+		$criteria->compare('t.account_id', $this->account_id);
+		$criteria->compare('t.is_inactive', $this->is_inactive);
+
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+}

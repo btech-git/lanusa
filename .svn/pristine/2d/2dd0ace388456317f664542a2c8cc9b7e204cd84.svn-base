@@ -1,0 +1,75 @@
+<?php
+$this->breadcrumbs = array(
+    'Purchase Invoice' => array('/transaction/purchaseInvoice/create'),
+    'View',
+);
+?>
+<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+
+<?php
+$this->widget('zii.widgets.CDetailView', array(
+    'data' => $purchaseInvoice,
+    'attributes' => array(
+        array(
+            'label' => 'Penerimaan Faktur #',
+            'value' => $purchaseInvoice->getCodeNumber(PurchaseInvoiceHeader::CN_CONSTANT),
+        ),
+        array(
+            'label' => 'Tanggal',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $purchaseInvoice->date),
+        ),
+        array(
+            'label' => 'Faktur #',
+            'value' => $purchaseInvoice->reference,
+        ),
+        array(
+            'label' => 'Jumlah (Rp)',
+            'value' => number_format($purchaseInvoice->totalPurchase, 2),
+        ),
+        array(
+            'label' => 'Catatan',
+            'value' => $purchaseInvoice->note,
+        ),
+        array(
+            'label' => 'Pembuat',
+            'value' => $purchaseInvoice->admin->username,
+        ),
+    ),
+));
+?>
+
+<?php
+$this->widget('zii.widgets.grid.CGridView', array(
+    'id' => 'purchase-invoice-detail-grid',
+    'dataProvider' => $detailsDataProvider,
+    'columns' => array(
+        array(
+            'name' => 'cn_ordinal',
+            'header' => 'Order Pembelian #',
+            'value' => '$data->purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT)',
+            'htmlOptions' => array('style' => 'width: 200px'),
+        ),
+        array(
+            'header' => 'Tanggal',
+            'name' => 'date',
+            'value' => 'Yii::app()->dateFormatter->format("d MMMM yyyy", $data->purchaseHeader->date)'
+        ),
+        array(
+            'header' => 'Total',
+            'value' => 'number_format($data->purchaseHeader->grandTotal, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        'note: Catatan',
+    ),
+));
+?>
+
+<br/>
+
+<div id="link">
+    <?php echo CHtml::link('Create', array('create')); ?>
+<?php echo CHtml::link('Manage', array('admin')); ?>
+<?php //echo CHtml::link('Print', array('memo', 'id' => $purchaseInvoice->id), array('target' => '_blank'));  ?>
+</div>

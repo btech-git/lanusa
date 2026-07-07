@@ -1,0 +1,42 @@
+<?php
+
+class StockGlobalSummary extends CComponent {
+
+    public $dataProvider;
+
+    public function __construct($dataProvider) {
+        $this->dataProvider = $dataProvider;
+    }
+
+    public function setupLoading() {
+        $this->dataProvider->criteria->with = array(
+            'inventories:resetScope' => array(
+                'with' => array(
+                    'branch:resetScope',
+                    'warehouse:resetScope',
+                )
+            ),
+            'category:resetScope',
+        );
+
+        $this->dataProvider->criteria->compare('t.is_inactive', 0);
+    }
+
+    public function setupPaging($pageSize, $currentPage) {
+        $pageSize = (empty($pageSize)) ? 10 : $pageSize;
+        $pageSize = ($pageSize <= 0) ? 1 : $pageSize;
+        $this->dataProvider->pagination->pageSize = $pageSize;
+
+        $currentPage = (empty($currentPage)) ? 0 : $currentPage - 1;
+        $this->dataProvider->pagination->currentPage = $currentPage;
+    }
+
+    public function setupSorting() {
+        $this->dataProvider->sort->attributes = array('t.name', 'category.name');
+        $this->dataProvider->criteria->order = $this->dataProvider->sort->orderBy;
+    }
+
+    public function setupFilter($categoryId) {
+        $this->dataProvider->criteria->compare('t.category_id', $categoryId);
+    }
+}

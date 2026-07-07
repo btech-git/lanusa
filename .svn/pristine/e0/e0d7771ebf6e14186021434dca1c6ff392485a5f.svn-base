@@ -1,0 +1,34 @@
+.formnote, .formnote caption
+{
+	border: 2px solid;
+	border-bottom: none;
+}
+
+.formnote, .formdetail
+{
+	width: 100%;
+	margin: 0;
+}
+
+.formnote caption
+{
+	background-color: white;
+	text-align: left;
+}
+
+.formnote td
+{
+	vertical-align: top;
+}
+
+.formsummary
+{
+	border-top: 2px solid;
+}
+
+.formsig
+{
+	border: 2px solid;
+	border-top: none;
+	padding: 5px;
+}

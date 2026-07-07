@@ -1,0 +1,80 @@
+<?php
+
+class ActiveRecord extends CActiveRecord {
+
+    const ACTIVE = 0;
+    const INACTIVE = 1;
+    const ACTIVE_LITERAL = 'Active';
+    const INACTIVE_LITERAL = 'Inactive';
+
+    public $oldAttributes = array();
+
+    public function getStatus() {
+        return ($this->is_inactive) ? self::INACTIVE_LITERAL : self::ACTIVE_LITERAL;
+    }
+
+    public function scopes() {
+        $alias = $this->getTableAlias();
+
+        return array(
+            'active' => array(
+                'condition' => "{$alias}.is_inactive = :is_inactive",
+                'params' => array(':is_inactive' => self::ACTIVE),
+            ),
+            'inactive' => array(
+                'condition' => "{$alias}.is_inactive = :is_inactive",
+                'params' => array(':is_inactive' => self::INACTIVE),
+            ),
+            'latest' => array(
+                'order' => "{$alias}.id DESC",
+            ),
+            'oldest' => array(
+                'order' => "{$alias}.id ASC",
+            ),
+        );
+    }
+
+    public function limit($num = 10) {
+        $this->getDbCriteria()->mergeWith(array('limit' => $num));
+
+        return $this;
+    }
+
+    public function defaultScope() {
+        $alias = $this->getTableAlias(false, false);
+
+        return array(
+            'condition' => "{$alias}.is_inactive = :is_inactive",
+            'params' => array(':is_inactive' => self::ACTIVE),
+        );
+    }
+
+    protected function afterFind() {
+        parent::afterFind();
+
+        $this->oldAttributes = $this->attributes;
+    }
+
+    protected function afterSave() {
+        parent::afterSave();
+
+        $history = new History();
+        $history->table_name = $this->tableName();
+        $history->record_id = $this->id;
+
+        $history->new_data = serialize($this->attributes);
+        if (!$this->isNewRecord)
+            $history->old_data = serialize($this->oldAttributes);
+
+        if (!Yii::app()->user->isGuest) {
+            $user = Admin::model()->active()->findByPk(Yii::app()->user->id);
+            $history->user_data = serialize($user->attributes);
+            $history->user_table = $user->tableName();
+        }
+
+        $history->time = date("Y-m-d H:i:s");
+
+        $history->save();
+    }
+
+}

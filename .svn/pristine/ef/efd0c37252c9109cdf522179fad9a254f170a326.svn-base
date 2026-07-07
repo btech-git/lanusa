@@ -1,0 +1,562 @@
+<?php
+
+class PurchasePaymentController extends SelectionController {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'create'
+//			|| $filterChain->action->id === 'addPaymentAjax' 
+//			|| $filterChain->action->id === 'paymentAjaxData' 
+//			|| $filterChain->action->id === 'resetPaymentAjax' 
+//			
+                || $filterChain->action->id === 'ajaxJsonSummary' || $filterChain->action->id === 'ajaxJsonCodeNumber' || $filterChain->action->id === 'ajaxJsonPurchaseReceipt' || $filterChain->action->id === 'ajaxHtmlRemovePayment' || $filterChain->action->id === 'ajaxHtmlAddAccount' || $filterChain->action->id === 'view') {
+            if (!(Yii::app()->user->checkAccess('purchasePaymentCreate') || Yii::app()->user->checkAccess('purchasePaymentEdit')))
+                $this->redirect(array('/site/login'));
+        }
+        if ($filterChain->action->id === 'delete' || $filterChain->action->id === 'admin' || $filterChain->action->id === 'update') {
+            if (!(Yii::app()->user->checkAccess('purchasePaymentEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionCreate() {
+        $purchasePayment = $this->instantiate(null);
+        $purchasePayment->header->admin_id = Yii::app()->user->id;
+
+        $branchId = isset($_GET['PurchasePaymentHeader']['branch_id']) ? $_GET['PurchasePaymentHeader']['branch_id'] : '';
+
+        $purchaseReceiptHeader = Search::bind(new PurchaseReceiptHeader('search'), isset($_GET['PurchaseReceiptHeader']) ? $_GET['PurchaseReceiptHeader'] : array());
+
+        $purchaseReceiptDataProvider = $purchaseReceiptHeader->searchByPurchasePayment();
+        $purchaseReceiptDataProvider->criteria->with = array(
+            'supplier:resetScope',
+        );
+
+        $supplierCompany = isset($_GET['SupplierCompany']) ? $_GET['SupplierCompany'] : '';
+        $purchaseReceiptDataProvider->criteria->addCondition("supplier.company LIKE :company");
+        $purchaseReceiptDataProvider->criteria->params[':company'] = "%{$supplierCompany}%";
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        if (!empty($branchId)) {
+            $purchaseReceiptDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $purchaseReceiptDataProvider->criteria->params[':branch_id'] = $branchId;
+
+            $accountDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $accountDataProvider->criteria->params[':branch_id'] = $branchId;
+        }
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($purchasePayment);
+            $purchasePayment->header->branch_id = ($purchasePayment->header->purchaseReceiptHeader === null) ? '' : $purchasePayment->header->purchaseReceiptHeader->branch_id;
+            $purchasePayment->generateCodeNumber($purchasePayment->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($purchasePayment->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($purchasePayment->header->date)));
+
+            if ($purchasePayment->save(Yii::app()->db))
+                $this->redirect(array('view', 'id' => $purchasePayment->header->id));
+        }
+
+        $this->render('create', array(
+            'purchasePayment' => $purchasePayment,
+            'purchaseReceiptHeader' => $purchaseReceiptHeader,
+            'account' => $account,
+//			'cnMonth' => strtoupper($cnMonth),
+            'purchaseReceiptDataProvider' => $purchaseReceiptDataProvider,
+            'accountDataProvider' => $accountDataProvider,
+            'supplierCompany' => $supplierCompany
+        ));
+    }
+
+    public function actionUpdate($id) {
+        $purchasePayment = $this->instantiate($id);
+        $purchasePayment->header->admin_id = Yii::app()->user->id;
+
+        $purchaseReceiptHeader = Search::bind(new PurchaseReceiptHeader('search'), isset($_GET['PurchaseReceiptHeader']) ? $_GET['PurchaseReceiptHeader'] : array());
+
+        $cnMonth = isset($_GET['CnMonth']) ? $_GET['CnMonth'] : '';
+        $purchaseReceiptHeader->normalizeCnMonthBy($cnMonth);
+
+//		$purchaseReceiptDataProvider = $purchaseReceiptHeader->searchByPurchasePayment();
+        $purchaseReceiptDataProvider = $purchaseReceiptHeader->searchNotFullyPaid();
+        $purchaseReceiptDataProvider->criteria->with = array(
+            'supplier:resetScope',
+        );
+
+        $supplierCompany = isset($_GET['SupplierCompany']) ? $_GET['SupplierCompany'] : '';
+        $purchaseReceiptDataProvider->criteria->addCondition("supplier.company LIKE :company");
+        $purchaseReceiptDataProvider->criteria->params[':company'] = "%{$supplierCompany}%";
+
+        $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
+        $accountDataProvider = $account->search();
+        $accountDataProvider->criteria->with = array(
+            'accountCategory:resetScope',
+        );
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($purchasePayment);
+
+            if ($purchasePayment->save(Yii::app()->db))
+                $this->redirect(array('view', 'id' => $purchasePayment->header->id));
+        }
+
+        $this->render('update', array(
+            'purchasePayment' => $purchasePayment,
+            'purchaseReceiptHeader' => $purchaseReceiptHeader,
+            'account' => $account,
+            'cnMonth' => strtoupper($cnMonth),
+            'purchaseReceiptDataProvider' => $purchaseReceiptDataProvider,
+            'accountDataProvider' => $accountDataProvider,
+            'supplierCompany' => $supplierCompany
+        ));
+    }
+
+    public function actionView($id) {
+        $purchasePayment = $this->loadModel($id);
+
+        $purchaseReceiptHeader = $purchasePayment->purchaseReceiptHeader(array(
+            'scopes' => 'resetScope',
+            'with' => 'supplier:resetScope',
+        ));
+        $branch = $purchasePayment->branch(array('scopes' => 'resetScope'));
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('purchase_payment_header_id', $purchasePayment->id);
+        $detailsDataProvider = new CActiveDataProvider('PurchasePaymentDetail', array(
+            'criteria' => $criteria,
+        ));
+
+        $detailsDataProvider->criteria->with = array(
+            'paymentType:resetScope',
+            'account:resetScope',
+        );
+
+        $this->render('view', array(
+            'purchasePayment' => $purchasePayment,
+            'purchaseReceiptHeader' => $purchaseReceiptHeader,
+            'branch' => $branch,
+            'detailsDataProvider' => $detailsDataProvider,
+        ));
+    }
+
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            $purchasePayment = $this->loadModel($id);
+            if ($purchasePayment !== null) {
+                $dbTransaction = Yii::app()->db->beginTransaction();
+                try {
+                    $valid = TRUE;
+                    foreach ($purchasePayment->purchasePaymentDetails as $purchasePaymentDetail) {
+                        $purchasePaymentDetail->is_inactive = ActiveRecord::INACTIVE;
+                        $valid = $valid && $purchasePaymentDetail->update(array('is_inactive'));
+                    }
+
+                    $purchasePayment->is_inactive = ActiveRecord::INACTIVE;
+                    $valid = $valid && $purchasePayment->update(array('is_inactive'));
+
+                    $valid = $valid && JournalAccounting::model()->deleteAllByAttributes(array(
+                                'transaction_number' => $purchasePayment->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT),
+                                'branch_id' => $purchasePayment->branch_id
+                    ));
+
+                    if ($valid) {
+                        $dbTransaction->commit();
+                        Yii::app()->user->setFlash('message', 'Delete Successful');
+                    } else {
+                        $dbTransaction->rollback();
+                        Yii::app()->user->setFlash('message', 'Delete Failed');
+                    }
+                } catch (Exception $e) {
+                    $dbTransaction->rollback();
+                    Yii::app()->user->setFlash('message', $e->getMessage());
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionAdmin() {
+        $purchasePayment = Search::bind(new PurchasePaymentHeader('search'), isset($_GET['PurchasePaymentHeader']) ? $_GET['PurchasePaymentHeader'] : array());
+
+        $supplierId = (isset($_GET['SupplierId'])) ? $_GET['SupplierId'] : '';
+
+        if (isset($_GET['pageSize'])) {
+            Yii::app()->user->setState('pageSize', (int) $_GET['pageSize']);
+            unset($_GET['pageSize']);
+        }
+
+        $dataProvider = $purchasePayment->resetScope()->searchWithPaging();
+        $dataProvider->criteria->with = array(
+            'purchaseReceiptHeader:resetScope' => array(
+                'with' => 'supplier:resetScope',
+            ),
+        );
+        $dataProvider->criteria->compare('supplier_id', $supplierId);
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+
+        if ($startDate != '' || $endDate != '') {
+            $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
+            $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
+
+            $dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
+        }
+
+        $this->render('admin', array(
+            'purchasePayment' => $purchasePayment,
+            'dataProvider' => $dataProvider,
+            'supplierId' => $supplierId,
+        ));
+    }
+
+    public function actionMemo($id) {
+
+        $purchasePayment = $this->loadModel($id);
+
+        $this->memoToExcel($purchasePayment);
+    }
+
+    protected function memoToExcel($purchasePayment) {
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('Lanusa');
+        $documentProperties->setTitle('Bukti Pengeluaran');
+
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setTop(0.25);
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setLeft(0.5);
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Bukti Pengeluaran');
+
+        $worksheet->getColumnDimension('A')->setAutoSize(false);
+        $worksheet->getColumnDimension('A')->setWidth('16');
+        $worksheet->getColumnDimension('B')->setAutoSize(false);
+        $worksheet->getColumnDimension('B')->setWidth('1');
+        $worksheet->getColumnDimension('C')->setAutoSize(false);
+        $worksheet->getColumnDimension('C')->setWidth('1');
+        $worksheet->getColumnDimension('D')->setAutoSize(false);
+        $worksheet->getColumnDimension('D')->setWidth('20');
+        $worksheet->getColumnDimension('E')->setAutoSize(false);
+        $worksheet->getColumnDimension('E')->setWidth('6');
+        $worksheet->getColumnDimension('F')->setAutoSize(false);
+        $worksheet->getColumnDimension('F')->setWidth('16');
+        $worksheet->getColumnDimension('G')->setAutoSize(false);
+        $worksheet->getColumnDimension('G')->setWidth('1');
+        $worksheet->getColumnDimension('H')->setAutoSize(false);
+        $worksheet->getColumnDimension('H')->setWidth('34');
+
+        $counter = 1;
+        if ($purchasePayment->branch_id != 4) {
+            $worksheet->mergeCells("A{$counter}:H{$counter}");
+            $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("A{$counter}", CHtml::value($purchasePayment, 'branch.name'));
+            $counter++;
+        }
+
+        $worksheet->mergeCells("A{$counter}:H{$counter}");
+        $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("A{$counter}", 'Bukti Pengeluaran');
+        $counter++;
+        $counter++;
+
+        $worksheet->setCellValue("A{$counter}", 'Pelunasan No.');
+        $worksheet->setCellValue("B{$counter}", ':');
+        $worksheet->mergeCells("C{$counter}:D{$counter}");
+        $worksheet->setCellValue("C{$counter}", $purchasePayment->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT));
+
+        $worksheet->setCellValue("F{$counter}", 'Supplier');
+        $worksheet->setCellValue("G{$counter}", ':');
+        $worksheet->setCellValue("H{$counter}", CHtml::value($purchasePayment, 'purchaseReceiptHeader.supplier.company'));
+        $counter++;
+
+        $worksheet->setCellValue("A{$counter}", 'Tanggal');
+        $worksheet->setCellValue("B{$counter}", ':');
+        $worksheet->mergeCells("C{$counter}:D{$counter}");
+        $worksheet->setCellValue("C{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime(CHtml::value($purchasePayment, 'date'))));
+        $worksheet->setCellValue("F{$counter}", 'Tanda Terima No.');
+        $worksheet->setCellValue("G{$counter}", ':');
+        $worksheet->setCellValue("H{$counter}", $purchasePayment->purchaseReceiptHeader->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT));
+        $counter++;
+        $counter++;
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+        $worksheet->mergeCells("A{$counter}:C{$counter}");
+        $worksheet->setCellValue("A{$counter}", 'Account');
+        $worksheet->setCellValue("D{$counter}", 'Jenis Pembayaran');
+        $worksheet->mergeCells("E{$counter}:F{$counter}");
+        $worksheet->setCellValue("E{$counter}", 'Jumlah (Rp)');
+        $worksheet->mergeCells("G{$counter}:H{$counter}");
+        $worksheet->setCellValue("G{$counter}", 'Memo');
+        $counter++;
+
+        foreach ($purchasePayment->purchasePaymentDetails as $i => $detail) {
+
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+            $worksheet->mergeCells("A{$counter}:C{$counter}");
+            $worksheet->setCellValue("A{$counter}", CHtml::value($detail, 'account.name'));
+            $worksheet->getStyle("D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $worksheet->setCellValue("D{$counter}", CHtml::value($detail, 'paymentType.name'));
+
+            $worksheet->mergeCells("E{$counter}:F{$counter}");
+            $worksheet->getStyle("E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("E{$counter}", Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'amount')));
+            $worksheet->mergeCells("G{$counter}:H{$counter}");
+            $worksheet->setCellValue("G{$counter}", $detail->memo);
+
+            $counter++;
+        }
+
+        for ($j = 8, $i = $i % $j + 1; $j > $i; $j--):
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $counter++;
+
+        endfor;
+
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->mergeCells("A{$counter}:D{$counter}");
+        $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("A{$counter}", 'TOTAL');
+        $worksheet->mergeCells("E{$counter}:F{$counter}");
+        $worksheet->getStyle("E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("E{$counter}", CHtml::encode(Yii::app()->numberFormatter->format('#,##0', floor(CHtml::value($purchasePayment, 'amountPaid')))));
+        $counter++;
+
+        $worksheet->mergeCells("A{$counter}:H{$counter}");
+        $objPHPExcel->getActiveSheet()
+                ->getStyle("A{$counter}:H{$counter}")
+                ->getAlignment()
+                ->setWrapText(true);
+        $worksheet->setCellValue("A{$counter}", 'Terbilang :' . CHtml::encode(NumberWord::numberName(floor(CHtml::value($purchasePayment, 'amountPaid')))) . 'rupiah');
+        $counter++;
+        $counter++;
+
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+
+        $worksheet->mergeCells("A{$counter}:C{$counter}");
+        $worksheet->setCellValue("A{$counter}", 'Dibuat,');
+        $worksheet->setCellValue("D{$counter}", 'Diperiksa,');
+        $worksheet->mergeCells("E{$counter}:F{$counter}");
+        $worksheet->setCellValue("E{$counter}", 'Disetujui,');
+        $worksheet->mergeCells("G{$counter}:H{$counter}");
+        $worksheet->setCellValue("G{$counter}", 'Diterima,');
+        $counter++;
+
+        for ($x = 0; $x < 3; $x++):
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $counter++;
+        endfor;
+
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $counter++;
+
+        header('Content-Type: application/xlsx');
+        header('Content-Disposition: attachment;filename="Pembayaran Pembelian.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
+    }
+
+    protected function reportGrandTotal($dataProvider) {
+        $grandTotal = 0;
+
+        foreach ($dataProvider->data as $data)
+            $grandTotal += $data->amountPaid;
+
+        return $grandTotal;
+    }
+
+    public function actionAjaxJsonPurchaseReceipt($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $purchasePayment = $this->instantiate($id);
+
+            $this->loadState($purchasePayment);
+
+            $purchasePaymentReceipt = $purchasePayment->header->purchaseReceiptHeader(array(
+                'scopes' => 'resetScope',
+                'with' => array(
+                    'supplier:resetScope',
+                ),
+            ));
+
+            $purchasePayment->generateCodeNumber($purchasePaymentReceipt->branch_id, date('m'), date('y'));
+
+            $object = array(
+                'purchase_receipt_header_codeNumber' => $purchasePaymentReceipt->getCodeNumber(PurchaseReceiptHeader::CN_CONSTANT),
+                'purchase_payment_header_codeNumber' => $purchasePayment->header->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT),
+                'purchase_receipt_header_date' => Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($purchasePaymentReceipt->date)),
+                'purchase_receipt_header_supplier' => $purchasePaymentReceipt->supplier->company,
+                'total' => CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePaymentReceipt, 'grand_total'))),
+            );
+
+            echo CJSON::encode($object);
+        }
+    }
+
+    public function actionAjaxJsonSummary($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $purchasePayment = $this->instantiate($id);
+
+            $this->loadState($purchasePayment);
+
+            $amount = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment->details[$index], 'amount')));
+            $total = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment, 'purchaseReceiptHeader.grand_total')));
+//            $payment = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment, 'payment')));
+//            $remaining = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment, 'remaining')));
+            $total_payment = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchasePayment, 'totalPayment')));
+
+            echo CJSON::encode(array(
+                'amount' => $amount,
+                'total' => $total,
+//                'payment' => $payment,
+//                'remaining' => $remaining,
+                'total_payment' => $total_payment,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlAddAccount($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $purchasePayment = $this->instantiate($id);
+
+            $this->loadState($purchasePayment);
+
+            if (isset($_POST['AccountId']))
+                $purchasePayment->addDetail($_POST['AccountId']);
+
+            $this->renderPartial('_detail', array(
+                'purchasePayment' => $purchasePayment,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlRemovePayment($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $purchasePayment = $this->instantiate($id);
+
+            $this->loadState($purchasePayment);
+
+            $purchasePayment->removeDetailAt($index);
+
+            $this->renderPartial('_detail', array(
+                'purchasePayment' => $purchasePayment,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonCodeNumber($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $purchasePayment = $this->instantiate($id);
+            $this->loadState($purchasePayment);
+
+            $purchasePayment->generateCodeNumber($purchasePayment->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($purchasePayment->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($purchasePayment->header->date)));
+            $codeNumber = CHtml::encode($purchasePayment->header->getCodeNumber(PurchasePaymentHeader::CN_CONSTANT));
+
+            echo CJSON::encode(array(
+                'codeNumber' => $codeNumber,
+            ));
+        }
+    }
+
+    public function instantiate($id) {
+        if (empty($id))
+            $purchasePayment = new PurchasePayment(new PurchasePaymentHeader(), array());
+        else {
+            $purchasePaymentHeader = $this->loadModel($id);
+            $purchasePayment = new PurchasePayment($purchasePaymentHeader, $purchasePaymentHeader->purchasePaymentDetails);
+        }
+
+        return $purchasePayment;
+    }
+
+    public function loadModel($id) {
+        $model = PurchasePaymentHeader::model()->findByPk($id);
+
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        return $model;
+    }
+
+    protected function loadState(&$purchasePayment) {
+        if (isset($_POST['PurchasePaymentHeader'])) {
+            $purchasePayment->header->attributes = $_POST['PurchasePaymentHeader'];
+        }
+        if (isset($_POST['PurchasePaymentDetail'])) {
+            foreach ($_POST['PurchasePaymentDetail'] as $i => $item) {
+                if (isset($purchasePayment->details[$i]))
+                    $purchasePayment->details[$i]->attributes = $item;
+                else {
+                    $detail = new PurchasePaymentDetail();
+                    $detail->attributes = $item;
+                    $purchasePayment->details[] = $detail;
+                }
+            }
+            if (count($_POST['PurchasePaymentDetail']) < count($purchasePayment->details))
+                array_splice($purchasePayment->details, $i + 1);
+        } else
+            $purchasePayment->details = array();
+    }
+}

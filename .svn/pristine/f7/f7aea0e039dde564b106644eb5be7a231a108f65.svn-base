@@ -1,0 +1,603 @@
+<?php
+
+class SaleReceiptController extends Controller {
+
+    public function filters() {
+        return array(
+            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'view'
+                || $filterChain->action->id === 'create'
+                || $filterChain->action->id === 'ajaxJsonCodeNumber'
+                || $filterChain->action->id === 'ajaxJsonCustomer'
+                || $filterChain->action->id === 'ajaxHtmlResetDetail'
+                || $filterChain->action->id === 'ajaxHtmlAddInvoice'
+                || $filterChain->action->id === 'ajaxHtmlRemoveDetail') {
+            if (!(Yii::app()->user->checkAccess('saleReceiptCreate') || Yii::app()->user->checkAccess('saleReceiptEdit')))
+                $this->redirect(array('/site/login'));
+        }
+        if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update') {
+            if (!(Yii::app()->user->checkAccess('saleReceiptEdit')))
+                $this->redirect(array('/site/login'));
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionCreate() {
+        $saleReceipt = $this->instantiate(null);
+        $saleReceipt->header->admin_id = Yii::app()->user->id;
+
+        $branchId = isset($_GET['SaleReceiptHeader']['branch_id']) ? $_GET['SaleReceiptHeader']['branch_id'] : '';
+        $customerId = isset($_GET['SaleReceiptHeader']['customer_id']) ? $_GET['SaleReceiptHeader']['customer_id'] : '';
+
+        $saleInvoice = Search::bind(new SaleInvoice('search'), isset($_GET['SaleInvoice']) ? $_GET['SaleInvoice'] : array());
+
+        $saleInvoiceDataProvider = $saleInvoice->searchByReceipt();
+        $saleInvoiceDataProvider->criteria->with = array(
+            'deliveryHeader:resetScope' => array(
+                'with' => 'saleHeader:resetScope',
+            ),
+        );
+        $saleInvoiceDataProvider->criteria->addCondition("saleHeader.customer_id = :customer_id");
+        $saleInvoiceDataProvider->criteria->params[':customer_id'] = $customerId;
+
+        $customer = Search::bind(new Customer('search'), isset($_GET['Customer']) ? $_GET['Customer'] : array());
+        $customerDataProvider = $customer->search();
+        $customerDataProvider->criteria->compare('t.is_inactive', 0);
+        $customerDataProvider->criteria->with = array(
+            'account:resetScope',
+        );
+
+        if (!empty($branchId)) {
+            $customerDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $customerDataProvider->criteria->params[':branch_id'] = $branchId;
+
+            $saleInvoiceDataProvider->criteria->addCondition("t.branch_id = :branch_id");
+            $saleInvoiceDataProvider->criteria->params[':branch_id'] = $branchId;
+        }
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($saleReceipt);
+            $saleReceipt->generateCodeNumber($saleReceipt->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($saleReceipt->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($saleReceipt->header->date)));
+
+            if ($saleReceipt->save(Yii::app()->db)) {
+                Yii::app()->session['SaleReceiptMemoAllowed'] = true;
+                $this->redirect(array('view', 'id' => $saleReceipt->header->id));
+            }
+        }
+
+        $this->render('create', array(
+            'saleReceipt' => $saleReceipt,
+            'saleInvoice' => $saleInvoice,
+            'customer' => $customer,
+            'saleInvoiceDataProvider' => $saleInvoiceDataProvider,
+            'customerDataProvider' => $customerDataProvider,
+            'customerId' => $customerId
+        ));
+    }
+
+    public function actionUpdate($id) {
+        $saleReceipt = $this->instantiate($id);
+        $saleReceipt->header->admin_id = Yii::app()->user->id;
+        $customerId = $saleReceipt->header->customer_id;
+
+        $saleInvoice = Search::bind(new SaleInvoice('search'), isset($_GET['SaleInvoice']) ? $_GET['SaleInvoice'] : array());
+
+        $saleInvoiceDataProvider = $saleInvoice->searchByReceipt();
+        $saleInvoiceDataProvider->criteria->with = array(
+            'deliveryHeader' => array(
+                'with' => array(
+                    'saleHeader',
+                )
+            ),
+        );
+        if (!empty($customerId)) {
+            $saleInvoiceDataProvider->criteria->compare('saleHeader.customer_id', $customerId);
+        }
+
+        $customer = Search::bind(new Customer('search'), isset($_GET['Customer']) ? $_GET['Customer'] : array());
+        $customerDataProvider = $customer->search();
+
+        if (isset($_POST['Submit']) && IdempotentManager::check()) {
+            $this->loadState($saleReceipt);
+
+            if ($saleReceipt->save(Yii::app()->db)) {
+                Yii::app()->session['SaleReceiptMemoAllowed'] = true;
+                $this->redirect(array('view', 'id' => $saleReceipt->header->id));
+            }
+        }
+
+        $this->render('update', array(
+            'saleReceipt' => $saleReceipt,
+            'saleInvoice' => $saleInvoice,
+            'customer' => $customer,
+            'saleInvoiceDataProvider' => $saleInvoiceDataProvider,
+            'customerDataProvider' => $customerDataProvider,
+            'customerId' => $customerId
+        ));
+    }
+
+    public function actionView($id) {
+        $saleReceipt = $this->loadModel($id);
+
+        $customer = $saleReceipt->customer(array('scopes' => 'resetScope'));
+        $branch = $saleReceipt->branch(array('scopes' => 'resetScope'));
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('sale_receipt_header_id', $saleReceipt->id);
+        $detailsDataProvider = new CActiveDataProvider('SaleReceiptDetail', array(
+                    'criteria' => $criteria,
+                ));
+
+        $detailsDataProvider->criteria->with = array(
+            'saleInvoice:resetScope' => array(
+                'with' => 'deliveryHeader:resetScope'
+            ),
+        );
+
+        $this->render('view', array(
+            'saleReceipt' => $saleReceipt,
+            'customer' => $customer,
+            'branch' => $branch,
+            'detailsDataProvider' => $detailsDataProvider,
+        ));
+    }
+
+    public function actionMemo($id) {
+        if (!(Yii::app()->user->checkAccess('administrator'))) {
+            if (!(isset(Yii::app()->session['SaleReceiptMemoAllowed']) && Yii::app()->session['SaleReceiptMemoAllowed'] === true))
+                $this->redirect(array('admin'));
+        }
+
+        Yii::app()->session->remove('SaleReceiptMemoAllowed');
+
+        $saleReceipt = $this->loadModel($id);
+
+        $this->memoToExcel($saleReceipt);
+    }
+
+    protected function memoToExcel($saleReceipt) {
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('Lanusa');
+        $documentProperties->setTitle('Tanda Terima Penjualan');
+        
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setTop(0.25);
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setLeft(0.5);
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Tanda Terima Penjualan');
+
+        $worksheet->getColumnDimension('A')->setAutoSize(false);
+        $worksheet->getColumnDimension('A')->setWidth('15');
+        $worksheet->getColumnDimension('B')->setAutoSize(false);
+        $worksheet->getColumnDimension('B')->setWidth('1');
+        $worksheet->getColumnDimension('C')->setAutoSize(false);
+        $worksheet->getColumnDimension('C')->setWidth('18');
+        $worksheet->getColumnDimension('D')->setAutoSize(false);
+        $worksheet->getColumnDimension('D')->setWidth('7');
+        $worksheet->getColumnDimension('E')->setAutoSize(false);
+        $worksheet->getColumnDimension('E')->setWidth('14');
+        $worksheet->getColumnDimension('F')->setAutoSize(false);
+        $worksheet->getColumnDimension('F')->setWidth('1');
+        $worksheet->getColumnDimension('G')->setAutoSize(false);
+        $worksheet->getColumnDimension('G')->setWidth('16');
+        $worksheet->getColumnDimension('H')->setAutoSize(false);
+        $worksheet->getColumnDimension('H')->setWidth('16');
+
+        $counter = 1;
+        if ($saleReceipt->branch_id != 4) {
+            $worksheet->mergeCells("A{$counter}:H{$counter}");
+            $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("A{$counter}", CHtml::value($saleReceipt, 'branch.name'));
+            $counter++;
+        }
+
+        $worksheet->mergeCells("A{$counter}:H{$counter}");
+        $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("A{$counter}", 'TANDA TERIMA PENJUALAN');
+        $counter++;
+        $counter++;
+
+        $worksheet->setCellValue("A{$counter}", 'Tanda Terima No.');
+        $worksheet->setCellValue("B{$counter}", ':');
+        $worksheet->setCellValue("C{$counter}", $saleReceipt->getCodeNumber(SaleReceiptHeader::CN_CONSTANT));
+
+        $worksheet->setCellValue("E{$counter}", 'Customer');
+        $worksheet->setCellValue("F{$counter}", ':');
+        $worksheet->setCellValue("G{$counter}", CHtml::value($saleReceipt, 'customer.company'));
+        $counter++;
+
+        $worksheet->setCellValue("A{$counter}", 'Tanggal');
+        $worksheet->setCellValue("B{$counter}", ':');
+        $worksheet->setCellValue("C{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime(CHtml::value($saleReceipt, 'date'))));
+        $worksheet->setCellValue("E{$counter}", 'Jatuh Tempo Tgl.');
+        $worksheet->setCellValue("F{$counter}", ':');
+        $worksheet->setCellValue("G{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime(CHtml::value($saleReceipt, 'due_date'))));
+        $counter++;
+        $counter++;
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("A{$counter}", 'Tgl. Invoice');
+        $worksheet->mergeCells("B{$counter}:C{$counter}");
+        $worksheet->setCellValue("B{$counter}", 'No. Invoice');
+        $worksheet->mergeCells("D{$counter}:E{$counter}");
+        $worksheet->setCellValue("D{$counter}", 'No. Faktur Pajak');
+        $worksheet->mergeCells("F{$counter}:G{$counter}");
+        $worksheet->setCellValue("F{$counter}", 'No. PO');
+        $worksheet->setCellValue("H{$counter}", 'Jumlah (Rp)');
+        $counter++;
+
+//
+//        $worksheet->mergeCells('A1:J1');
+//        $worksheet->mergeCells('A2:J2');
+//        $worksheet->getStyle('A1:F2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//        $worksheet->getStyle('A1:F2')->getFont()->setBold(true);
+//        $worksheet->setCellValue('A1', $saleReceipt->branch->name);
+//        $worksheet->setCellValue('A2', $saleReceipt->branch->province);
+//
+//        $worksheet->mergeCells('A4:E4');
+//        $worksheet->setCellValue('A4', 'Jakarta, ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($saleReceipt->date)));
+//
+//        $worksheet->mergeCells('F4:J4');
+//        $worksheet->mergeCells('F5:J5');
+//        $worksheet->getStyle('F4:J4')->getFont()->setBold(true);
+//        $worksheet->setCellValue('F4', 'Kepada,');
+//        $worksheet->setCellValue("F5", $saleReceipt->customer->name);
+//
+//        $worksheet->mergeCells('A5:B5');
+//        $worksheet->mergeCells('C5:E5');
+//        $worksheet->mergeCells('A6:B6');
+//        $worksheet->mergeCells('C6:E6');
+//        $worksheet->getStyle('A5:A6')->getFont()->setBold(true);
+//        $worksheet->getStyle('C5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+//        $worksheet->setCellValue("A5", 'Tanda Terima No :');
+//        $worksheet->setCellValue("C5", $saleReceipt->getCodeNumber(DeliveryHeader::CN_CONSTANT));
+//        $worksheet->setCellValue("A6", 'Jatuh Tempo :');
+//        $worksheet->setCellValue("C6", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($saleReceipt->due_date)));
+//
+//        $worksheet->mergeCells('A8:B8');
+//        $worksheet->mergeCells('C8:D8');
+//        $worksheet->mergeCells('E8:F8');
+//        $worksheet->mergeCells('G8:J8');
+//        $worksheet->getStyle('A8:J8')->getFont()->setBold(true);
+//        $worksheet->getStyle('A8:J8')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//        $worksheet->getStyle('A8:J8')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//        $worksheet->setCellValue('A8', 'Invoice #');
+//        $worksheet->setCellValue('C8', 'Tanggal');
+//        $worksheet->setCellValue('E8', 'Total');
+//        $worksheet->setCellValue('G8', 'Memo');
+//        $counter = 9;
+        foreach ($saleReceipt->saleReceiptDetails as $i => $detail) {
+
+
+//            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("C{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("E{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("G{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("J{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//            $worksheet->getStyle("E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//            $worksheet->getStyle("G{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//            $worksheet->mergeCells("A{$counter}:B{$counter}");
+//            $worksheet->mergeCells("C{$counter}:D{$counter}");
+//            $worksheet->mergeCells("E{$counter}:F{$counter}");
+//            $worksheet->mergeCells("G{$counter}:J{$counter}");
+//            $worksheet->setCellValue("A{$counter}", $detail->saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT));
+//            $worksheet->setCellValue("C{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->saleInvoice->date)));
+//            $worksheet->setCellValue("E{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->saleInvoice->totalInvoice));
+//            $worksheet->setCellValue("G{$counter}", $detail->memo);
+
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->setCellValue("A{$counter}", Yii::app()->dateFormatter->format('d-MMM-yyyy', strtotime(CHtml::value($detail, 'saleInvoice.date'))));
+            $worksheet->mergeCells("B{$counter}:C{$counter}");
+            $worksheet->setCellValue("B{$counter}", $detail->saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT));
+            $worksheet->mergeCells("D{$counter}:E{$counter}");
+            $worksheet->setCellValue("D{$counter}", CHtml::value($detail->saleInvoice, 'reference'));
+            $worksheet->mergeCells("F{$counter}:G{$counter}");
+            $worksheet->setCellValue("F{$counter}", $detail->saleInvoice->deliveryHeader->saleHeader->reference);
+
+
+            $worksheet->getStyle("H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("H{$counter}", Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'saleInvoice.grandTotal')));
+
+            $counter++;
+        }
+
+        for ($j = 8, $i = $i % $j + 1; $j > $i; $j--):
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $counter++;
+
+        endfor;
+
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->mergeCells("A{$counter}:G{$counter}");
+        $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("A{$counter}", 'TOTAL');
+
+        $worksheet->getStyle("H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("H{$counter}", CHtml::encode(Yii::app()->numberFormatter->format('#,##0', floor(CHtml::value($saleReceipt, 'totalInvoice')))));
+        $counter++;
+
+        $worksheet->mergeCells("A{$counter}:H{$counter}");
+        $objPHPExcel->getActiveSheet()
+                ->getStyle("A{$counter}:H{$counter}")
+                ->getAlignment()
+                ->setWrapText(true);
+        $worksheet->setCellValue("A{$counter}", 'Terbilang :' . CHtml::encode(NumberWord::numberName(floor(CHtml::value($saleReceipt, 'totalInvoice')))) . 'rupiah');
+        $counter++;
+        $counter++;
+        $worksheet->mergeCells("A{$counter}:C{$counter}");
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:C{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:C{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->mergeCells("F{$counter}:H{$counter}");
+        $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("F{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("F{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("A{$counter}", 'Diserahkan,');
+        $worksheet->setCellValue("F{$counter}", 'Diterima,');
+        $counter++;
+
+        for ($x = 0; $x < 4; $x++):
+            $worksheet->mergeCells("A{$counter}:C{$counter}");
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->mergeCells("F{$counter}:H{$counter}");
+            $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $counter++;
+        endfor;
+
+
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->mergeCells("A{$counter}:C{$counter}");
+        $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:C{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("D{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->mergeCells("F{$counter}:H{$counter}");
+        $worksheet->getStyle("F{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("F{$counter}:H{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("H{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        $worksheet->setCellValue("F{$counter}", '( nama jelas, ttd & tgl. )');
+
+//        $worksheet->getStyle("A{$counter}:J{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//
+//        $worksheet->getStyle("A{$counter}:J{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//        $worksheet->mergeCells("A{$counter}:D{$counter}");
+//        $worksheet->mergeCells("E{$counter}:F{$counter}");
+//        $worksheet->mergeCells("G{$counter}:J{$counter}");
+//        $worksheet->getStyle("A{$counter}:D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->getStyle("E{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->getStyle("A{$counter}:J{$counter}")->getFont()->setBold(true);
+//        $worksheet->setCellValue("A{$counter}", 'Total');
+//        $worksheet->setCellValue("E{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleReceipt->totalInvoice));
+//
+//        $counter++;
+//        $counter++;
+//
+//        $worksheet->mergeCells("A{$counter}:E{$counter}");
+//        $worksheet->mergeCells("F{$counter}:J{$counter}");
+//        $worksheet->getStyle("A{$counter}:J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//        $worksheet->getStyle("A{$counter}:J{$counter}")->getFont()->setBold(true);
+//        $worksheet->setCellValue("A{$counter}", 'Tanda Terima,');
+//        $worksheet->setCellValue("F{$counter}", 'Hormat kami,');
+
+        header('Content-Type: application/xlsx');
+        header('Content-Disposition: attachment;filename="Tanda Terima Penjualan.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
+    }
+
+    public function actionAdmin() {
+        $saleReceipt = Search::bind(new SaleReceiptHeader('search'), isset($_GET['SaleReceiptHeader']) ? $_GET['SaleReceiptHeader'] : array());
+
+         if (isset($_GET['pageSize'])) {
+            Yii::app()->user->setState('pageSize', (int) $_GET['pageSize']);
+            unset($_GET['pageSize']);
+        }
+
+        $dataProvider = $saleReceipt->resetScope()->searchWithPaging();
+         $dataProvider->criteria->with = array(
+            'customer:resetScope',
+        );
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+
+        if ($startDate != '' || $endDate != '') {
+            $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
+            $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
+
+            $dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
+        }
+        
+        $this->render('admin', array(
+            'saleReceipt' => $saleReceipt,
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            $saleReceiptHeader = $this->loadModel($id);
+            if ($saleReceiptHeader !== null) {
+                $saleReceiptHeader->is_inactive = ActiveRecord::INACTIVE;
+                $saleReceiptHeader->update(array('is_inactive'));
+
+                foreach ($saleReceiptHeader->saleReceiptDetails as $saleReceiptDetail) {
+                    $saleReceiptDetail->is_inactive = ActiveRecord::INACTIVE;
+                    $saleReceiptDetail->update(array('is_inactive'));
+                }
+            }
+
+            if (!isset($_GET['ajax']))
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+        }
+        else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionAjaxJsonCustomer($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleReceipt = $this->instantiate($id);
+            $this->loadState($saleReceipt);
+
+            if (!isset($_POST['SaleReceiptDetail']))
+                $saleReceipt->details = array();
+
+            $saleReceiptCustomer = $saleReceipt->header->customer(array('scopes' => 'resetScope'));
+
+            $object = array(
+                'customer_id' => $saleReceiptCustomer->company,
+                'customer_name' => $saleReceiptCustomer->name,
+                'customer_address' => $saleReceiptCustomer->address,
+            );
+            echo CJSON::encode($object);
+        }
+    }
+
+    public function actionAjaxHtmlRemoveDetail($id, $index) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleReceipt = $this->instantiate($id);
+            $this->loadState($saleReceipt);
+
+            $saleReceipt->removeDetailAt($index);
+
+            $this->renderPartial('_detail', array(
+                'saleReceipt' => $saleReceipt,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlResetDetail($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleReceipt = $this->instantiate($id);
+            $this->loadState($saleReceipt);
+
+            if (isset($_POST['SaleReceiptHeader']['customer_id']))
+                $saleReceipt->resetDetail($_POST['SaleReceiptHeader']['customer_id']);
+
+            $this->renderPartial('_detail', array(
+                'saleReceipt' => $saleReceipt,
+            ));
+        }
+    }
+
+    public function actionAjaxHtmlAddInvoice($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleReceipt = $this->instantiate($id);
+
+            $this->loadState($saleReceipt);
+
+            if (isset($_POST['SaleInvoiceId']))
+                $saleReceipt->addDetail($_POST['SaleInvoiceId']);
+
+            $this->renderPartial('_detail', array(
+                'saleReceipt' => $saleReceipt,
+            ));
+        }
+    }
+
+    public function actionAjaxJsonCodeNumber($id) {
+        if (Yii::app()->request->isAjaxRequest) {
+            $saleReceipt = $this->instantiate($id);
+            $this->loadState($saleReceipt);
+
+            $saleReceipt->generateCodeNumber($saleReceipt->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($saleReceipt->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($saleReceipt->header->date)));
+            $codeNumber = CHtml::encode($saleReceipt->header->getCodeNumber(SaleReceiptHeader::CN_CONSTANT));
+
+            echo CJSON::encode(array(
+                'codeNumber' => $codeNumber,
+            ));
+        }
+    }
+
+    public function instantiate($id) {
+        if (empty($id))
+            $saleReceipt = new SaleReceipt(new SaleReceiptHeader(), array());
+        else {
+            $saleReceiptHeader = $this->loadModel($id);
+            $saleReceipt = new SaleReceipt($saleReceiptHeader, $saleReceiptHeader->saleReceiptDetails);
+        }
+
+        return $saleReceipt;
+    }
+
+    public function loadModel($id) {
+        $model = SaleReceiptHeader::model()->findByPk($id);
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        return $model;
+    }
+
+    protected function loadState($saleReceipt) {
+        if (isset($_POST['SaleReceiptHeader'])) {
+            $saleReceipt->header->attributes = $_POST['SaleReceiptHeader'];
+        }
+        if (isset($_POST['SaleReceiptDetail'])) {
+            foreach ($_POST['SaleReceiptDetail'] as $i => $item) {
+                if (isset($saleReceipt->details[$i]))
+                    $saleReceipt->details[$i]->attributes = $item;
+                else {
+                    $detail = new SaleReceiptDetail();
+                    $detail->attributes = $item;
+                    $saleReceipt->details[] = $detail;
+                }
+            }
+            if (count($_POST['SaleReceiptDetail']) < count($saleReceipt->details))
+                array_splice($saleReceipt->details, $i + 1);
+        }
+        else
+            $saleReceipt->details = array();
+    }
+
+}

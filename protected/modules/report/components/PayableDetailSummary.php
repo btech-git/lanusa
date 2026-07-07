@@ -1,0 +1,50 @@
+<?php
+
+class PayableDetailSummary extends CComponent
+{
+	public $dataProvider;
+	
+	public function __construct($dataProvider)
+	{
+		$this->dataProvider = $dataProvider;
+	}
+	
+	public function setupLoading()
+	{
+		$this->dataProvider->criteria->with = array(
+			'purchaseReceiptDetails',
+			'branch:resetScope',
+			'supplier:resetScope',
+		);
+		
+		$this->dataProvider->criteria->compare('t.is_inactive', 0);
+	}
+	
+	public function setupPaging($pageSize, $currentPage)
+	{
+		$pageSize = (empty($pageSize)) ? 10 : $pageSize;
+		$pageSize = ($pageSize <= 0) ? 1 : $pageSize;
+		$this->dataProvider->pagination->pageSize = $pageSize;
+		
+		$currentPage = (empty($currentPage)) ? 0 : $currentPage - 1;
+		$this->dataProvider->pagination->currentPage = $currentPage;
+	}
+	
+	public function setupSorting()
+	{
+		$this->dataProvider->sort->attributes = array('date', 'supplier.company');
+		$this->dataProvider->criteria->order = $this->dataProvider->sort->orderBy;
+	}
+	
+	public function setupFilter(array $filters)
+	{
+		$startDate = (empty($filters['startDate'])) ? date('Y-m-d') : $filters['startDate'];
+		$endDate = (empty($filters['endDate'])) ? date('Y-m-d') : $filters['endDate'];
+		
+		$this->dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
+        $this->dataProvider->criteria->addCondition('t.grand_total - t.payment_total > 100');
+		$this->dataProvider->criteria->compare('t.supplier_id', $filters['supplierId']);
+		$this->dataProvider->criteria->compare('t.branch_id', $filters['branchId']);
+		$this->dataProvider->criteria->compare('t.is_inactive', 0);
+	}
+}

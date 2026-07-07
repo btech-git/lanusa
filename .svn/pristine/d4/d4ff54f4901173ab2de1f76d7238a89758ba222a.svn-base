@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @property integer $id
+ * @property string $product_name
+ * @property string $quantity
+ * @property string $unit_price
+ * @property string $discount
+ * @property integer $sale_header_id
+ * @property integer $product_id
+ * @property integer $unit_id
+ * @property integer $is_inactive
+ *
+ * @property DeliveryDetail[] $deliveryDetails
+ * @property Product $product
+ * @property SaleHeader $saleHeader
+ * @property Unit $unit
+ */
+class SaleDetailBase extends ActiveRecord
+{
+	public function tableName()
+	{
+		return 'tblla_sale_detail';
+	}
+
+	public function rules()
+	{
+		return array(
+			array('product_name, sale_header_id, product_id, unit_id', 'required'),
+			array('sale_header_id, product_id, unit_id, is_inactive', 'numerical', 'integerOnly'=>true),
+			array('product_name', 'length', 'max'=>200),
+			array('quantity, discount', 'length', 'max'=>10),
+			array('unit_price', 'length', 'max'=>18),
+			// The following rule is used by search().
+			array('id, product_name, quantity, unit_price, discount, sale_header_id, product_id, unit_id, is_inactive', 'safe', 'on'=>'search'),
+		);
+	}
+
+	public function relations()
+	{
+		return array(
+			'deliveryDetails' => array(self::HAS_MANY, 'DeliveryDetail', 'sale_detail_id'),
+			'product' => array(self::BELONGS_TO, 'Product', 'product_id'),
+			'saleHeader' => array(self::BELONGS_TO, 'SaleHeader', 'sale_header_id'),
+			'unit' => array(self::BELONGS_TO, 'Unit', 'unit_id'),
+		);
+	}
+
+	public function attributeLabels()
+	{
+		return array(
+			'id' => 'ID',
+			'product_name' => 'Product Name',
+			'quantity' => 'Quantity',
+			'unit_price' => 'Unit Price',
+			'discount' => 'Discount',
+			'sale_header_id' => 'Sale Header',
+			'product_id' => 'Product',
+			'unit_id' => 'Unit',
+			'is_inactive' => 'Is Inactive',
+		);
+	}
+
+	public function search()
+	{
+		$criteria = new CDbCriteria;
+
+		$criteria->compare('t.id', $this->id);
+		$criteria->compare('t.product_name', $this->product_name, true);
+		$criteria->compare('t.quantity', $this->quantity, true);
+		$criteria->compare('t.unit_price', $this->unit_price, true);
+		$criteria->compare('t.discount', $this->discount, true);
+		$criteria->compare('t.sale_header_id', $this->sale_header_id);
+		$criteria->compare('t.product_id', $this->product_id);
+		$criteria->compare('t.unit_id', $this->unit_id);
+		$criteria->compare('t.is_inactive', $this->is_inactive);
+
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+}

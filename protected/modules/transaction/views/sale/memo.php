@@ -1,0 +1,173 @@
+<?php
+Yii::app()->clientScript->registerScript('memo', '
+        $("#header").addClass("hide");
+        $("#mainmenu").addClass("hide");
+        $(".breadcrumbs").addClass("hide");
+        $("#footer").addClass("hide");
+');
+Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/transaction/memo.css');
+Yii::app()->clientScript->registerCss('memo', '
+        .hcolumn1 { width: 50% }
+        .hcolumn2 { width: 50% }
+        
+        .hcolumn1header { width: 70% }
+		.hcolumn1value { width: 30% }
+        
+        .sig1 { width: 20% }
+        .sig2 { width: 25% }
+		
+		.hcolumn1memoheader { width: 70% }
+		.hcolumn2memoheader { width: 30% }
+');
+?>
+
+<div id="memoheader">
+    <div class="divtable">
+        <div class="divtablecell hcolumn1memoheader">
+            <div class="divtable">
+                <div class="divtablerow">
+                    <div style="font-size: 16px"><?php echo CHtml::encode(CHtml::value($branch, 'name')); ?></div>
+                    <div style="font-size: 16px"><?php echo CHtml::encode(CHtml::value($branch, 'province')); ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="divtablecell hcolumn2memoheader">
+            <div class="divtable">
+                <div class="divtablerow" style="text-align: left; font-weight: 200;">
+                    <div>Jakarta, <?php echo CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime(CHtml::value($sale, 'date')))); ?></div>
+                    <div style="font-weight: bold">Kepada,</div>
+                    <div><?php echo CHtml::encode(CHtml::value($customer, 'company')); ?></div>
+                    <div><?php echo CHtml::encode(CHtml::value($customer, 'address')); ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<div class="memonote" style="width:100%">
+    <div class="divtable">
+        <div class="divtablecell hcolumn1">
+            <div class="divtable">
+                <div class="divtablerow">
+                    <div class="divtablecell info hcolumn1header" style="font-weight: bold">SURAT JALAN No </div>
+                    <div class="divtablecell info hcolumn1value"><?php echo CHtml::encode($sale->getCodeNumber(SaleHeader::CN_CONSTANT)); ?></div>
+                </div>
+                <div class="divtablerow">
+                    <div class="divtablecell info hcolumn1header" style="font-weight: bold">Customer PO#</div>
+                    <div class="divtablecell info hcolumn1value"><?php echo CHtml::encode(CHtml::value($sale, 'reference')); ?></div>
+                </div>
+                <!--                <div class="divtablerow">
+                                    <div class="divtablecell info hcolumn1header" style="font-weight: bold">Tanggal</div>
+                                    <div class="divtablecell info hcolumn1value"><?php //echo CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime(CHtml::value($sale, 'date'))));  ?></div>
+                                </div>-->
+                <!--                <div class="divtablerow">
+                                    <div class="divtablecell info hcolumn1header" style="font-weight: bold">N.I.K</div>
+                                    <div class="divtablecell info hcolumn1value"><?php //echo CHtml::encode(CHtml::value($sale, 'plate_number'));  ?></div>
+                                </div>-->
+                <!--                <div class="divtablerow">
+                                    <div class="divtablecell info hcolumn1header" style="font-weight: bold">Pengirim</div>
+                                    <div class="divtablecell info hcolumn1value"><?php //echo CHtml::encode(CHtml::value($sale, 'driver'));  ?></div>
+                                </div>-->
+            </div>
+        </div>
+        <div class="divtablecell hcolumn2">
+            <div class="divtable">
+                <div class="divtablerow">
+                    <div class="divtablecell info hcolumn2header" style="font-weight: bold">Catatan</div>
+                    <div class="divtablecell info hcolumn2value"><?php echo CHtml::encode(CHtml::value($sale, 'note')); ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<table class="memo">
+    <tr id="theader">
+        <th>Banyaknya</th>
+        <th>Satuan</th>
+        <th>NAMA BARANG</th>
+        <th>Harga Satuan</th>
+        <th>Total</th>
+
+    </tr>
+    <?php $i = 0; ?>
+    <?php foreach ($saleDetails as $i => $detail): ?>
+        <?php $detailProduct = $detail->product(array('scopes' => 'resetScope', 'with' => 'unit:resetScope')); ?>
+        <tr class="titems">
+            <td style="text-align: center; width: 10%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', (CHtml::value($detail, 'quantity')))); ?>
+            </td>
+            <td style="text-align: center; width: 10%"><?php echo CHtml::encode(CHtml::value($detailProduct, 'unit.name')); ?></td>
+            <td><?php echo CHtml::encode(CHtml::value($detail, 'product_name')); ?></td>
+            <td style="text-align: right; width: 15%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', (CHtml::value($detail, 'unit_price')))); ?>
+            </td>
+            <td style="text-align: right; width: 15%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', (CHtml::value($detail, 'total')))); ?>
+            </td>
+
+        </tr>
+    <?php endforeach; ?>
+    <?php for ($j = 12, $i = $i % $j + 1; $j > $i; $j--): ?>
+        <tr class="titems">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+    <?php endfor; ?>
+    <tr>
+        <td  colspan="4" style="border-left:2px solid; border-top: 2px solid; border-right:1px solid; font-weight: bold; text-align: right">Sub Total</td>
+        <td style="border-top:2px solid; border-right:1px solid; font-weight: bold; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'subTotal'))); ?>
+        </td>
+    </tr>
+    <?php if ($sale->is_non_tax === 0): ?>
+        <tr>
+            <td  colspan="4" style="border-left:2px solid; border-top: 2px solid; border-right:1px solid; font-weight: bold; text-align: right">DPP lain-lain</td>
+            <td style="border-top:2px solid; border-right:1px solid; font-weight: bold; text-align: right">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'costOfGoodsSold'))); ?>
+            </td>
+        </tr>
+    <?php endif; ?>
+    <tr>
+        <td  colspan="4" style="text-align: right; border-left: 2px solid; border-right:1px solid; font-weight: bold">Diskon</td>
+        <td style="border-right:1px solid; font-weight: bold; text-align: right; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'discount'))); ?>
+        </td>
+    </tr>
+    <tr>
+        <td  colspan="4" style="border-left:2px solid; border-right:1px solid; font-weight: bold; text-align: right">Ongkos Kirim</td>
+        <td style="border-right:1px solid; font-weight: bold; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'shipping_fee'))); ?>
+        </td>
+    </tr>
+    <tr>
+        <td  colspan="4" style="text-align: right; border-left: 2px solid; border-right:1px solid; font-weight: bold">PPN. <?php echo CHtml::encode(CHtml::value($sale, 'tax')); ?>%</td>
+        <td style="border-right:1px solid; font-weight: bold; text-align: right; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'calculatedTax'))); ?>
+        </td>
+    </tr>
+    <tr>
+        <td  colspan="4" style="border-left:2px solid; border-top: 2px solid; border-right:1px solid; font-weight: bold; text-align: right">Grand Total</td>
+        <td style="border-top:2px solid; border-right:1px solid; font-weight: bold; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'grandTotal'))); ?>
+        </td>
+    </tr>
+</table>
+
+<div class="memosig">
+    <div class="divtable">
+        <div class="divtablecell sig1">
+            <div>Tanda Terima,</div>
+        </div>
+        <div class="divtablecell sig2">
+            <div>Hormat kami,</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<?php
+
+class DepositHeader extends DepositHeaderBase {
+
+    const CN_CONSTANT_CASH = 'DPSC';
+    const CN_CONSTANT_BANK = 'DPSB';
+
+    public static function model($className = __CLASS__) {
+        return parent::model($className);
+    }
+
+    public function getTotal() {
+        $total = 0.00;
+
+        foreach ($this->depositDetails as $detail) {
+            if ($detail->is_inactive == 0) {
+                $total += $detail->amount;
+            }
+        }
+
+        return $total;
+    }
+}

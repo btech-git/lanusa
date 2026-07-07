@@ -1,0 +1,1771 @@
+2023/09/05 16:09:31 [error] [exception.CDbException] exception 'CDbException' with message 'CDbConnection failed to open the DB connection: SQLSTATE[HY000] [1049] Unknown database 'lanusa'' in /home/pmahendro/public_html/yii/framework/db/CDbConnection.php:382
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbConnection.php(330): CDbConnection->open()
+#1 /home/pmahendro/public_html/yii/framework/db/CDbConnection.php(308): CDbConnection->setActive(true)
+#2 /home/pmahendro/public_html/yii/framework/base/CModule.php(387): CDbConnection->init()
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(589): CModule->getComponent('db')
+#4 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(59): CDbAuthManager->getDbConnection()
+#5 /home/pmahendro/public_html/yii/framework/base/CModule.php(387): CDbAuthManager->init()
+#6 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(185): CModule->getComponent('authManager')
+#7 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CWebApplication->getAuthManager()
+#8 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#9 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#11 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#12 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#13 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#15 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#16 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#17 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#18 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#20 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#21 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#22 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#23 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#24 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#25 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#26 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#27 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#28 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#29 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2023/09/05 16:40:16 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2023/09/05 16:40:16 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2024/02/16 14:23:55 [error] [exception.CException] exception 'CException' with message 'Property "DepositHeader.user" is not defined.' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('user')
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/deposit/view.php(44): CActiveRecord->__get('user')
+#2 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('view', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(130): CController->render('view', Array)
+#7 [internal function]: DepositController->actionView('1')
+#8 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs(Object(DepositController), Array)
+#9 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CAction->runWithParamsInternal(Object(DepositController), Object(ReflectionMethod), Array)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#11 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#12 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(21): CFilterChain->run()
+#13 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DepositController->filterAccess(Object(CFilterChain))
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#17 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('view')
+#18 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/dep...')
+#19 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#20 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#21 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/deposit/view&id=1
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/deposit/admin
+---
+2024/03/05 18:32:08 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2024/03/05 18:32:08 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2024/04/25 12:04:00 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens. The SQL statement executed was: SELECT balance_debit - balance_credit AS total_balance
+                FROM (
+                    SELECT account_id, SUM(debit) AS balance_debit, 0 AS balance_credit
+                    FROM tblla_journal_accounting
+                    WHERE account_id = :account_id AND date <= :end_date  AND branch_id = :branch_id GROUP BY account_id
+                    UNION
+                    SELECT account_id, 0 AS balance_debit, SUM(credit) AS balance_credit
+                    FROM tblla_journal_accounting
+                    WHERE account_id = :account_id AND date <= :end_date  AND branch_id = :branch_id GROUP BY account_id
+                ) transaction.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Account.php (97)
+in /home/pmahendro/public_html/lanusa/protected/models/custom/AccountCategory.php (15)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/balanceSheet/summary.php (75)
+2024/04/25 12:04:00 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens. The SQL statement executed was: SELECT balance_debit - balance_credit AS total_balance
+                FROM (
+                    SELECT account_id, SUM(debit) AS balance_debit, 0 AS balance_credit
+                    FROM tblla_journal_accounting
+                    WHERE account_id = :account_id AND date <= :end_date  AND branch_id = :branch_id GROUP BY account_id
+                    UNION
+                    SELECT account_id, 0 AS balance_debit, SUM(credit) AS balance_credit
+                    FROM tblla_journal_accounting
+                    WHERE account_id = :account_id AND date <= :end_date  AND branch_id = :branch_id GROUP BY account_id
+                ) transaction' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Account.php(97): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/models/custom/AccountCategory.php(15): Account->getBalanceTotal('2024-04-25', '2')
+#3 /home/pmahendro/public_html/lanusa/protected/modules/report/views/balanceSheet/summary.php(75): AccountCategory->getBalanceTotal('2024-04-25', '2')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#8 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/BalanceSheetController.php(52): CController->render('summary', Array)
+#9 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): BalanceSheetController->actionSummary()
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#11 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#12 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/BalanceSheetController.php(20): CFilterChain->run()
+#13 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): BalanceSheetController->filterAccess(Object(CFilterChain))
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#17 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#18 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/balanceS...')
+#19 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#20 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#21 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2FbalanceSheet%2Fsummary&BranchId=2&EndDate=2024-04-25&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report%2FbalanceSheet%2Fsummary&BranchId=2&EndDate=2024-04-25&yt0=Show
+---
+2024/05/21 21:27:28 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT receive.quantity - purchase_return.quantity + adjustment.quantity - transfer_from.quantity + transfer_to.quantity - delivery.quantity + sale_return.quantity AS current_stock FROM
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_receive_header h 
+				INNER JOIN tblla_receive_detail d ON h.id = d.receive_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) receive
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_purchase_return_header h 
+				INNER JOIN tblla_purchase_return_detail d ON h.id = d.purchase_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) purchase_return
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity_adjustment - d.quantity_current), 0) AS quantity 
+				FROM tblla_adjustment_header h 
+				INNER JOIN tblla_adjustment_detail d ON h.id = d.adjustment_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) adjustment
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_from
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_to
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_delivery_header h 
+				INNER JOIN tblla_delivery_detail d ON h.id = d.delivery_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) delivery
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_sale_return_header h 
+				INNER JOIN tblla_sale_return_detail d ON h.id = d.sale_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) sale_return.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (181)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/_summary.php (44)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/summary.php (111)
+2024/05/21 21:27:28 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT receive.quantity - purchase_return.quantity + adjustment.quantity - transfer_from.quantity + transfer_to.quantity - delivery.quantity + sale_return.quantity AS current_stock FROM
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_receive_header h 
+				INNER JOIN tblla_receive_detail d ON h.id = d.receive_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) receive
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_purchase_return_header h 
+				INNER JOIN tblla_purchase_return_detail d ON h.id = d.purchase_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) purchase_return
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity_adjustment - d.quantity_current), 0) AS quantity 
+				FROM tblla_adjustment_header h 
+				INNER JOIN tblla_adjustment_detail d ON h.id = d.adjustment_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) adjustment
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_from
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_to
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_delivery_header h 
+				INNER JOIN tblla_delivery_detail d ON h.id = d.delivery_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) delivery
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_sale_return_header h 
+				INNER JOIN tblla_sale_return_detail d ON h.id = d.sale_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) sale_return' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(181): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/_summary.php(44): Product->getStockBeginning('')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/summary.php(111): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): StockController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockController.php(17): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): StockController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/stock/su...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/stock/summary
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=report
+---
+2024/05/21 21:27:59 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date AND warehouse_id = :warehouse_id.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (221)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php (64)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php (117)
+2024/05/21 21:27:59 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date AND warehouse_id = :warehouse_id' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(221): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php(64): Product->getInventoryReportStockFromBeginningTo('', '1', true)
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php(117): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): InventoryController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(18): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): InventoryController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/inventor...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2Finventory%2Fsummary&Product%5Bname%5D=&Product%5Bsize%5D=&Product%5Bcategory_id%5D=&WarehouseId=1&StartDate=2024-01-01&EndDate=&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/inventory/summary
+---
+2024/05/27 18:00:04 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT receive.quantity - purchase_return.quantity + adjustment.quantity - transfer_from.quantity + transfer_to.quantity - delivery.quantity + sale_return.quantity AS current_stock FROM
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_receive_header h 
+				INNER JOIN tblla_receive_detail d ON h.id = d.receive_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) receive
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_purchase_return_header h 
+				INNER JOIN tblla_purchase_return_detail d ON h.id = d.purchase_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) purchase_return
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity_adjustment - d.quantity_current), 0) AS quantity 
+				FROM tblla_adjustment_header h 
+				INNER JOIN tblla_adjustment_detail d ON h.id = d.adjustment_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) adjustment
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_from
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_to
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_delivery_header h 
+				INNER JOIN tblla_delivery_detail d ON h.id = d.delivery_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) delivery
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_sale_return_header h 
+				INNER JOIN tblla_sale_return_detail d ON h.id = d.sale_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) sale_return.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (181)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/_summary.php (44)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/summary.php (111)
+2024/05/27 18:00:04 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT receive.quantity - purchase_return.quantity + adjustment.quantity - transfer_from.quantity + transfer_to.quantity - delivery.quantity + sale_return.quantity AS current_stock FROM
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_receive_header h 
+				INNER JOIN tblla_receive_detail d ON h.id = d.receive_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) receive
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_purchase_return_header h 
+				INNER JOIN tblla_purchase_return_detail d ON h.id = d.purchase_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) purchase_return
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity_adjustment - d.quantity_current), 0) AS quantity 
+				FROM tblla_adjustment_header h 
+				INNER JOIN tblla_adjustment_detail d ON h.id = d.adjustment_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) adjustment
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_from
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_transfer_header h 
+				INNER JOIN tblla_transfer_detail d ON h.id = d.transfer_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) transfer_to
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_delivery_header h 
+				INNER JOIN tblla_delivery_detail d ON h.id = d.delivery_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) delivery
+				CROSS JOIN
+				(
+					SELECT COALESCE(SUM(d.quantity), 0) AS quantity 
+				FROM tblla_sale_return_header h 
+				INNER JOIN tblla_sale_return_detail d ON h.id = d.sale_return_header_id
+					WHERE d.product_id = :product_id AND h.date < :start_date AND h.is_inactive = 0 AND d.is_inactive = 0
+				) sale_return' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(181): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/_summary.php(44): Product->getStockBeginning('')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stock/summary.php(111): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): StockController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockController.php(17): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): StockController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/stock/su...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/stock/summary
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=report
+---
+2024/05/27 18:00:35 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (214)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php (64)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php (117)
+2024/05/27 18:00:35 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(214): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php(64): Product->getInventoryReportStockFromBeginningTo('', '', true)
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php(117): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): InventoryController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(18): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): InventoryController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/inventor...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2Finventory%2Fsummary&Product%5Bname%5D=&Product%5Bsize%5D=&Product%5Bcategory_id%5D=&WarehouseId=&StartDate=2024-01-01&EndDate=&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/inventory/summary
+---
+2024/05/27 18:09:39 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (214)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php (64)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php (117)
+2024/05/27 18:09:39 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(214): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php(64): Product->getInventoryReportStockFromBeginningTo('', '', true)
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php(117): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): InventoryController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(18): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): InventoryController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/inventor...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2Finventory%2Fsummary&Product%5Bname%5D=&Product%5Bsize%5D=&Product%5Bcategory_id%5D=&WarehouseId=&StartDate=2024-01-01&EndDate=&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/inventory/summary
+---
+2024/05/27 18:13:45 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (202)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php (64)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php (117)
+2024/05/27 18:13:45 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1525 Incorrect DATE value: ''. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) 
+				FROM tblla_inventory 
+                WHERE product_id = :product_id AND date <= :date' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(202): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/_summary.php(64): Product->getInventoryReportStockFromBeginningTo('', '', true)
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/inventory/summary.php(117): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(58): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): InventoryController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/InventoryController.php(18): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): InventoryController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/inventor...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2Finventory%2Fsummary&Product%5Bname%5D=&Product%5Bsize%5D=&Product%5Bcategory_id%5D=&WarehouseId=&StartDate=2024-01-01&EndDate=&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/inventory/summary
+---
+2024/06/05 18:35:21 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(536): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(176): PurchaseController->memoToExcel()
+#3 unknown(0): PurchaseController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): PurchaseController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(31): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchaseController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): PurchaseController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): PurchaseController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/purchase/memo&id=76411
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (536)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (176)
+2024/07/23 19:47:11 [error] [php] Missing argument 2 for StockLocalSummary::setupFilter(), called in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php on line 37 and defined (/home/pmahendro/public_html/lanusa/protected/modules/report/components/StockLocalSummary.php:34)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#1 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): StockLocalController->runAction()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php(17): CFilterChain->run()
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): StockLocalController->filterAccess()
+#4 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(265): StockLocalController->runActionWithFilters()
+#7 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): StockLocalController->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#9 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#10 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2FstockLocal%2Fsummary&WarehouseId=1&Product%5Bname%5D=&category=&PageSize=1000&page=1&sort=&yt0=Show
+in /home/pmahendro/public_html/lanusa/protected/modules/report/components/StockLocalSummary.php (34)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php (37)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php (17)
+2024/07/23 19:47:22 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1111 Invalid use of group function. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) AS stock
+                FROM tblla_inventory 
+                WHERE product_id = :product_id AND warehouse_id = :warehouse_id AND COALESCE(SUM(quantity_in - quantity_out), 0) > 0.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (17)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/_summary.php (36)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/summary.php (84)
+2024/07/23 19:47:22 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1111 Invalid use of group function. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) AS stock
+                FROM tblla_inventory 
+                WHERE product_id = :product_id AND warehouse_id = :warehouse_id AND COALESCE(SUM(quantity_in - quantity_out), 0) > 0' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(17): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/_summary.php(36): Product->getLocalStock('1')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/summary.php(84): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php(51): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): StockLocalController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php(17): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): StockLocalController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/stockLoc...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2FstockLocal%2Fsummary&WarehouseId=1&Product%5Bname%5D=&category=&PageSize=1000&page=1&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report%2FstockLocal%2Fsummary&WarehouseId=1&Product%5Bname%5D=&category=&PageSize=1000&page=1&sort=&yt0=Show
+---
+2024/07/23 19:48:25 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'AND warehouse_id 
+                HAVING stock > 0' at line 4. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) AS stock
+                FROM tblla_inventory 
+                WHERE product_id = :product_id AND warehouse_id = :warehouse_id 
+                GROUP BY product_id, AND warehouse_id 
+                HAVING stock > 0.
+in /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php (17)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/_summary.php (36)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/summary.php (84)
+2024/07/23 19:48:25 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'AND warehouse_id 
+                HAVING stock > 0' at line 4. The SQL statement executed was: SELECT COALESCE(SUM(quantity_in - quantity_out), 0) AS stock
+                FROM tblla_inventory 
+                WHERE product_id = :product_id AND warehouse_id = :warehouse_id 
+                GROUP BY product_id, AND warehouse_id 
+                HAVING stock > 0' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/lanusa/protected/models/custom/Product.php(17): CDbCommand->queryScalar(Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/_summary.php(36): Product->getLocalStock('1')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/views/stockLocal/summary.php(84): CController->renderPartial('_summary', Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('summary', Array, true)
+#11 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php(51): CController->render('summary', Array)
+#12 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): StockLocalController->actionSummary()
+#13 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#14 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#15 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/StockLocalController.php(17): CFilterChain->run()
+#16 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): StockLocalController->filterAccess(Object(CFilterChain))
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#20 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('summary')
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/stockLoc...')
+#22 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#23 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#24 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2FstockLocal%2Fsummary&WarehouseId=1&Product%5Bname%5D=&category=&PageSize=1000&page=1&sort=&yt0=Show
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report%2FstockLocal%2Fsummary&WarehouseId=1&Product%5Bname%5D=&category=&PageSize=1000&page=1&sort=&yt0=Show
+---
+2024/11/08 10:00:52 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2024/11/08 10:00:52 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2024/11/08 10:07:35 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2024/11/08 10:07:35 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2024/11/08 10:08:55 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.tblla_sale_invoice' doesn't exist. The SQL statement executed was: SHOW FULL COLUMNS FROM `tblla_sale_invoice`.
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (983)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (25)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (21)
+2024/11/08 10:08:55 [error] [exception.CDbException] exception 'CDbException' with message 'The table "tblla_sale_invoice" for active record class "SaleInvoice" cannot be found in the database.' in /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php:2362
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(411): CActiveRecordMetaData->__construct(Object(SaleInvoice))
+#1 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(79): CActiveRecord->getMetaData()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(983): CActiveRecord->__construct()
+#3 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(25): SaleInvoiceController->instantiate(NULL)
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SaleInvoiceController->actionCreate()
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#7 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(21): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SaleInvoiceController->filterAccess(Object(CFilterChain))
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#12 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('create')
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/sal...')
+#14 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#15 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#16 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/saleInvoice/create
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=accounting
+---
+2024/11/08 10:24:41 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (13)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2024/11/08 10:24:41 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments('1')
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('saleInvoiceCrea...', '1', Array)
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(13): CWebUser->checkAccess('saleInvoiceCrea...')
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SaleInvoiceController->filterAccess(Object(CFilterChain))
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('create')
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/sal...')
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#13 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/saleInvoice/create
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=accounting
+---
+2024/11/11 11:40:30 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '11:40:30' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/11 11:40:38 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '11:40:38' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/11 11:40:58 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '11:40:58' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/11 11:42:07 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '11:42:07' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/15 16:04:49 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '16:04:49' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/15 16:04:56 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '16:04:56' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (55)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2024/11/15 16:05:38 [error] [system.db.CDbCommand] CDbCommand::execute() failed: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '16:05:38' for column 'time' at row 1. The SQL statement executed was: INSERT INTO `tblla_history` (`table_name`, `record_id`, `new_data`, `user_data`, `user_table`, `time`) VALUES (:yp0, :yp1, :yp2, :yp3, :yp4, :yp5).
+in /home/pmahendro/public_html/lanusa/protected/components/ActiveRecord.php (84)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (72)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/components/PurchasePayment.php (114)
+2025/01/31 20:12:18 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/sale/view.php:38)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): SaleController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): SaleController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php(134): SaleController->render()
+#3 unknown(0): SaleController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): SaleController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php(24): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SaleController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): SaleController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): SaleController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/sale/view&id=126108
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/sale/view.php (38)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php (134)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php (24)
+2025/01/31 20:19:17 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/saleInvoice/view.php:39)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): SaleInvoiceController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): SaleInvoiceController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(95): SaleInvoiceController->render()
+#3 unknown(0): SaleInvoiceController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): SaleInvoiceController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SaleInvoiceController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): SaleInvoiceController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): SaleInvoiceController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/saleInvoice/view&id=144194
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/saleInvoice/view.php (39)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (95)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (21)
+2025/11/10 13:05:35 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(432): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(248): DeliveryController->memoToExcel()
+#3 unknown(0): DeliveryController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): DeliveryController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(26): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DeliveryController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): DeliveryController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): DeliveryController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/delivery/memo&id=167004
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (432)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (248)
+2025/11/10 13:05:39 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(432): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(248): DeliveryController->memoToExcel()
+#3 unknown(0): DeliveryController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): DeliveryController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(26): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DeliveryController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): DeliveryController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): DeliveryController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/delivery/memo&id=167004
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (432)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (248)
+2025/11/10 13:05:54 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(539): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(176): PurchaseController->memoToExcel()
+#3 unknown(0): PurchaseController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): PurchaseController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(31): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchaseController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): PurchaseController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): PurchaseController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/purchase/memo&id=82431
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (539)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (176)
+2025/11/10 13:05:56 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(539): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(176): PurchaseController->memoToExcel()
+#3 unknown(0): PurchaseController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): PurchaseController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(31): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchaseController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): PurchaseController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): PurchaseController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/purchase/memo&id=82431
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (539)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (176)
+2025/11/10 14:50:27 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(432): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(248): DeliveryController->memoToExcel()
+#3 unknown(0): DeliveryController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): DeliveryController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php(26): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DeliveryController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): DeliveryController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): DeliveryController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/delivery/memo&id=167003
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (432)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DeliveryController.php (248)
+2025/11/10 14:50:34 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(539): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(176): PurchaseController->memoToExcel()
+#3 unknown(0): PurchaseController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): PurchaseController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php(31): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchaseController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): PurchaseController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): PurchaseController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/purchase/memo&id=82429
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (539)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchaseController.php (176)
+2025/11/10 15:02:40 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(224): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(117): JournalVoucherController->memoToExcel()
+#3 unknown(0): JournalVoucherController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/memo&id=6
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (224)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (117)
+2025/11/10 15:04:22 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(224): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(117): JournalVoucherController->memoToExcel()
+#3 unknown(0): JournalVoucherController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/memo&id=6
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (224)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (117)
+2025/11/10 16:45:18 [error] [php] Undefined variable: i (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php:198)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#1 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/memo&id=8
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (198)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (117)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:45:51 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(101): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1378
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (101)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:46:00 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(101): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1374
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (101)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:46:02 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(101): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1377
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (101)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:46:57 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(101): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1380
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (101)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:48:21 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(103): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1380
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (103)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:50:00 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php:31)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): JournalVoucherController->renderFile()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(782): JournalVoucherController->renderPartial()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(103): JournalVoucherController->render()
+#3 unknown(0): JournalVoucherController->actionView()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/view&id=1380
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/journalVoucher/view.php (31)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (103)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:51:33 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php:156)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#1 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/memo&id=1380
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (156)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (119)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/10 16:52:06 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php:157)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#1 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): JournalVoucherController->runAction()
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php(21): CFilterChain->run()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): JournalVoucherController->filterAccess()
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): JournalVoucherController->runActionWithFilters()
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): JournalVoucherController->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/journalVoucher/memo&id=1380
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (157)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (120)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/JournalVoucherController.php (21)
+2025/11/17 09:13:02 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SalePaymentController.php(420): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SalePaymentController.php(230): SalePaymentController->memoToExcel()
+#3 unknown(0): SalePaymentController->actionMemo()
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#5 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): SalePaymentController->runAction()
+#8 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SalePaymentController.php(28): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SalePaymentController->filterAccess()
+#10 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): SalePaymentController->runActionWithFilters()
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): SalePaymentController->run()
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/salePayment/memo&id=6
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SalePaymentController.php (420)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SalePaymentController.php (230)
+2025/11/20 10:32:46 [error] [php] Undefined variable: dataProvider (/home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/_form.php:115)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(869): FeeInvoiceController->renderFile()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/create.php(15): FeeInvoiceController->renderPartial()
+#2 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require()
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): FeeInvoiceController->renderInternal()
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(869): FeeInvoiceController->renderFile()
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(782): FeeInvoiceController->renderPartial()
+#6 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php(52): FeeInvoiceController->render()
+#7 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): FeeInvoiceController->actionCreate()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#11 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#13 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#14 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/_form.php (115)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/create.php (15)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (52)
+2025/11/20 10:33:33 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:33:38 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:34:01 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:36:31 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:37:41 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:109)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (109)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:38:04 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:109)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (109)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:38:09 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:109)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#4 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#5 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#6 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#7 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer&id=
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (109)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:40:16 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#3 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:40:18 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#3 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 10:40:21 [error] [php] Trying to get property of non-object (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:108)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#3 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/ajaxJsonCustomer
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (108)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 16:25:52 [error] [php] Undefined variable: saleInvoice (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php:42)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(286): FeeInvoiceController->runAction()
+#1 /home/pmahendro/public_html/yii/framework/web/CController.php(265): FeeInvoiceController->runActionWithFilters()
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): FeeInvoiceController->run()
+#3 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php (42)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2025/11/20 16:30:36 [error] [exception.CException] exception 'CException' with message 'FeeInvoice and its behaviors do not have a method or closure named "generateCodeNumber".' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:266
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(227): CComponent->__call('generateCodeNum...', Array)
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php(42): CActiveRecord->__call('generateCodeNum...', Array)
+#2 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php(42): FeeInvoice->generateCodeNumber('2', '11', '25')
+#3 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): FeeInvoiceController->actionCreate()
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('create')
+#8 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/fee...')
+#9 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#10 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#11 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+---
+2025/11/20 16:42:15 [error] [exception.CException] exception 'CException' with message 'Property "FeeInvoice.name" is not defined.' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('name')
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/view.php(40): CActiveRecord->__get('name')
+#2 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('view', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php(30): CController->render('view', Array)
+#7 [internal function]: FeeInvoiceController->actionView('1')
+#8 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs(Object(FeeInvoiceController), Array)
+#9 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CAction->runWithParamsInternal(Object(FeeInvoiceController), Object(ReflectionMethod), Array)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('view')
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/fee...')
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#17 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/view&id=1
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+---
+2025/11/20 16:46:18 [error] [exception.CException] exception 'CException' with message 'Property "FeeInvoice.name" is not defined.' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('name')
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/feeInvoice/view.php(63): CActiveRecord->__get('name')
+#2 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#3 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('view', Array, true)
+#6 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/FeeInvoiceController.php(30): CController->render('view', Array)
+#7 [internal function]: FeeInvoiceController->actionView('1')
+#8 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs(Object(FeeInvoiceController), Array)
+#9 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CAction->runWithParamsInternal(Object(FeeInvoiceController), Object(ReflectionMethod), Array)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#12 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#13 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('view')
+#14 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/fee...')
+#15 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#16 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#17 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/view&id=1
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/feeInvoice/create
+---
+2025/12/30 17:31:01 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/PurchaseController.php(153): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/PurchaseController.php(59): PurchaseController->saveToExcel()
+#3 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): PurchaseController->actionSummary()
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): PurchaseController->runAction()
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/PurchaseController.php(19): CFilterChain->run()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchaseController->filterAccess()
+#8 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(265): PurchaseController->runActionWithFilters()
+#11 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): PurchaseController->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#13 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#14 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2Fpurchase%2Fsummary&BranchId=&SupplierId=&PageSize=1000&page=1&StartDate=2024-04-01&EndDate=2024-04-30&sort=&SaveExcel=Save+to+Excel
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/PurchaseController.php (153)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/PurchaseController.php (59)
+2026/02/11 18:57:38 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2026/02/11 18:57:38 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2026/02/11 18:58:53 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.tblla_sale_header' doesn't exist. The SQL statement executed was: SHOW FULL COLUMNS FROM `tblla_sale_header`.
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (54)
+in /home/pmahendro/public_html/lanusa/index.php (13)
+2026/02/11 18:58:53 [error] [exception.CDbException] exception 'CDbException' with message 'The table "tblla_sale_header" for active record class "SaleHeader" cannot be found in the database.' in /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php:2362
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(411): CActiveRecordMetaData->__construct(Object(SaleHeader))
+#1 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(658): CActiveRecord->getMetaData()
+#2 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(1485): CActiveRecord->getTableSchema()
+#3 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(54): CActiveRecord->findByPk('')
+#4 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionIndex()
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#8 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('')
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('')
+#10 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#11 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#12 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/login
+---
+2026/02/16 09:43:46 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid.
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php (31)
+in /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php (5)
+in /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php (138)
+2026/02/16 09:43:46 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'lanusa.AuthAssignment' doesn't exist. The SQL statement executed was: SELECT *
+FROM `AuthAssignment`
+WHERE userid=:userid' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(337): CDbCommand->queryAll()
+#2 /home/pmahendro/public_html/yii/framework/web/auth/CDbAuthManager.php(74): CDbAuthManager->getAuthAssignments(NULL)
+#3 /home/pmahendro/public_html/yii/framework/web/auth/CWebUser.php(815): CDbAuthManager->checkAccess('master', NULL, Array)
+#4 /home/pmahendro/public_html/lanusa/protected/views/layouts/main.php(31): CWebUser->checkAccess('master')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#6 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(76): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#8 /home/pmahendro/public_html/yii/framework/web/widgets/CContentDecorator.php(54): CContentDecorator->decorate('\t<div id="conte...')
+#9 /home/pmahendro/public_html/yii/framework/web/widgets/COutputProcessor.php(44): CContentDecorator->processOutput('\t<div id="conte...')
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(206): COutputProcessor->run()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(300): CBaseController->endWidget('CContentDecorat...')
+#12 /home/pmahendro/public_html/lanusa/protected/views/layouts/column1.php(5): CBaseController->endContent()
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(784): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/lanusa/protected/controllers/SiteController.php(138): CController->render('login', Array)
+#17 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): SiteController->actionLogin()
+#18 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(286): CController->runAction(Object(CInlineAction))
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('login')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('site/login')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=site/login
+---
+2026/05/05 13:28:29 [error] [exception.CException] exception 'CException' with message 'CActiveDataProvider and its behaviors do not have a method or closure named "resetScope".' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:266
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(198): CComponent->__call('resetScope', Array)
+#1 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(198): CActiveDataProvider->resetScope()
+#2 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): DepositController->actionAdmin()
+#3 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#4 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#5 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(21): CFilterChain->run()
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DepositController->filterAccess(Object(CFilterChain))
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('admin')
+#11 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/dep...')
+#12 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#13 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#14 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/deposit/admin
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=edit
+---
+2026/05/05 13:28:37 [error] [exception.CException] exception 'CException' with message 'Property "CActiveDataProvider.resetScope" is not defined.' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(198): CComponent->__get('resetScope')
+#1 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): DepositController->actionAdmin()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(21): CFilterChain->run()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DepositController->filterAccess(Object(CFilterChain))
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('admin')
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/dep...')
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#13 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/deposit/admin
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=edit
+---
+2026/05/05 13:31:02 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'is_inactive' in where clause is ambiguous. The SQL statement executed was: SELECT COUNT(DISTINCT `t`.`id`) FROM `tblla_deposit_header` `t`  LEFT OUTER JOIN `tblla_account` `account` ON (`t`.`account_id`=`account`.`id`) AND (account.is_inactive = :is_inactive)  WHERE ((t.is_inactive = :is_inactive) AND (is_inactive=:ycp0)).
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/deposit/admin.php (74)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php (206)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php (21)
+2026/05/05 13:31:02 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'is_inactive' in where clause is ambiguous. The SQL statement executed was: SELECT COUNT(DISTINCT `t`.`id`) FROM `tblla_deposit_header` `t`  LEFT OUTER JOIN `tblla_account` `account` ON (`t`.`account_id`=`account`.`id`) AND (account.is_inactive = :is_inactive)  WHERE ((t.is_inactive = :is_inactive) AND (is_inactive=:ycp0))' in /home/pmahendro/public_html/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/pmahendro/public_html/yii/framework/db/ar/CActiveFinder.php(759): CDbCommand->queryScalar()
+#2 /home/pmahendro/public_html/yii/framework/db/ar/CActiveFinder.php(151): CJoinElement->count(Object(CDbCriteria))
+#3 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(1605): CActiveFinder->count(Object(CDbCriteria))
+#4 /home/pmahendro/public_html/yii/framework/web/CActiveDataProvider.php(228): CActiveRecord->count(Object(CDbCriteria))
+#5 /home/pmahendro/public_html/yii/framework/web/CDataProvider.php(224): CActiveDataProvider->calculateTotalItemCount()
+#6 /home/pmahendro/public_html/yii/framework/web/CActiveDataProvider.php(178): CDataProvider->getTotalItemCount()
+#7 /home/pmahendro/public_html/yii/framework/web/CDataProvider.php(168): CActiveDataProvider->fetchData()
+#8 /home/pmahendro/public_html/yii/framework/zii/widgets/CBaseListView.php(111): CDataProvider->getData()
+#9 /home/pmahendro/public_html/yii/framework/zii/widgets/grid/CGridView.php(339): CBaseListView->init()
+#10 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(147): CGridView->init()
+#11 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(172): CBaseController->createWidget('zii.widgets.gri...', Array)
+#12 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/deposit/admin.php(74): CBaseController->widget('zii.widgets.gri...', Array)
+#13 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#14 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#15 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#16 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('admin', Array, true)
+#17 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(206): CController->render('admin', Array)
+#18 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): DepositController->actionAdmin()
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#20 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#21 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/DepositController.php(21): CFilterChain->run()
+#22 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): DepositController->filterAccess(Object(CFilterChain))
+#23 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#24 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#25 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#26 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('admin')
+#27 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/dep...')
+#28 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#29 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#30 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?DepositHeader%5Bcn_ordinal%5D=&DepositHeader%5Bcn_month%5D=&DepositHeader%5Bcn_year%5D=&DepositHeader%5Bdate%5D=&DepositHeader%5Baccount_id%5D=&DepositHeader%5Bis_inactive%5D=1&DepositHeader_page=1&ajax=indent-header-grid&r=transaction%2Fdeposit%2Fadmin
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/deposit/admin
+---
+2026/05/05 18:41:59 [error] [exception.CException] exception 'CException' with message 'Property "PurchasePaymentHeader.is_using_cheque" is not defined.' in /home/pmahendro/public_html/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('is_using_cheque')
+#1 /home/pmahendro/public_html/yii/framework/web/helpers/CHtml.php(2529): CActiveRecord->__get('is_using_cheque')
+#2 /home/pmahendro/public_html/yii/framework/web/helpers/CHtml.php(1743): CHtml::resolveValue(Object(PurchasePaymentHeader), 'is_using_cheque')
+#3 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/purchasePayment/_form.php(176): CHtml::activeCheckBox(Object(PurchasePaymentHeader), 'is_using_cheque')
+#4 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#5 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#7 /home/pmahendro/public_html/lanusa/protected/modules/transaction/views/purchasePayment/create.php(18): CController->renderPartial('_form', Array)
+#8 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(126): require('/home/pmahendro...')
+#9 /home/pmahendro/public_html/yii/framework/web/CBaseController.php(95): CBaseController->renderInternal('/home/pmahendro...', Array, true)
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(869): CBaseController->renderFile('/home/pmahendro...', Array, true)
+#11 /home/pmahendro/public_html/yii/framework/web/CController.php(782): CController->renderPartial('create', Array, true)
+#12 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchasePaymentController.php(77): CController->render('create', Array)
+#13 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): PurchasePaymentController->actionCreate()
+#14 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams(Array)
+#15 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): CController->runAction(Object(CInlineAction))
+#16 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/PurchasePaymentController.php(26): CFilterChain->run()
+#17 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): PurchasePaymentController->filterAccess(Object(CFilterChain))
+#18 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#19 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#20 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#21 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('create')
+#22 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/pur...')
+#23 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#24 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#25 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/purchasePayment/create
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=site/page&view=accounting
+---

@@ -1,0 +1,64 @@
+<?php
+$this->pageTitle = Yii::app()->name . ' - Lanusa';
+$this->breadcrumbs = array(
+    'Lanusa',
+);
+Yii::app()->clientScript->registerScript('transaction', "
+	if (!document.getElementById('accounting-ul').getElementsByTagName('li').length)
+		document.getElementById('accounting-fieldset').style.display = 'none';
+");
+?>
+<h1>Transaksi Akuntansi</h1>
+
+<div class="form"> 
+    <?php
+    if (Yii::app()->user->checkAccess('purchaseReceiptCreate') || Yii::app()->user->checkAccess('purchasePaymentCreate') || Yii::app()->user->checkAccess('saleDownpaymentCreate') || Yii::app()->user->checkAccess('saleInvoiceCreate') || Yii::app()->user->checkAccess('saleReceiptCreate') || Yii::app()->user->checkAccess('saleChequeCreate') || Yii::app()->user->checkAccess('salePaymentCreate') || Yii::app()->user->checkAccess('cashExpenseCreate') || Yii::app()->user->checkAccess('cashDepositCreate')
+    ) :
+        ?>
+        <fieldset id="accounting-fieldset">
+            <legend>Finance</legend>
+            <ul id="accounting-ul" style="display: table-cell">
+                <?php if (Yii::app()->user->checkAccess('saleInvoiceCreate')): ?>
+                    <li><?php echo CHtml::link('Invoice Penjualan', array('/transaction/saleInvoice/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('cashExpenseCreate')): ?>
+                    <li><?php echo CHtml::link('Pengeluaran Kas / Bank', array('/transaction/expense/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('cashDepositCreate')): ?>
+                    <li><?php echo CHtml::link('Penerimaan Kas / Bank', array('/transaction/deposit/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('saleDownpaymentCreate')): ?>
+                    <li><?php echo CHtml::link('Uang Muka Penjualan', array('/transaction/saleDownpayment/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('saleReceiptCreate')): ?>
+                    <li><?php echo CHtml::link('Penerimaan Tanda Terima Penjualan', array('/transaction/saleReceipt/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('saleChequeCreate')): ?>
+                    <li><?php echo CHtml::link('Penerimaan Giro Penjualan', array('/transaction/saleCheque/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('salePaymentCreate')): ?>
+                    <li><?php echo CHtml::link('Pelunasan Penjualan', array('/transaction/salePayment/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('purchaseReceiptCreate')): ?>
+                    <li><?php echo CHtml::link('Tanda Terima Pembelian', array('/transaction/purchaseReceipt/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <?php if (Yii::app()->user->checkAccess('purchasePaymentCreate')): ?>
+                    <li><?php echo CHtml::link('Pembayaran Pembelian', array('/transaction/purchasePayment/create')); ?><br/><br/></li>
+                <?php endif; ?>
+
+            </ul>
+        </fieldset>
+            <?php endif; ?>
+
+            <?php if (Yii::app()->user->checkAccess('adjustmentJournalCreate')): ?>
+        <fieldset>
+            <legend>Accounting</legend>
+            <ul id="accounting-ul" style="display: table-cell">
+                <?php if (Yii::app()->user->checkAccess('adjustmentJournalCreate')): ?>
+                    <li><?php echo CHtml::link('Jurnal Umum', array('/transaction/journalVoucher/create')); ?><br/><br/></li>
+                <?php endif; ?>
+                <li><?php echo CHtml::link('Invoice lain2', array('/transaction/feeInvoice/admin')); ?><br/><br/></li>
+            </ul>
+        </fieldset>
+            <?php endif; ?>
+</div>

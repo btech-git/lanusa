@@ -1,0 +1,72 @@
+@media screen
+{
+	.hide
+	{
+		display: block;
+	}
+}
+@media print
+{
+	.hide
+	{
+		display: none;
+	}
+	#page
+	{
+		border: none;
+	}
+}
+
+table.report
+{
+	width: 99%;
+	margin-left: auto;
+	margin-right: auto;
+	border-spacing: 0pt;
+}
+
+table.report tr#header1 th
+{
+	border-top: 2px solid;
+	text-align: center;
+}
+
+table.report tr#header2 td
+{
+	border-bottom: 2px solid;
+}
+
+table.report tr#header2 td table, table.report tr.items2 > td table
+{
+	width: 98%;
+	margin-left: 2%;
+	margin-right: auto;
+	border-spacing: 0pt;
+}
+
+table.report tr#header2 td table
+{
+	margin-top: 0%;
+	margin-bottom: 0%;
+}
+
+table.report tr#header2 td table tr th
+{
+	text-align: center;
+}
+
+table.report tr.items2 > td
+{
+	border-bottom: 2px dotted;
+}
+
+table.report tr.items2 > td table
+{
+	margin-top: 1%;
+	margin-bottom: 1%;
+}
+
+table.report tr.items2 > td table tr td
+{
+	font-size: smaller;
+}
