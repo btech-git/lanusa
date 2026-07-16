@@ -152,6 +152,6 @@ $this->breadcrumbs = array(
 <div id="link">
     <?php echo CHtml::link('Create', array('create')); ?>
     <?php echo CHtml::link('Manage', array('admin')); ?>
-    <?php echo CHtml::link('Print', array('memo', 'id' => $sale->id), array('target' => '_blank')); ?>
+    <?php echo CHtml::link('Print Proforma Invoice', array('memo', 'id' => $sale->id), array('target' => '_blank')); ?>
     <?php echo CHtml::link('Print Persiapan', array('memoPicking', 'id' => $sale->id)); ?>
 </div>

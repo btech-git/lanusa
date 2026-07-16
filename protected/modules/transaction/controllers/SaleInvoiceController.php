@@ -181,8 +181,9 @@ class SaleInvoiceController extends Controller {
 
     public function actionMemo($id) {
         if (!(Yii::app()->user->checkAccess('administrator'))) {
-            if (!(isset(Yii::app()->session['SaleInvoiceMemoAllowed']) && Yii::app()->session['SaleInvoiceMemoAllowed'] === true))
+            if (!(isset(Yii::app()->session['SaleInvoiceMemoAllowed']) && Yii::app()->session['SaleInvoiceMemoAllowed'] === true)) {
                 $this->redirect(array('admin'));
+            }
         }
 
         Yii::app()->session->remove('SaleInvoiceMemoAllowed');
@@ -442,13 +443,11 @@ class SaleInvoiceController extends Controller {
 
         $counter ++;
         if ((int) $saleInvoice->branch_id !== 4) {
-//            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setSize(10);
             $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setWrapText(true);
             $worksheet->mergeCells("D{$counter}:I{$counter}");
             $worksheet->setCellValue("D{$counter}", strip_tags(nl2br($saleInvoice->branch->address)));
 
             $counter ++;
-//            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setSize(10);
             $worksheet->setCellValue("D{$counter}", 'Telp');
             $worksheet->setCellValue("E{$counter}", ':');
             $worksheet->mergeCells("F{$counter}:H{$counter}");
@@ -462,7 +461,6 @@ class SaleInvoiceController extends Controller {
 
         $counter++;
         if ((int) $saleInvoice->branch_id !== 4) {
-//            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setSize(10);
             $worksheet->setCellValue("D{$counter}", 'NPWP');
             $worksheet->setCellValue("E{$counter}", ':');
             $worksheet->mergeCells("F{$counter}:H{$counter}");
@@ -476,7 +474,6 @@ class SaleInvoiceController extends Controller {
         $worksheet->setCellValue("M{$counter}", $saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT));
 
         $counter++;
-//        $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setSize(10);
         $worksheet->setCellValue("A{$counter}", 'Kepada');
 
         $counter++;
@@ -492,7 +489,6 @@ class SaleInvoiceController extends Controller {
         
         $counter++;
         $counter_3 = $counter + 1;
-//        $worksheet->getStyle("A{$counter}:I{$counter}")->getFont()->setSize(10);
         $worksheet->mergeCells("A{$counter}:I{$counter_3}");
         $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
         $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setWrapText(true);
@@ -506,11 +502,9 @@ class SaleInvoiceController extends Controller {
         $counter++;
         $counter++;
         $worksheet->mergeCells("A{$counter}:G{$counter}");
-//        $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setSize(10);
         $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->npwp);
 
         $counter++;
-//        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setSize(10);
         $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setBold(true);
         $worksheet->getStyle("A{$counter}:M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
@@ -529,7 +523,6 @@ class SaleInvoiceController extends Controller {
         $emptyCells = 0;
         $itemNumber = 1;
         foreach ($saleInvoice->deliveryHeader->deliveryDetails as $detail) {
-//            $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setSize(10);
             $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
@@ -574,20 +567,17 @@ class SaleInvoiceController extends Controller {
 
             $counter++;
         }
-//        $counter++;
 
         $worksheet->mergeCells("H{$counter}:I{$counter}");
         $worksheet->setCellValue("H{$counter}", 'Hormat Kami,');
         
         $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-//        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setSize(10);
         $worksheet->setCellValue("J{$counter}", 'Sub Total');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
         $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal));
 
         $counter++;
-//        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setSize(10);
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("A{$counter}", 'Keterangan:');
         }
@@ -628,14 +618,6 @@ class SaleInvoiceController extends Controller {
         $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
         $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal));
 
-//        $counter++;
-//        $worksheet->setCellValue("J{$counter}", 'Pembulatan');
-//        $worksheet->setCellValue("L{$counter}", ':');
-//        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-//        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', round($saleInvoice->grandTotal, -3)));
-//
-//        $counter++;
-        
         header('Content-Type: application/xls');
         header('Content-Disposition: attachment;filename="invoice.xls"');
         header('Cache-Control: max-age=0');

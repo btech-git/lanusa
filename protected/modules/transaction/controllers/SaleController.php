@@ -182,38 +182,324 @@ class SaleController extends SelectionController {
 
     public function actionMemo($id) {
         if (!(Yii::app()->user->checkAccess('administrator'))) {
-            if (!(isset(Yii::app()->session['SaleMemoAllowed']) && Yii::app()->session['SaleMemoAllowed'] === true))
+            if (!(isset(Yii::app()->session['SaleMemoAllowed']) && Yii::app()->session['SaleMemoAllowed'] === true)){
                 $this->redirect(array('admin'));
+            }
         }
 
         Yii::app()->session->remove('SaleMemoAllowed');
 
         $sale = $this->loadModel($id);
+        $this->memoToExcel($sale);
 
-        $customer = $sale->customer(array('scopes' => 'resetScope'));
-        $branch = $sale->branch(array('scopes' => 'resetScope'));
-        $admin = $sale->admin(array('scopes' => 'resetScope'));
+//        $customer = $sale->customer(array('scopes' => 'resetScope'));
+//        $branch = $sale->branch(array('scopes' => 'resetScope'));
+//        $admin = $sale->admin(array('scopes' => 'resetScope'));
 
-        $saleDetails = $sale->saleDetails(array(
-            'with' => array(
-                'product:resetScope' => array(
-                    'with' => 'unit:resetScope',
-                ),
-            ),
-                ));
+//        $saleDetails = $sale->saleDetails(array(
+//            'with' => array(
+//                'product:resetScope' => array(
+//                    'with' => 'unit:resetScope',
+//                ),
+//            ),
+//        ));
 
 //        $saleHeaderText = ($sale->is_non_tax) ? '' : 'PT. LANUSA';
 //        $saleCustomer = ($sale->is_non_tax) ? $sale->customer->name : $sale->customer->company;
 
-        $this->render('memo', array(
-            'sale' => $sale,
-            'branch' => $branch,
-            'admin' => $admin,
-            'customer' => $customer,
-            'saleDetails' => $saleDetails,
+//        $this->render('memo', array(
+//            'sale' => $sale,
+//            'branch' => $branch,
+//            'admin' => $admin,
+//            'customer' => $customer,
+//            'saleDetails' => $saleDetails,
 //            'deliveryHeaderText' => $saleHeaderText,
 //            'deliveryCustomer' => $saleCustomer,
-        ));
+//        ));
+    }
+
+    protected function memoToExcel($sale) {
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('Lanusa');
+        $documentProperties->setTitle('Proforma Invoice');
+
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setTop(0.25);
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setRight(0.25);
+        $objPHPExcel->getActiveSheet()->getPageMargins()->setLeft(0.25);
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Proforma Invoice');
+
+        $worksheet->getColumnDimension('A')->setAutoSize(false);
+        $worksheet->getColumnDimension('A')->setWidth('3');
+
+        $worksheet->getColumnDimension('B')->setAutoSize(false);
+        $worksheet->getColumnDimension('B')->setWidth('2');
+
+        $worksheet->getColumnDimension('C')->setAutoSize(false);
+        $worksheet->getColumnDimension('C')->setWidth('10');
+
+        $worksheet->getColumnDimension('D')->setAutoSize(false);
+        $worksheet->getColumnDimension('D')->setWidth('7');
+
+        $worksheet->getColumnDimension('E')->setAutoSize(false);
+        $worksheet->getColumnDimension('E')->setWidth('2');
+
+        $worksheet->getColumnDimension('F')->setAutoSize(false);
+        $worksheet->getColumnDimension('F')->setWidth('10');
+
+        $worksheet->getColumnDimension('G')->setAutoSize(false);
+        $worksheet->getColumnDimension('G')->setWidth('10');
+
+        $worksheet->getColumnDimension('H')->setAutoSize(false);
+        $worksheet->getColumnDimension('H')->setWidth('7');
+
+        $worksheet->getColumnDimension('I')->setAutoSize(false);
+        $worksheet->getColumnDimension('I')->setWidth('8');
+
+        $worksheet->getColumnDimension('J')->setAutoSize(false);
+        $worksheet->getColumnDimension('J')->setWidth('2');
+
+        $worksheet->getColumnDimension('K')->setAutoSize(false);
+        $worksheet->getColumnDimension('K')->setWidth('13');
+
+        $worksheet->getColumnDimension('L')->setAutoSize(false);
+        $worksheet->getColumnDimension('L')->setWidth('2');
+
+        $worksheet->getColumnDimension('M')->setAutoSize(false);
+        $worksheet->getColumnDimension('M')->setWidth('22');
+
+        $counter = 2;
+        //add image
+        $image = Yii::app()->basePath . "/images/logo/logo" . $sale->branch->id . ".jpg";
+        if (file_exists($image)) {
+
+            $worksheet->mergeCells('A1:A4');
+            $objDrawingPType = new PHPExcel_Worksheet_Drawing();
+            $objDrawingPType->setWorksheet($objPHPExcel->setActiveSheetIndex(0));
+            $objDrawingPType->setName("Logo");
+            $objDrawingPType->setPath($image);
+            $objDrawingPType->setCoordinates('A1');
+            $objDrawingPType->setWidth(85);
+            $objDrawingPType->setResizeProportional(true);
+            $objDrawingPType->setOffsetX(0);
+            $objDrawingPType->setOffsetY(3);
+        }
+        
+        $styleArray = array(
+            'font' => array(
+                'underline' => 'single',
+                'size' => 16,
+                'name' => 'Arial'
+            )
+        );
+
+        $worksheet->mergeCells("D{$counter}:I{$counter}");
+        $worksheet->getRowDimension('2')->setRowHeight(-1);
+        $worksheet->getRowDimension('4')->setRowHeight(-1);
+        $worksheet->getStyle("D{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("D{$counter}")->getFont()->setSize(18);
+        $worksheet->getStyle("D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+        $worksheet->getStyle("D{$counter}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+        $worksheet->getStyle("D{$counter}")->getFont()->setName('Bodoni MT Poster Compressed');
+
+        $worksheet->setCellValue("D{$counter}", $sale->branch->name);
+        $counter ++;
+        $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setWrapText(true);
+        $worksheet->mergeCells("D{$counter}:I{$counter}");
+        $worksheet->setCellValue("D{$counter}", strip_tags(nl2br($sale->branch->address)));
+        $counter ++;
+
+        $worksheet->setCellValue("D{$counter}", 'Telp');
+        $worksheet->setCellValue("E{$counter}", ':');
+        $worksheet->mergeCells("F{$counter}:H{$counter}");
+        $worksheet->setCellValue("F{$counter}", $sale->branch->phone);
+        
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->setCellValue("J{$counter}", 'Tgl Faktur');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->setCellValue("M{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($sale->date)));
+
+        $counter++;
+        if ((int) $sale->branch_id !== 4) {
+            $worksheet->setCellValue("D{$counter}", 'NPWP');
+            $worksheet->setCellValue("E{$counter}", ':');
+            $worksheet->mergeCells("F{$counter}:H{$counter}");
+            $worksheet->setCellValue("F{$counter}", $sale->branch->npwp);
+        }
+        
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->setCellValue("J{$counter}", 'No Faktur');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->getStyle("M{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("M{$counter}", $sale->getCodeNumber(SaleHeader::CN_CONSTANT));
+
+        $counter++;
+        $worksheet->setCellValue("A{$counter}", 'Kepada');
+
+        $counter++;
+        $worksheet->mergeCells("A{$counter}:I{$counter}");
+        $worksheet->setCellValue("A{$counter}", $sale->customer->company);
+
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        if ($sale->branch_id != 4) {
+            $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
+            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->setCellValue("M{$counter}", $sale->reference);
+        }
+        
+        $counter++;
+        $counter_3 = $counter + 1;
+        $worksheet->mergeCells("A{$counter}:I{$counter_3}");
+        $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+        $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setWrapText(true);
+        $worksheet->setCellValue("A{$counter}", strip_tags(nl2br($sale->customer->address)));
+
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->setCellValue("J{$counter}", 'No PO');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->setCellValue("M{$counter}", CHtml::value($sale, 'reference'));
+
+        $counter++; $counter++;
+        
+        $worksheet->mergeCells("A{$counter}:I{$counter}");
+        $worksheet->getStyle("A{$counter}")->getFont()->setBold(true);
+        $worksheet->setCellValue("A{$counter}", 'PROFORMA INVOICE');
+        $objPHPExcel->getActiveSheet()->getStyle("A{$counter}")->applyFromArray($styleArray);
+
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->setCellValue("J{$counter}", 'NPWP');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->setCellValue("M{$counter}", $sale->customer->npwp);
+
+        $counter++;
+        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->setCellValue("A{$counter}", 'No.');
+        $worksheet->mergeCells("B{$counter}:G{$counter}");
+        $worksheet->setCellValue("B{$counter}", 'Nama Barang');
+        $worksheet->setCellValue("H{$counter}", 'Qty');
+        $worksheet->setCellValue("I{$counter}", 'Satuan');
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->setCellValue("J{$counter}", 'Harga');
+        $worksheet->mergeCells("L{$counter}:M{$counter}");
+        $worksheet->setCellValue("L{$counter}", 'Total (IDR)');
+
+        $counter++;
+        $pageSize = 6;
+        $emptyCells = 0;
+        $itemNumber = 1;
+        foreach ($sale->saleDetails as $detail) {
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $worksheet->getStyle("J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->getStyle("I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $worksheet->mergeCells("B{$counter}:G{$counter}");
+            $worksheet->mergeCells("J{$counter}:K{$counter}");
+            $worksheet->mergeCells("L{$counter}:M{$counter}");
+
+            $worksheet->setCellValue("A{$counter}", $itemNumber);
+            $worksheet->setCellValue("B{$counter}", $detail->product_name);
+            $worksheet->setCellValue("H{$counter}", $detail->quantity);
+            $worksheet->setCellValue("I{$counter}", $detail->product->unit->name);
+            $worksheet->setCellValue("J{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->unit_price));
+            $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+
+            $counter++;
+            $emptyCells++;
+            $itemNumber++;
+        }
+
+        /* empty cells */
+        for ($i = 0; $i < $pageSize - $emptyCells; $i++) {
+            $worksheet->mergeCells("B{$counter}:G{$counter}");
+            $worksheet->mergeCells("J{$counter}:K{$counter}");
+            $worksheet->mergeCells("L{$counter}:M{$counter}");
+
+            $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+            $counter++;
+        }
+
+        $worksheet->mergeCells("H{$counter}:I{$counter}");
+        $worksheet->setCellValue("H{$counter}", 'Hormat Kami,');
+        
+        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->setCellValue("J{$counter}", 'Sub Total');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->subTotal));
+
+        $counter++;
+        if ($sale->branch_id != 4) {
+            $worksheet->setCellValue("A{$counter}", 'Keterangan:');
+        }
+        $worksheet->setCellValue("J{$counter}", 'DPP lain-lain');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->costOfGoodsSold));
+
+        $counter++;
+        
+        if ($sale->branch_id != 4) {
+            $worksheet->setCellValue("A{$counter}", 'Pembayaran a/n ' . $sale->branch->name);
+        }
+        $worksheet->setCellValue("J{$counter}", 'Disc');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->discount));
+
+        $counter++;
+        
+        $worksheet->setCellValue("A{$counter}", $sale->branch->bank_account);
+        if ($sale->branch_id != 4) {
+            $worksheet->setCellValue("J{$counter}", 'PPN');
+            $worksheet->setCellValue("L{$counter}", ':');
+            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
+        } else {
+            $worksheet->setCellValue("J{$counter}", 'Ongkos Kirim');
+            $worksheet->setCellValue("L{$counter}", ':');
+            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->shipping_fee));
+        }
+
+        $counter++;
+        
+        $worksheet->setCellValue("J{$counter}", 'Grand Total');
+        $worksheet->setCellValue("L{$counter}", ':');
+        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
+
+        header('Content-Type: application/xls');
+        header('Content-Disposition: attachment;filename="proforma_invoice.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
     }
 
     public function actionMemoPicking($id) {
@@ -553,77 +839,6 @@ class SaleController extends SelectionController {
         }
     }
 
-//    public function actionAjaxJsonDiscountTaxTotal($id)
-//    {
-//        if (Yii::app()->request->isAjaxRequest)
-//        {
-//            $sale = $this->instantiate($id);
-//
-//            $this->loadState($sale);
-//
-//            $tax = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
-//            $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
-//
-//            echo CJSON::encode(array(
-//                'discount' => $discount,
-//                'tax' => $tax,
-//                'grandTotal' => $grandTotal,
-//            ));
-//        }
-//    }
-//    public function actionAjaxJsonTaxTotal($id)
-//    {
-//        if (Yii::app()->request->isAjaxRequest)
-//        {
-//            $sale = $this->instantiate($id);
-//
-//            $this->loadState($sale);
-//
-//            $tax = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
-//            $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
-//
-//            echo CJSON::encode(array(
-//                'tax' => $tax,
-//                'grandTotal' => $grandTotal,
-//            ));
-//        }
-//    }
-//    public function actionAjaxJsonDownpaymentTaxTotal($id)
-//    {
-//        if (Yii::app()->request->isAjaxRequest)
-//        {
-//            $sale = $this->instantiate($id);
-//
-//            $this->loadState($sale);
-//
-//            $downpayment = CHtml::listOptions('', CHtml::listData(SaleDownpayment::model()->findAllByAttributes(array('customer_id' => $sale->header->customer_id), array('condition' => "id NOT IN (SELECT COALESCE(sale_downpayment_id, 0) FROM " . SaleHeader::model()->tableName() . " WHERE sale_downpayment_id <> ALL (SELECT COALESCE(sale_downpayment_id, 0) FROM " . DeliveryHeader::model()->tableName() . " WHERE id = :id))", 'params' => array(':id' => $sale->header->id))), 'id', 'amount'), array('empty' => ''));
-//            $sale->header->sales_downpayment_id = '';
-//            $tax = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
-//            $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
-//
-//            echo CJSON::encode(array(
-//                'downpayment' => $downpayment,
-//                'tax' => $tax,
-//                'grandTotal' => $grandTotal,
-//            ));
-//        }
-//    }
-//    public function actionAjaxJsonGrandTotal($id)
-//    {
-//        if (Yii::app()->request->isAjaxRequest)
-//        {
-//            $sale = $this->instantiate($id);
-//
-//            $this->loadState($sale);
-//
-//            $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
-//
-//            echo CJSON::encode(array(
-//                'grandTotal' => $grandTotal,
-//            ));
-//        }
-//    }
-
     public function actionAjaxJsonCodeNumberTaxTotal($id) {
         if (Yii::app()->request->isAjaxRequest) {
             $sale = $this->instantiate($id);
@@ -645,9 +860,9 @@ class SaleController extends SelectionController {
     }
 
     public function instantiate($id) {
-        if (empty($id))
+        if (empty($id)) {
             $sale = new Sale(new SaleHeader(), array());
-        else {
+        } else {
             $saleHeader = $this->loadModel($id);
             $sale = new Sale($saleHeader, $saleHeader->saleDetails);
         }
@@ -657,8 +872,10 @@ class SaleController extends SelectionController {
 
     public function loadModel($id) {
         $model = SaleHeader::model()->findByPk($id);
-        if ($model === null)
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
+        
         return $model;
     }
 
@@ -666,21 +883,23 @@ class SaleController extends SelectionController {
         if (isset($_POST['SaleHeader'])) {
             $sale->header->attributes = $_POST['SaleHeader'];
         }
+        
         if (isset($_POST['SaleDetail'])) {
             foreach ($_POST['SaleDetail'] as $i => $item) {
-                if (isset($sale->details[$i]))
+                if (isset($sale->details[$i])) {
                     $sale->details[$i]->attributes = $item;
-                else {
+                } else {
                     $detail = new SaleDetail();
                     $detail->attributes = $item;
                     $sale->details[] = $detail;
                 }
             }
-            if (count($_POST['SaleDetail']) < count($sale->details))
+            
+            if (count($_POST['SaleDetail']) < count($sale->details)) {
                 array_splice($sale->details, $i + 1);
-        }
-        else
+            }
+        } else {
             $sale->details = array();
+        }
     }
-
 }

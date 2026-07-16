@@ -68,12 +68,14 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <table>
     <tr>
         <td style="width:80% ;text-align: right; font-weight: bold">Total Quantity</td>
-        <td style="width:20% ;text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($delivery, 'totalQuantity'))); ?></td>
+        <td style="width:20% ;text-align: right; font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($delivery, 'totalQuantity'))); ?>
+        </td>
     </tr>
 </table>
 
 <div id="link">
-	<?php echo CHtml::link('Create', array('create')); ?>
-	<?php echo CHtml::link('Manage', array('admin')); ?>
-	<?php echo CHtml::link('Print', array('memo', 'id' => $delivery->id)); ?>
+    <?php echo CHtml::link('Create', array('create')); ?>
+    <?php echo CHtml::link('Manage', array('admin')); ?>
+    <?php echo CHtml::link('Print', array('memo', 'id' => $delivery->id)); ?>
 </div>
