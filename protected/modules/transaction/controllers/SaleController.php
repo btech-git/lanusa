@@ -311,13 +311,15 @@ class SaleController extends SelectionController {
 
         $worksheet->setCellValue("D{$counter}", $sale->branch->name);
         $counter ++;
-        $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setWrapText(true);
-        $worksheet->mergeCells("D{$counter}:I{$counter}");
+        $counterEnd = $counter + 1;
+        $worksheet->getStyle("D{$counter}:I{$counterEnd}")->getAlignment()->setWrapText(true);
+        $worksheet->mergeCells("D{$counter}:I{$counterEnd}");
         $worksheet->setCellValue("D{$counter}", strip_tags(nl2br($sale->branch->address)));
         $counter ++;
 
         $worksheet->setCellValue("D{$counter}", 'Telp');
         $worksheet->setCellValue("E{$counter}", ':');
+        $worksheet->getStyle("F{$counter}")->getFont()->setSize(8);
         $worksheet->mergeCells("F{$counter}:H{$counter}");
         $worksheet->setCellValue("F{$counter}", $sale->branch->phone);
         
