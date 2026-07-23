@@ -10,13 +10,16 @@ class SaleInvoiceController extends Controller {
 
     public function filterAccess($filterChain) {
         if ($filterChain->action->id === 'view' || $filterChain->action->id === 'create' || $filterChain->action->id === 'ajaxJsonDelivery' || $filterChain->action->id === 'ajaxHtmlShowDelivery' || $filterChain->action->id === 'taxForm' || $filterChain->action->id === 'memo') {
-            if (!(Yii::app()->user->checkAccess('saleInvoiceCreate') || Yii::app()->user->checkAccess('saleInvoiceEdit')))
+            if (!(Yii::app()->user->checkAccess('saleInvoiceCreate') || Yii::app()->user->checkAccess('saleInvoiceEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
 
-        if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update' || $filterChain->action->id === 'delete')
-            if (!(Yii::app()->user->checkAccess('saleInvoiceEdit')))
+        if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update' || $filterChain->action->id === 'delete') {
+            if (!(Yii::app()->user->checkAccess('saleInvoiceEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
+        }
 
         $filterChain->run();
     }
@@ -245,8 +248,9 @@ class SaleInvoiceController extends Controller {
 
     public function actionTaxform($id) {
         if (!(Yii::app()->user->checkAccess('administrator'))) {
-            if (!(isset(Yii::app()->session['SaleInvoiceMemoAllowed']) && Yii::app()->session['SaleInvoiceMemoAllowed'] === true))
+            if (!(isset(Yii::app()->session['SaleInvoiceMemoAllowed']) && Yii::app()->session['SaleInvoiceMemoAllowed'] === true)) {
                 $this->redirect(array('admin'));
+            }
         }
 
         Yii::app()->session->remove('SaleInvoiceMemoAllowed');
@@ -276,8 +280,9 @@ class SaleInvoiceController extends Controller {
 
             $delivery = DeliveryHeader::model()->findByPk(isset($_POST['SaleInvoice']['delivery_header_id']) ? $_POST['SaleInvoice']['delivery_header_id'] : '');
 
-            if ($delivery === null)
+            if ($delivery === null) {
                 $delivery = DeliveryHeader::model();
+            }
 
             $saleInvoice->header->shipping_fee = $delivery->saleHeader->shipping_fee;
             $saleInvoice->header->discount = $delivery->saleHeader->discount;
@@ -320,8 +325,9 @@ class SaleInvoiceController extends Controller {
     protected function reportGrandTotal($dataProvider) {
         $grandTotal = 0;
 
-        foreach ($dataProvider->data as $data)
+        foreach ($dataProvider->data as $data) {
             $grandTotal += $data->deliveryHeader->grandTotal;
+        }
 
         return $grandTotal;
     }
@@ -339,6 +345,294 @@ class SaleInvoiceController extends Controller {
             ));
         }
     }
+
+//    protected function memoToExcelWithPageBreak($saleInvoice) {
+//        spl_autoload_unregister(array('YiiBase', 'autoload'));
+//        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+//        spl_autoload_register(array('YiiBase', 'autoload'));
+//
+//        $objPHPExcel = new PHPExcel();
+//
+//        $documentProperties = $objPHPExcel->getProperties();
+//        $documentProperties->setCreator('Lanusa');
+//        $documentProperties->setTitle('Invoice');
+//        
+//        $lastPage = floor((count($saleInvoice->deliveryHeader->deliveryDetails) - 1) / 20);
+//        $page = 0;
+//        while ($page <= $lastPage) {
+//            $worksheet = $page > 0 ? $objPHPExcel->createSheet() : $objPHPExcel->getActiveSheet();
+//            $worksheet->setTitle('Invoice' . ($page + 1));
+//
+//            $worksheet->getColumnDimension('A')->setAutoSize(false);
+//            $worksheet->getColumnDimension('A')->setWidth('3');
+//
+//            $worksheet->getColumnDimension('B')->setAutoSize(false);
+//            $worksheet->getColumnDimension('B')->setWidth('2');
+//
+//            $worksheet->getColumnDimension('C')->setAutoSize(false);
+//            $worksheet->getColumnDimension('C')->setWidth('10');
+//
+//            $worksheet->getColumnDimension('D')->setAutoSize(false);
+//            $worksheet->getColumnDimension('D')->setWidth('7');
+//
+//            $worksheet->getColumnDimension('E')->setAutoSize(false);
+//            $worksheet->getColumnDimension('E')->setWidth('2');
+//
+//            $worksheet->getColumnDimension('F')->setAutoSize(false);
+//            $worksheet->getColumnDimension('F')->setWidth('10');
+//
+//            $worksheet->getColumnDimension('G')->setAutoSize(false);
+//            $worksheet->getColumnDimension('G')->setWidth('10');
+//
+//            $worksheet->getColumnDimension('H')->setAutoSize(false);
+//            $worksheet->getColumnDimension('H')->setWidth('7');
+//
+//            $worksheet->getColumnDimension('I')->setAutoSize(false);
+//            $worksheet->getColumnDimension('I')->setWidth('8');
+//
+//            $worksheet->getColumnDimension('J')->setAutoSize(false);
+//            $worksheet->getColumnDimension('J')->setWidth('2');
+//
+//            $worksheet->getColumnDimension('K')->setAutoSize(false);
+//            $worksheet->getColumnDimension('K')->setWidth('13');
+//
+//            $worksheet->getColumnDimension('L')->setAutoSize(false);
+//            $worksheet->getColumnDimension('L')->setWidth('2');
+//
+//            $worksheet->getColumnDimension('M')->setAutoSize(false);
+//            $worksheet->getColumnDimension('M')->setWidth('22');
+//
+//            $counter = 2;
+//            //add image
+//            $image = Yii::app()->basePath . "/images/logo/logo" . $saleInvoice->branch->id . ".jpg";
+//            if (file_exists($image)) {
+//
+//                $worksheet->mergeCells('A1:A4');
+//                $objDrawingPType = new PHPExcel_Worksheet_Drawing();
+//                $objDrawingPType->setWorksheet($worksheet);
+//                $objDrawingPType->setName("Logo");
+//                $objDrawingPType->setPath($image);
+//                $objDrawingPType->setCoordinates('A1');
+//                $objDrawingPType->setWidth(85);
+//                $objDrawingPType->setResizeProportional(true);
+//                $objDrawingPType->setOffsetX(0);
+//                $objDrawingPType->setOffsetY(3);
+//            }
+//
+//            $styleArray = array(
+//                'font' => array(
+//                    'underline' => 'single',
+//                    'size' => 16,
+//                    'name' => 'Arial'
+//                )
+//            );
+//
+//            $worksheet->mergeCells("D{$counter}:I{$counter}");
+//            $worksheet->getRowDimension('2')->setRowHeight(-1);
+//            $worksheet->getRowDimension('4')->setRowHeight(-1);
+//            $worksheet->getStyle("D{$counter}")->getFont()->setBold(true);
+//            $worksheet->getStyle("D{$counter}")->getFont()->setSize(18);
+//            $worksheet->getStyle("D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+//            $worksheet->getStyle("D{$counter}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+//            $worksheet->getStyle("D{$counter}")->getFont()->setName('Bodoni MT Poster Compressed');
+//
+//            if ((int) $saleInvoice->branch_id !== 4) {
+//                $worksheet->setCellValue("D{$counter}", $saleInvoice->branch->name);
+//            }
+//
+//            $worksheet->mergeCells("J{$counter}:M{$counter}");
+//            $worksheet->getStyle("J{$counter}")->getFont()->setBold(true);
+//            $worksheet->getStyle("J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+//            $worksheet->setCellValue("J{$counter}", 'Faktur Penjualan');
+//            $objPHPExcel->getActiveSheet()->getStyle("J{$counter}")->applyFromArray($styleArray);
+//
+//            $counter++;
+//            if ((int) $saleInvoice->branch_id !== 4) {
+//                $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setWrapText(true);
+//                $worksheet->mergeCells("D{$counter}:I{$counter}");
+//                $worksheet->setCellValue("D{$counter}", $saleInvoice->branch->address);
+//
+//                $counter++;
+//                $worksheet->setCellValue("D{$counter}", 'Telp');
+//                $worksheet->setCellValue("E{$counter}", ':');
+//                $worksheet->mergeCells("F{$counter}:I{$counter}");
+//                $worksheet->getStyle("F{$counter}")->getFont()->setSize(10);
+//                $worksheet->setCellValue("F{$counter}", $saleInvoice->branch->phone);
+//            }
+//
+//            $worksheet->mergeCells("J{$counter}:K{$counter}");
+//            $worksheet->setCellValue("J{$counter}", 'Tgl Faktur');
+//            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->setCellValue("M{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($saleInvoice->date)));
+//
+//            $counter++;
+//            if ((int) $saleInvoice->branch_id !== 4) {
+//                $worksheet->setCellValue("D{$counter}", 'NPWP');
+//                $worksheet->setCellValue("E{$counter}", ':');
+//                $worksheet->mergeCells("F{$counter}:H{$counter}");
+//                $worksheet->setCellValue("F{$counter}", $saleInvoice->branch->npwp);
+//            }
+//
+//            $worksheet->mergeCells("J{$counter}:K{$counter}");
+//            $worksheet->setCellValue("J{$counter}", 'No Faktur');
+//            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->getStyle("M{$counter}")->getFont()->setBold(true);
+//            $worksheet->setCellValue("M{$counter}", $saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT));
+//
+//            $counter++;
+//            $worksheet->setCellValue("A{$counter}", 'Kepada');
+//
+//            $counter++;
+//            $worksheet->mergeCells("A{$counter}:I{$counter}");
+//            $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->company);
+//
+//            $worksheet->mergeCells("J{$counter}:K{$counter}");
+//            if ($saleInvoice->branch_id != 4) {
+//                $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
+//                $worksheet->setCellValue("L{$counter}", ':');
+//                $worksheet->setCellValue("M{$counter}", $saleInvoice->reference);
+//            }
+//
+//            $counter++;
+//            $counter_3 = $counter + 1;
+//            $worksheet->mergeCells("A{$counter}:I{$counter_3}");
+//            $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+//            $worksheet->getStyle("A{$counter}:B{$counter_3}")->getAlignment()->setWrapText(true);
+//            $worksheet->setCellValue("A{$counter}", strip_tags(nl2br($saleInvoice->deliveryHeader->saleHeader->customer->address)));
+//
+//            $worksheet->mergeCells("J{$counter}:K{$counter}");
+//            $worksheet->setCellValue("J{$counter}", 'No PO');
+//            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->setCellValue("M{$counter}", CHtml::value($saleInvoice, 'deliveryHeader.saleHeader.reference'));
+//
+//            $counter++;
+//            $counter++;
+//            $worksheet->mergeCells("A{$counter}:G{$counter}");
+//            $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->npwp);
+//
+//            $counter++;
+//            $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setBold(true);
+//            $worksheet->getStyle("A{$counter}:M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//            $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//            $worksheet->setCellValue("A{$counter}", 'No.');
+//            $worksheet->mergeCells("B{$counter}:G{$counter}");
+//            $worksheet->setCellValue("B{$counter}", 'Nama Barang');
+//            $worksheet->setCellValue("H{$counter}", 'Qty');
+//            $worksheet->setCellValue("I{$counter}", 'Satuan');
+//            $worksheet->mergeCells("J{$counter}:K{$counter}");
+//            $worksheet->setCellValue("J{$counter}", 'Harga');
+//            $worksheet->mergeCells("L{$counter}:M{$counter}");
+//            $worksheet->setCellValue("L{$counter}", 'Total (IDR)');
+//            
+//            $counter++;
+//            for ($n = 0; $n < 20; $n++) {
+//                $i = $page * 20 + $n;
+//                if (isset($saleInvoice->deliveryHeader->deliveryDetails[$i])) {
+//                    $detail = $saleInvoice->deliveryHeader->deliveryDetails[$i];
+//                    
+//                    $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//                    $worksheet->getStyle("J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//                    $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//                    $worksheet->getStyle("I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//
+//                    $worksheet->mergeCells("B{$counter}:G{$counter}");
+//                    $worksheet->mergeCells("J{$counter}:K{$counter}");
+//                    $worksheet->mergeCells("L{$counter}:M{$counter}");
+//
+//                    $worksheet->setCellValue("A{$counter}", $i + 1);
+//                    $worksheet->setCellValue("B{$counter}", $detail->saleDetail->product_name);
+//                    $worksheet->setCellValue("H{$counter}", $detail->quantity);
+//                    $worksheet->setCellValue("I{$counter}", $detail->productUnit);
+//                    $worksheet->setCellValue("J{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->getUnitPrice()));
+//                    $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+//
+//                } else {
+//                    $worksheet->mergeCells("B{$counter}:G{$counter}");
+//                    $worksheet->mergeCells("J{$counter}:K{$counter}");
+//                    $worksheet->mergeCells("L{$counter}:M{$counter}");
+//
+//                    $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                    $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//                }
+//                $counter++;
+//            }
+//            $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//            
+//            $page++;
+//        }
+//
+//        $worksheet->mergeCells("H{$counter}:I{$counter}");
+//        $worksheet->setCellValue("H{$counter}", 'Hormat Kami,');
+//        
+//        $worksheet->setCellValue("J{$counter}", 'Sub Total');
+//        $worksheet->setCellValue("L{$counter}", ':');
+//        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal));
+//
+//        $counter++;
+//        if ($saleInvoice->branch_id != 4) {
+//            $worksheet->setCellValue("A{$counter}", 'Keterangan:');
+//        }
+//        $worksheet->setCellValue("J{$counter}", 'DPP lain-lain');
+//        $worksheet->setCellValue("L{$counter}", ':');
+//        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->costOfGoodsSold));
+//
+//        $counter++;
+//        
+//        if ($saleInvoice->branch_id != 4) {
+//            $worksheet->setCellValue("A{$counter}", 'Pembayaran a/n ' . $saleInvoice->branch->name);
+//        }
+//        $worksheet->setCellValue("J{$counter}", 'Disc');
+//        $worksheet->setCellValue("L{$counter}", ':');
+//        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount));
+//
+//        $counter++;
+//        
+//        $worksheet->setCellValue("A{$counter}", $saleInvoice->branch->bank_account);
+//        if ($saleInvoice->branch_id != 4) {
+//            $worksheet->setCellValue("J{$counter}", 'PPN');
+//            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax));
+//        } else {
+//            $worksheet->setCellValue("J{$counter}", 'Ongkos Kirim');
+//            $worksheet->setCellValue("L{$counter}", ':');
+//            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee));
+//        }
+//
+//        $counter++;
+//        
+//        $worksheet->setCellValue("J{$counter}", 'Grand Total');
+//        $worksheet->setCellValue("L{$counter}", ':');
+//        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+//        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal));
+//        
+//        $objPHPExcel->setActiveSheetIndex(0);
+//
+//        header('Content-Type: application/xls');
+//        header('Content-Disposition: attachment;filename="invoice.xls"');
+//        header('Cache-Control: max-age=0');
+//
+//        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+//        $objWriter->save('php://output');
+//
+//        Yii::app()->end();
+//    }
 
     protected function memoToExcel($saleInvoice) {
         spl_autoload_unregister(array('YiiBase', 'autoload'));
@@ -748,8 +1042,9 @@ class SaleInvoiceController extends Controller {
                 $addressLength -= 80;
             }
             $worksheet->mergeCells("C{$cellRowNumber}:J{$cellRowNumberSupplierAddressEnd}");
-            if ($cellRowNumberSupplierAddressEnd > $cellRowNumber)         //if address is long, merge cells and wrap text
+            if ($cellRowNumberSupplierAddressEnd > $cellRowNumber) {       //if address is long, merge cells and wrap text
                 $worksheet->getStyle("C{$cellRowNumber}")->getAlignment()->setWrapText(true);
+            }
 
             $worksheet->setCellValue("C{$cellRowNumber}", $saleInvoice->branch->address . '.');
             $cellRowNumber = $cellRowNumberSupplierAddressEnd;
@@ -966,9 +1261,9 @@ class SaleInvoiceController extends Controller {
     }
 
     public function instantiate($id) {
-        if (empty($id))
+        if (empty($id)) {
             $saleInvoice = new SaleInvoiceTransaction(new SaleInvoice());
-        else {
+        } else {
             $saleInvoice = $this->loadModel($id);
             $saleInvoice = new SaleInvoiceTransaction($saleInvoice);
         }
@@ -978,8 +1273,10 @@ class SaleInvoiceController extends Controller {
 
     public function loadModel($id) {
         $model = SaleInvoice::model()->findByPk($id);
-        if ($model === null)
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
+        
         return $model;
     }
 
@@ -988,5 +1285,4 @@ class SaleInvoiceController extends Controller {
             $saleInvoice->header->attributes = $_POST['SaleInvoice'];
         }
     }
-
 }

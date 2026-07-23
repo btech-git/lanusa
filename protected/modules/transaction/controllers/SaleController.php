@@ -10,16 +10,21 @@ class SaleController extends SelectionController {
 
     public function filterAccess($filterChain) {
         if ($filterChain->action->id === 'create' || $filterChain->action->id === '/completion/customer' || $filterChain->action->id === 'ajaxHtmlAddProduct' || $filterChain->action->id === 'ajaxJsonDiscountTaxTotal' || $filterChain->action->id === 'ajaxJsonDownpaymentTaxTotal' || $filterChain->action->id === 'ajaxJsonGrandTotal' || $filterChain->action->id === 'ajaxHtmlRemoveProduct' || $filterChain->action->id === 'ajaxJsonTaxTotal' || $filterChain->action->id === 'ajaxJsonTotal' || $filterChain->action->id === 'ajaxHtmlUpdateAllProduct' || $filterChain->action->id === 'memo' || $filterChain->action->id === 'view') {
-            if (!(Yii::app()->user->checkAccess('saleCreate') || Yii::app()->user->checkAccess('saleEdit')))
+            if (!(Yii::app()->user->checkAccess('saleCreate') || Yii::app()->user->checkAccess('saleEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
+        
         if ($filterChain->action->id === 'delete' || $filterChain->action->id === 'admin' || $filterChain->action->id === 'update') {
-            if (!(Yii::app()->user->checkAccess('saleEdit')))
+            if (!(Yii::app()->user->checkAccess('saleEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
+        
         if ($filterChain->action->id === 'memoPicking' || $filterChain->action->id === 'adminWarehouse' || $filterChain->action->id === 'viewWarehouse') {
-            if (!(Yii::app()->user->checkAccess('pickingPrint')))
-                $this->redirect(array('/site/login'));
+            if (!(Yii::app()->user->checkAccess('pickingPrint'))) {
+                $this->redirect(array('/site/login')); 
+            }
         }
         $filterChain->run();
     }
@@ -97,8 +102,9 @@ class SaleController extends SelectionController {
 
         if (isset($_POST['Submit']) && IdempotentManager::check()) {
             $this->loadState($sale);
-            if ($sale->save(Yii::app()->db))
+            if ($sale->save(Yii::app()->db)) {
                 $this->redirect(array('view', 'id' => $sale->header->id));
+            }
         }
 
         $this->render('update', array(
@@ -173,11 +179,12 @@ class SaleController extends SelectionController {
                 }
             }
 
-            if (!isset($_GET['ajax']))
+            if (!isset($_GET['ajax'])) {
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-        }
-        else
+            }
+        } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        }
     }
 
     public function actionMemo($id) {
@@ -721,8 +728,9 @@ class SaleController extends SelectionController {
             'customer:resetScope',
         );
 
-        if ($customerCompany)
+        if ($customerCompany) {
             $dataProvider->criteria->compare('customer.company', $customerCompany, TRUE);
+        }
 
         $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
         $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
@@ -782,8 +790,9 @@ class SaleController extends SelectionController {
 
             $this->loadState($sale);
 
-            if (isset($_POST['ProductId']))
+            if (isset($_POST['ProductId'])) {
                 $sale->addDetail($_POST['ProductId']);
+            }
 
             $this->renderPartial('_detail', array(
                 'sale' => $sale,
