@@ -90,7 +90,10 @@
 	
 	<div class="row">
 		<?php echo CHtml::label('Status', CHtml::activeId($model, 'is_inactive')); ?>
-		<?php echo $form->dropDownList($model,'is_inactive', array(ActiveRecord::ACTIVE => ActiveRecord::ACTIVE_LITERAL, ActiveRecord::INACTIVE => ActiveRecord::INACTIVE_LITERAL)); ?>
+		<?php echo $form->dropDownList($model,'is_inactive', array(
+                    ActiveRecord::ACTIVE => ActiveRecord::ACTIVE_LITERAL, 
+                    ActiveRecord::INACTIVE => ActiveRecord::INACTIVE_LITERAL,
+                )); ?>
 		<?php echo $form->error($model, 'is_inactive'); ?>
 	</div>
 

@@ -443,16 +443,15 @@ class SaleInvoiceController extends Controller {
 
         $counter ++;
         if ((int) $saleInvoice->branch_id !== 4) {
-            $counterEnd = $counter + 1;
-            $worksheet->getStyle("D{$counter}:I{$counterEnd}")->getAlignment()->setWrapText(true);
-            $worksheet->mergeCells("D{$counter}:I{$counterEnd}");
-            $worksheet->setCellValue("D{$counter}", strip_tags(nl2br($saleInvoice->branch->address)));
+            $worksheet->getStyle("D{$counter}:I{$counter}")->getAlignment()->setWrapText(true);
+            $worksheet->mergeCells("D{$counter}:I{$counter}");
+            $worksheet->setCellValue("D{$counter}", $saleInvoice->branch->address);
 
-            $counter ++;$counter ++;
+            $counter ++;
             $worksheet->setCellValue("D{$counter}", 'Telp');
             $worksheet->setCellValue("E{$counter}", ':');
-            $worksheet->mergeCells("F{$counter}:H{$counter}");
-            $worksheet->getStyle("F{$counter}")->getFont()->setSize(8);
+            $worksheet->mergeCells("F{$counter}:I{$counter}");
+            $worksheet->getStyle("F{$counter}")->getFont()->setSize(10);
             $worksheet->setCellValue("F{$counter}", $saleInvoice->branch->phone);
         }
         

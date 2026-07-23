@@ -89,6 +89,10 @@ $this->widget('zii.widgets.grid.CGridView', array(
             'value' => '$data->customer->company',
         ),
         array(
+            'header' => 'Salesman',
+            'value' => 'CHtml::encode(CHtml::value($data, "employeeIdSalesman.name"))',
+        ),
+        array(
             'name' => 'branch_id',
             'filter' => CHtml::listData(Branch::model()->findAll(array('order' => 't.name')), 'id', 'name'),
             'value' => '$data->branch->name',

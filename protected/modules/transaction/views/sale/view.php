@@ -21,9 +21,13 @@ $this->breadcrumbs = array(
             'label' => 'Customer',
             'value' => CHtml::encode(CHtml::value($customer, 'company')),
         ),
-		array(
+        array(
             'label' => 'Customer PO#',
             'value' => $sale->reference,
+        ),
+        array(
+            'label' => 'Salesman',
+            'value' => CHtml::encode(CHtml::value($sale, 'employeeIdSalesman.name')),
         ),
         array(
             'label' => 'Catatan',

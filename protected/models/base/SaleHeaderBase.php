@@ -19,6 +19,7 @@
  * @property integer $admin_id
  * @property integer $is_non_tax
  * @property integer $is_inactive
+ * @property integer $employee_id_salesman
  *
  * @property DeliveryHeader[] $deliveryHeaders
  * @property SaleDetail[] $saleDetails
@@ -26,6 +27,7 @@
  * @property Admin $admin
  * @property SaleDownpayment $saleDownpayment
  * @property Branch $branch
+ * @property EmployeeIdSalesman $employeeIdSalesman
  */
 class SaleHeaderBase extends MonthlyTransactionActiveRecord {
 
@@ -39,14 +41,14 @@ class SaleHeaderBase extends MonthlyTransactionActiveRecord {
     public function rules() {
         return array(
             array('cn_ordinal, cn_month, cn_year, date, customer_id, branch_id, admin_id', 'required'),
-            array('cn_ordinal, cn_month, cn_year, tax, customer_id, sale_downpayment_id, branch_id, admin_id, is_non_tax, is_inactive', 'numerical', 'integerOnly' => true),
+            array('cn_ordinal, cn_month, cn_year, tax, customer_id, sale_downpayment_id, branch_id, admin_id, is_non_tax, is_inactive, employee_id_salesman', 'numerical', 'integerOnly' => true),
             array('discount', 'length', 'max' => 10),
             array('shipping_fee', 'length', 'max' => 18),
             array('driver, plate_number', 'length', 'max' => 60),
             array('reference', 'length', 'max' => 100),
             array('note', 'safe'),
             // The following rule is used by search().
-            array('id, cn_ordinal, cn_month, cn_year, date, tax, discount, shipping_fee, driver, plate_number, note, reference, customer_id, sale_downpayment_id, branch_id, admin_id, is_non_tax, is_inactive', 'safe', 'on' => 'search'),
+            array('id, cn_ordinal, cn_month, cn_year, date, tax, discount, shipping_fee, driver, plate_number, note, reference, customer_id, sale_downpayment_id, branch_id, admin_id, is_non_tax, is_inactive, employee_id_salesman', 'safe', 'on' => 'search'),
         );
     }
 
@@ -58,6 +60,7 @@ class SaleHeaderBase extends MonthlyTransactionActiveRecord {
             'admin' => array(self::BELONGS_TO, 'Admin', 'admin_id'),
             'saleDownpayment' => array(self::BELONGS_TO, 'SaleDownpayment', 'sale_downpayment_id'),
             'branch' => array(self::BELONGS_TO, 'Branch', 'branch_id'),
+            'employeeIdSalesman' => array(self::BELONGS_TO, 'Employee', 'employee_id_salesman'),
         );
     }
 
@@ -76,11 +79,12 @@ class SaleHeaderBase extends MonthlyTransactionActiveRecord {
             'note' => 'Note',
             'reference' => 'Reference',
             'customer_id' => 'Customer',
-            'sale_downpayment_id' => 'Sale Downpayment',
+            'sale_downpayment_id' => 'Downpayment',
             'branch_id' => 'Branch',
             'admin_id' => 'Admin',
             'is_non_tax' => 'Is Non Tax',
             'is_inactive' => 'Is Inactive',
+            'employee_id_salesman' => 'Salesman'
         );
     }
 
@@ -110,5 +114,4 @@ class SaleHeaderBase extends MonthlyTransactionActiveRecord {
             'criteria' => $criteria,
         ));
     }
-
 }

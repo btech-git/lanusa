@@ -1900,3 +1900,60 @@ in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/
 in /home/pmahendro/public_html/lanusa/protected/components/Search.php (8)
 in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php (707)
 in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleController.php (24)
+2026/07/21 15:31:41 [error] [php] Undefined variable: counterEnd (/home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php:447)
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/actions/CAction.php(108): ReflectionMethod->invokeArgs()
+#1 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(47): CInlineAction->runWithParamsInternal()
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): SaleInvoiceController->runAction()
+#4 /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php(21): CFilterChain->run()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): SaleInvoiceController->filterAccess()
+#6 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#7 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#8 /home/pmahendro/public_html/yii/framework/web/CController.php(265): SaleInvoiceController->runActionWithFilters()
+#9 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): SaleInvoiceController->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#11 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#12 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/saleInvoice/memo&id=7
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (447)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (196)
+in /home/pmahendro/public_html/lanusa/protected/modules/transaction/controllers/SaleInvoiceController.php (21)
+2026/07/23 09:30:04 [error] [exception.CHttpException.403] exception 'CHttpException' with message 'You are not authorized to perform this action.' in /home/pmahendro/public_html/yii/framework/web/auth/CAccessControlFilter.php:182
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/auth/CAccessControlFilter.php(145): CAccessControlFilter->accessDenied(Object(CWebUser), 'You are not aut...')
+#1 /home/pmahendro/public_html/yii/framework/web/filters/CFilter.php(38): CAccessControlFilter->preFilter(Object(CFilterChain))
+#2 /home/pmahendro/public_html/yii/framework/web/CController.php(1145): CFilter->filter(Object(CFilterChain))
+#3 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): CController->filterAccessControl(Object(CFilterChain))
+#4 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter(Object(CFilterChain))
+#5 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#6 /home/pmahendro/public_html/yii/framework/web/CController.php(265): CController->runActionWithFilters(Object(CInlineAction), Array)
+#7 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('admin')
+#8 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('admin/employee/...')
+#9 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#10 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#11 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=admin/employee/admin
+---
+2026/07/23 09:41:10 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "AjaxJsonDownpaymentTaxTotal".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('AjaxJsonDownpay...')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('AjaxJsonDownpay...')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/sal...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/sale/AjaxJsonDownpaymentTaxTotal&id=
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/sale/create
+---
+2026/07/23 09:41:16 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "AjaxJsonDownpaymentTaxTotal".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('AjaxJsonDownpay...')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('AjaxJsonDownpay...')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('transaction/sal...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=transaction/sale/AjaxJsonDownpaymentTaxTotal&id=
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=transaction/sale/create
+---

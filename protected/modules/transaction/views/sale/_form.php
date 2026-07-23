@@ -47,6 +47,15 @@
             </div>
 
             <div class="row">
+                <?php echo CHtml::activeLabelEx($sale->header, 'employee_id_salesman'); ?>
+                <?php echo CHtml::activeDropDownList($sale->header, 'employee_id_salesman', CHtml::listData(Employee::model()->findAll(array('order' => 't.name')), 'id', 'name'), array('empty' => '-- Pilih Salesman --',)); ?>
+                <?php echo CHtml::error($sale->header, 'employee_id_salesman'); ?>
+            </div>
+        </div>
+
+        <div class="span-12 last">
+
+            <div class="row">
                 <?php echo CHtml::activeLabelEx($sale->header, 'customer_id'); ?>
                 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
                     'model' => $sale->header,
@@ -92,9 +101,7 @@
                 <?php echo CHtml::closeTag('span'); ?>
                 <?php echo CHtml::error($sale->header, 'customer_id'); ?>
             </div>
-        </div>
-
-        <div class="span-12 last">
+            
             <div class="row">
                 <?php echo CHtml::label('Customer PO#', ''); ?>
                 <?php echo CHtml::activeTextField($sale->header, 'reference', array('size' => 50, 'maxlength' => 100)); ?>
