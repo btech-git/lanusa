@@ -46,28 +46,21 @@ class JournalAccounting extends JournalAccountingBase {
 //        return $resultSet;
 //    }
     
-    public static function getGeneralLedgerReport($coaIds, $startDate, $endDate, $branchId) {
+    public static function getGeneralLedgerReport($coaIds, $startDate, $endDate) {
         $inIdsSql = 'NULL';
         if (!empty($coaIds)) {
             $inIdsSql = implode(',', $coaIds);
         }
-        
-        $branchConditionSql = '';
         
         $params = array(
             ':start_date' => $startDate,
             ':end_date' => $endDate,
         );
         
-        if (!empty($branchId)) {
-            $branchConditionSql = ' AND branch_id = :branch_id';
-            $params[':branch_id'] = $branchId;
-        }
-        
         $sql = "
             SELECT account_id, transaction_number, date, memo, type, debit, credit
             FROM " . JournalAccounting::model()->tableName() . " 
-            WHERE account_id IN ({$inIdsSql}) AND date BETWEEN :start_date AND :end_date AND is_inactive = 0" . $branchConditionSql . "
+            WHERE account_id IN ({$inIdsSql}) AND date BETWEEN :start_date AND :end_date AND is_inactive = 0
             ORDER BY account_id ASC, date ASC, transaction_number ASC
         ";
 

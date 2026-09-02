@@ -212,13 +212,13 @@ class Account extends AccountBase {
     public function searchByReport() {
         $criteria = new CDbCriteria;
 
-        $criteria->compare('id', $this->id);
+        $criteria->compare('t.id', $this->id);
         $criteria->compare('t.code', $this->code, true);
         $criteria->compare('t.name', $this->name, true);
-        $criteria->compare('description', $this->description, true);
-        $criteria->compare('account_category_id', $this->account_category_id);
-        $criteria->compare('branch_id', $this->branch_id);
-        $criteria->compare('is_inactive', $this->is_inactive);
+        $criteria->compare('t.description', $this->description, true);
+        $criteria->compare('t.account_category_id', $this->account_category_id);
+        $criteria->compare('t.branch_id', $this->branch_id);
+        $criteria->compare('t.is_inactive', 0);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

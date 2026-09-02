@@ -37,10 +37,10 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             ));*/ ?>
         </div>   -->
 
-        <div class="row" style="background-color: #DFDFDF">
+<!--        <div class="row" style="background-color: #DFDFDF">
             Cabang
-            <?php echo CHtml::dropDownlist('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array('empty'=>'-- Semua Cabang --'));  ?>
-        </div>
+            <?php //echo CHtml::dropDownlist('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array('empty'=>'-- Semua Cabang --'));  ?>
+        </div>-->
 
         <div class="row">
             Jumlah per Halaman
@@ -131,7 +131,6 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         'generalLedgerSummary' => $generalLedgerSummary,
         'startDate' => $startDate,
         'endDate' => $endDate,
-        'branchId' => $branchId,
 //        'ledgerBeginningBalanceData' => $ledgerBeginningBalanceData,
         'generalLedgerReportData' => $generalLedgerReportData,
     )); ?>
@@ -203,6 +202,11 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                         'name' => 'account_category_id',
                         'filter' => CHtml::activeDropDownList($account, 'account_category_id', CHtml::listData(AccountCategory::model()->findAll(array('order' => 'name')), 'id', 'name'), array('empty' => '-- All --')),
                         'value' => 'CHtml::value($data, "accountCategory.name")',
+                    ),
+                    array(
+                        'name' => 't.branch_id',
+                        'filter' => CHtml::activeDropDownList($account, 'branch_id', CHtml::listData(Branch::model()->findAll(array('order' => 'name')), 'id', 'code'), array('empty' => '-- All --')),
+                        'value' => 'CHtml::value($data, "branch.code")',
                     ),
                 ),
             )); ?>

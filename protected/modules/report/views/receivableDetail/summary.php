@@ -20,24 +20,19 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         <?php echo CHtml::beginForm(array(''), 'get'); ?>
         <div class="row" style="background-color: #DFDFDF">
             Cabang
-            <?php
-            echo CHtml::dropDownList('BranchId', $branchId,
-                    CHtml::listData(Branch::model()->findAll(), 'id', 'name'),
-                    array(
-                        'empty' => '-Pilih Cabang-',
-                        'onchange' => '
-							$.ajax({
-								type: "POST",
-								url: "' . CController::createUrl('ajaxHtmlCustomer') . '",
-								data: $("#BranchId").serialize(),
-								success: function(html)
-								{
-									$("#customer_div").html(html);
-								}
-							});
-						'
-            ));
-            ?>				
+            <?php echo CHtml::dropDownList('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+                'empty' => '-Pilih Cabang-',
+                'onchange' => '
+                    $.ajax({
+                        type: "POST",
+                        url: "' . CController::createUrl('ajaxHtmlCustomer') . '",
+                        data: $("#BranchId").serialize(),
+                        success: function(html) {
+                            $("#customer_div").html(html);
+                        }
+                    });
+                '
+            )); ?>				
         </div>
 
         <?php

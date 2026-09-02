@@ -9,9 +9,9 @@ class GeneralLedgerSummary extends CComponent {
     }
 
     public function setupLoading() {
-        $this->dataProvider->criteria->with = array(
-            'journalAccountings',
-        );
+//        $this->dataProvider->criteria->with = array(
+//            'journalAccountings',
+//        );
         $this->dataProvider->criteria->together = true;
         
     }
@@ -30,21 +30,14 @@ class GeneralLedgerSummary extends CComponent {
         $this->dataProvider->criteria->order = $this->dataProvider->sort->orderBy;
     }
 
-    public function setupFilter($accountIdList, $startDate, $endDate, $branchId) {
+    public function setupFilter($accountIdList, $startDate, $endDate) {
         $inIdsSql = 'NULL';
         if (!empty($accountIdList)) {
             $inIdsSql = implode(',', $accountIdList);
         }
         
-        $branchConditionSql = '';
-        
-        if (!empty($branchId)) {
-            $branchConditionSql = ' AND t.branch_id = :branch_id';
-            $this->dataProvider->criteria->params[':branch_id'] = $branchId;
-        }
-        
-        $this->dataProvider->criteria->addBetweenCondition('journalAccountings.date', $startDate, $endDate);
-        $this->dataProvider->criteria->addCondition("t.id IN ({$inIdsSql})" . $branchConditionSql);
+//        $this->dataProvider->criteria->addBetweenCondition('journalAccountings.date', $startDate, $endDate);
+        $this->dataProvider->criteria->addCondition("t.id IN ({$inIdsSql})");
         $this->dataProvider->criteria->compare('t.is_inactive', 0);
     }
 }

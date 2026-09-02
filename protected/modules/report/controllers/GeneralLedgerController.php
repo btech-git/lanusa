@@ -27,21 +27,19 @@ class GeneralLedgerController extends Controller {
         $pageSize = (isset($_GET['PageSize'])) ? $_GET['PageSize'] : '';
         $currentPage = (isset($_GET['page'])) ? $_GET['page'] : '';
         $currentSort = (isset($_GET['sort'])) ? $_GET['sort'] : '';
-        $branchId = (isset($_GET['BranchId'])) ? $_GET['BranchId'] : '';
         $accountIds = (isset($_GET['AccountIds'])) ? $_GET['AccountIds'] : '';
 
         $accountIdList = $accountIds === '' ? array() : explode(',', $accountIds);
 
         $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
         $accountDataProvider = $account->searchByReport();
-        $accountDataProvider->criteria->compare('t.is_inactive', 0);
         $accountDataProvider->pagination->pageVar = 'page_dialog';
 
         $generalLedgerSummary = new GeneralLedgerSummary($account->search());
         $generalLedgerSummary->setupLoading();
         $generalLedgerSummary->setupPaging($pageSize, $currentPage);
         $generalLedgerSummary->setupSorting();
-        $generalLedgerSummary->setupFilter($accountIdList, $startDate, $endDate, $branchId);
+        $generalLedgerSummary->setupFilter($accountIdList, $startDate, $endDate);
         
         $coaIds = array_map(function($coa) { return $coa->id; }, $generalLedgerSummary->dataProvider->data);
         
@@ -51,7 +49,7 @@ class GeneralLedgerController extends Controller {
 //            $ledgerBeginningBalanceData[$ledgerBeginningBalance['coa_id']] = $ledgerBeginningBalance['beginning_balance'];
 //        }
         
-        $generalLedgerReport = JournalAccounting::getGeneralLedgerReport($coaIds, $startDate, $endDate, $branchId);
+        $generalLedgerReport = JournalAccounting::getGeneralLedgerReport($coaIds, $startDate, $endDate);
         $generalLedgerReportData = array();
         foreach ($generalLedgerReport as $generalLedgerReportItem) {
             $generalLedgerReportData[$generalLedgerReportItem['account_id']][] = $generalLedgerReportItem;
@@ -67,7 +65,6 @@ class GeneralLedgerController extends Controller {
             'startDate' => $startDate,
             'endDate' => $endDate,
             'accountIds' => $accountIds,
-            'branchId' => $branchId,
             'accountDataProvider' => $accountDataProvider,
             'currentSort' => $currentSort,
             'pageSize' => $pageSize,
@@ -90,18 +87,22 @@ class GeneralLedgerController extends Controller {
     public function actionAjaxHtmlAccount() {
         if (Yii::app()->request->isAjaxRequest) {
 
-            $startAccount = (isset($_GET['StartAccount'])) ? $_GET['StartAccount'] : '';
-            $endAccount = (isset($_GET['EndAccount'])) ? $_GET['EndAccount'] : '';
+//            $startAccount = (isset($_GET['StartAccount'])) ? $_GET['StartAccount'] : '';
+//            $endAccount = (isset($_GET['EndAccount'])) ? $_GET['EndAccount'] : '';
+//            $accounts = Account::model()->findAllByAttributes(array('branch_id' => $_POST['BranchId'],), array('order' => 'code ASC',));
+//            $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
 
-            $accounts = Account::model()->findAllByAttributes(array('branch_id' => $_POST['BranchId'],), array('order' => 'code ASC',));
-
+            $accountIds = (isset($_GET['AccountIds'])) ? $_GET['AccountIds'] : '';
+            
             $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
-
+            $accountDataProvider = $account->searchByReport();
+            $accountDataProvider->criteria->compare('t.is_inactive', 0);
+            $accountDataProvider->pagination->pageVar = 'page_dialog';
+            
             $this->renderPartial('_account', array(
                 'account' => $account,
-                'accounts' => $accounts,
-                'startAccount' => $startAccount,
-                'endAccount' => $endAccount,
+                'accountIds' => $accountIds,
+                'accountDataProvider' => $accountDataProvider,
             ));
         }
     }
