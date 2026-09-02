@@ -5,6 +5,7 @@
         <th style="text-align: center">Jumlah</th>
         <th style="text-align: center">Satuan</th>
         <th style="text-align: center">Harga Satuan</th>
+        <th style="text-align: center">Ongkos</th>
         <th style="text-align: center">Total</th>
         <th>&nbsp;</th>
     </tr>
@@ -65,6 +66,29 @@
                 </div>
                 <?php echo CHtml::error($detail, 'unit_price'); ?>
             </td>
+            <td style="text-align: center; width: 15%">
+                <?php echo CHtml::activeTextField($detail, "[$i]additional_fee_amount", array(
+                    'size' => 10, 
+                    'maxLength' => 20,
+                    'onchange' => CHtml::ajax(array(
+                        'type' => 'POST',
+                        'dataType' => 'JSON',
+                        'url' => CController::createUrl('AjaxJsonTotal', array('id' => $sale->header->id, 'index' => $i)),
+                        'success' => 'function(data) {
+                            $("#additional_fee_' . $i . '").html(data.additionalFee);
+                            $("#total_' . $i . '").html(data.total);
+                            $("#sub_total").html(data.subTotal);
+                            $("#taxPercentage").html(data.taxPercentage);
+                            $("#taxValue").html(data.taxValue);
+                            $("#grand_total").html(data.grandTotal);
+                        }',
+                    )),
+                )); ?>
+                <div id="additional_fee_<?php echo $i; ?>" style="text-align: left; font-size: smaller">
+                    <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'additional_fee_amount'))); ?>
+                </div>
+                <?php echo CHtml::error($detail, 'additional_fee_amount'); ?>
+            </td>
             <td style="text-align: right; width: 15%">
                 <span id="total_<?php echo $i; ?>">
                     <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'total'))); ?>
@@ -86,7 +110,7 @@
         </tr>
     <?php endforeach; ?>
     <tr style="background-color: aquamarine">
-        <td colspan="5" style="text-align: right">Sub Total:</td>
+        <td colspan="6" style="text-align: right">Sub Total:</td>
         <td style="text-align: right">
             <span id="sub_total">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->subTotal)); ?>
@@ -96,7 +120,7 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="5" style="text-align: right">Diskon</td>
+        <td colspan="6" style="text-align: right">Diskon</td>
         <td style="text-align: right">
             <?php echo CHtml::activeTextField($sale->header, 'discount', array(
                 'size' => 7, 
@@ -116,22 +140,19 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="5" style="text-align: right">
+        <td colspan="6" style="text-align: right">
             PPN
             <span id="taxPercentage">
                 <?php echo CHtml::activeHiddenField($sale->header, 'tax', array(
-//                    'size' => 1, 
-//                    'maxlength' => 2,
-//                    'value' => $sale->header->tax,
-//                    'onchange' => CHtml::ajax(array(
-//                        'type' => 'POST',
-//                        'dataType' => 'JSON',
-//                        'url' => CController::createUrl('ajaxJsonCodeNumberTaxTotal', array('id' => $sale->header->id)),
-//                        'success' => 'function(data) {
-//                            $("#taxValue").html(data.taxValue);
-//                            $("#grand_total").html(data.grandTotal);
-//                        }',
-//                    )),
+                    'onchange' => CHtml::ajax(array(
+                        'type' => 'POST',
+                        'dataType' => 'JSON',
+                        'url' => CController::createUrl('ajaxJsonCodeNumberTaxTotal', array('id' => $sale->header->id)),
+                        'success' => 'function(data) {
+                            $("#taxValue").html(data.taxValue);
+                            $("#grand_total").html(data.grandTotal);
+                        }',
+                    )),
                 )); ?>
                 <?php echo CHtml::encode(CHtml::value($sale, 'taxPercentage')); ?>
             </span>
@@ -148,7 +169,7 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="5" style="text-align: right">Ongkos Kirim:</td>
+        <td colspan="6" style="text-align: right">Ongkos Kirim:</td>
         <td style="text-align: right">
             <?php echo CHtml::activeTextField($sale->header, 'shipping_fee', array(
                 'size' => 7, 
@@ -162,13 +183,13 @@
                     }',
                 )),
             )); ?>
-        <?php echo CHtml::error($sale->header, 'shipping_fee'); ?>
+            <?php echo CHtml::error($sale->header, 'shipping_fee'); ?>
         </td>
         <td>&nbsp;</td>
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="5" style="font-weight: bold; text-align: right">Grand Total:</td>
+        <td colspan="6" style="font-weight: bold; text-align: right">Grand Total:</td>
         <td style="font-weight: bold; text-align: right">
             <span id="grand_total">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal)); ?>

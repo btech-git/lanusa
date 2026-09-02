@@ -33,6 +33,7 @@ class PurchaseController extends SelectionController {
 
     public function actionCreate() {
         $purchase = $this->instantiate(null);
+        $purchase->header->date = date('Y-m-d');
         $purchase->header->admin_id = Yii::app()->user->id;
 
         $product = Search::bind(new Product('search'), isset($_GET['Product']) ? $_GET['Product'] : array());
@@ -212,8 +213,9 @@ class PurchaseController extends SelectionController {
 
             $this->loadState($purchase);
 
-            if (isset($_POST['ProductId']))
+            if (isset($_POST['ProductId'])) {
                 $purchase->addDetail($_POST['ProductId']);
+            }
 
             $this->renderPartial('_detail', array(
                 'purchase' => $purchase,
@@ -238,44 +240,42 @@ class PurchaseController extends SelectionController {
     public function actionAjaxJsonTotal($id, $index) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchase = $this->instantiate($id);
-
             $this->loadState($purchase);
 
             $unitPrice = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchase->details[$index], 'unit_price')));
             $total = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchase->details[$index], 'total')));
             $subTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->subTotal));
-            $taxPercentage = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getTaxPercentage()));
+//            $taxPercentage = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getTaxPercentage()));
             $taxValue = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getCalculatedTax()));
+            $taxServiceValue = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getCalculatedTaxService()));
             $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->grandTotal));
 
             echo CJSON::encode(array(
                 'unitPrice' => $unitPrice,
                 'total' => $total,
                 'subTotal' => $subTotal,
-                'taxPercentage' => $taxPercentage,
+//                'taxPercentage' => $taxPercentage,
                 'taxValue' => $taxValue,
+                'taxServiceValue' => $taxServiceValue,
                 'grandTotal' => $grandTotal,
             ));
         }
     }
 
-    public function actionAjaxJsonCodeNumberTaxTotal($id) {
+    public function actionAjaxJsonGrandTotal($id) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchase = $this->instantiate($id);
             $this->loadState($purchase);
 
-            $purchase->generateCodeNumber($purchase->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($purchase->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($purchase->header->date)));
-            $codeNumber = CHtml::encode($purchase->header->getCodeNumber(PurchaseHeader::CN_CONSTANT));
-            $subTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getSubTotal()));
-            $taxPercentage = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getTaxPercentage()));
+            $subTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->subTotal));
             $taxValue = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getCalculatedTax()));
+            $taxServiceValue = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->getCalculatedTaxService()));
             $grandTotal = Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchase, 'grandTotal'));
 
             echo CJSON::encode(array(
-                'codeNumber' => $codeNumber,
                 'subTotal' => $subTotal,
-                'taxPercentage' => $taxPercentage,
                 'taxValue' => $taxValue,
+                'taxServiceValue' => $taxServiceValue,
                 'grandTotal' => $grandTotal,
             ));
         }
@@ -504,6 +504,17 @@ class PurchaseController extends SelectionController {
         $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
         $worksheet->setCellValue("H{$counter}", 'PPN ');
         $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchase, 'calculatedTax')));
+        $counter++;
+
+        $worksheet->mergeCells("A{$counter}:G{$counter}");
+        $worksheet->mergeCells("H{$counter}:K{$counter}");
+
+        $worksheet->getStyle("A{$counter}:L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:L{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:L{$counter}")->getBorders()->getInside()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("H{$counter}", 'PPh 21');
+        $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', CHtml::value($purchase, 'calculatedTaxService')));
         $counter++;
 
         $worksheet->mergeCells("A{$counter}:G{$counter}");
@@ -762,9 +773,9 @@ class PurchaseController extends SelectionController {
     }
 
     public function instantiate($id) {
-        if (empty($id))
+        if (empty($id)) {
             $purchase = new Purchase(new PurchaseHeader(), array());
-        else {
+        } else {
             $purchaseHeader = $this->loadModel($id);
             $purchase = new Purchase($purchaseHeader, $purchaseHeader->purchaseDetails);
         }
@@ -774,8 +785,11 @@ class PurchaseController extends SelectionController {
 
     public function loadModel($id) {
         $model = PurchaseHeader::model()->findByPk($id);
-        if ($model === null)
+        
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
+        
         return $model;
     }
 
@@ -783,21 +797,22 @@ class PurchaseController extends SelectionController {
         if (isset($_POST['PurchaseHeader'])) {
             $purchase->header->attributes = $_POST['PurchaseHeader'];
         }
+        
         if (isset($_POST['PurchaseDetail'])) {
             foreach ($_POST['PurchaseDetail'] as $i => $item) {
-                if (isset($purchase->details[$i]))
+                if (isset($purchase->details[$i])) {
                     $purchase->details[$i]->attributes = $item;
-                else {
+                } else {
                     $detail = new PurchaseDetail();
                     $detail->attributes = $item;
                     $purchase->details[] = $detail;
                 }
             }
-            if (count($_POST['PurchaseDetail']) < count($purchase->details))
+            if (count($_POST['PurchaseDetail']) < count($purchase->details)) {
                 array_splice($purchase->details, $i + 1);
-        }
-        else
+            }
+        } else {
             $purchase->details = array();
+        }
     }
-
 }

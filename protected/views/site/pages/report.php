@@ -32,9 +32,9 @@ Yii::app()->clientScript->registerScript('transaction', "
                 <?php endif; ?> 	
                 <?php if (Yii::app()->user->checkAccess('saleReport')): ?>
                     <li><?php echo CHtml::link('Penjualan Barang', array('/report/sale/summary')); ?><br/><br/></li>
-<!--                    <li><?php //echo CHtml::link('Penjualan Barang (Summary)', array('/report/saleRecap/summary')); ?><br/><br/></li>-->
                     <li><?php echo CHtml::link('Penjualan per Item (Summary)', array('/report/saleItem/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Order Penjualan (Detail SJ & Invoice)', array('/report/saleDeliveryInvoice/summary')); ?><br/><br/></li>
+                    <li><?php echo CHtml::link('Fast Moving Products', array('/report/fastMovingProducts/summary')); ?><br/><br/></li>
                 <?php endif; ?>
             </ul>
         </fieldset>
@@ -148,9 +148,10 @@ Yii::app()->clientScript->registerScript('transaction', "
                     <li><?php echo CHtml::link('Balance Sheet', array('/report/balanceSheet/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Harga Pokok Penjualan', array('/report/hpp/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Laba/Rugi', array('/report/profitLoss/summary')); ?><br/><br/></li>
+                    <li><?php echo CHtml::link('Jurnal Umum', array('/report/transactionJournal/summary')); ?><br/><br/></li>
                 <?php endif; ?>
                 <?php if (Yii::app()->user->checkAccess('adjustmentJournalReport')): ?>
-                    <li><?php echo CHtml::link('Jurnal Umum', array('/report/journalVoucher/summary')); ?><br/><br/></li>
+                    <li><?php echo CHtml::link('Jurnal Penyesuaian', array('/report/journalVoucher/summary')); ?><br/><br/></li>
                 <?php endif; ?>
             </ul>
         </fieldset>

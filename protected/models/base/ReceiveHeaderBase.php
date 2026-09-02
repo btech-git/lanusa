@@ -14,6 +14,8 @@
  * @property integer $admin_id
  * @property integer $is_non_tax
  * @property integer $is_inactive
+ * @property string $supplier_invoice_number
+ * @property string $purchase_tax_date
  *
  * @property PurchaseReceiptDetail[] $purchaseReceiptDetails
  * @property PurchaseReturnHeader[] $purchaseReturnHeaders
@@ -32,11 +34,10 @@ class ReceiveHeaderBase extends MonthlyTransactionActiveRecord {
         return array(
             array('cn_ordinal, cn_month, cn_year, date, branch_id, purchase_header_id, admin_id', 'required'),
             array('cn_ordinal, cn_month, cn_year, branch_id, purchase_header_id, admin_id, is_non_tax, is_inactive', 'numerical', 'integerOnly' => true),
-            array('reference', 'length', 'max' => 60),
-            array('supplier_tax_number', 'length', 'max' => 255),
-            array('note', 'safe'),
+            array('reference, supplier_tax_number, supplier_invoice_number', 'length', 'max' => 60),
+            array('note, purchase_tax_date', 'safe'),
             // The following rule is used by search().
-            array('id, cn_ordinal, cn_month, cn_year, date, reference, supplier_tax_number, note, branch_id, purchase_header_id, admin_id, is_non_tax, is_inactive', 'safe', 'on' => 'search'),
+            array('id, cn_ordinal, cn_month, cn_year, date, reference, supplier_tax_number, note, branch_id, purchase_header_id, admin_id, is_non_tax, is_inactive, purchase_tax_date, supplier_invoice_number', 'safe', 'on' => 'search'),
         );
     }
 
@@ -85,6 +86,8 @@ class ReceiveHeaderBase extends MonthlyTransactionActiveRecord {
         $criteria->compare('t.admin_id', $this->admin_id);
         $criteria->compare('t.is_non_tax', $this->is_non_tax);
         $criteria->compare('t.is_inactive', $this->is_inactive);
+        $criteria->compare('t.supplier_invoice_number', $this->supplier_invoice_number, true);
+        $criteria->compare('t.purchase_tax_date', $this->purchase_tax_date);
 
         return new CActiveDataProvider($this->resetScope(), array(
             'criteria' => $criteria,

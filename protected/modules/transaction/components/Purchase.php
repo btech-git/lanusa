@@ -15,10 +15,11 @@ class Purchase extends CComponent {
             'order' => 'cn_month DESC, cn_ordinal DESC',
             'condition' => 'branch_id = :branch_id AND cn_year = :cn_year AND cn_month = :cn_month',
             'params' => array(':branch_id' => $branchId, ':cn_year' => $currentYear, ':cn_month' => $currentMonth),
-                ));
+        ));
 
-        if ($purchaseHeader !== null)
+        if ($purchaseHeader !== null) {
             $this->header->setCodeNumber($purchaseHeader->cn_ordinal, $purchaseHeader->cn_month, $purchaseHeader->cn_year, $purchaseHeader->branch_id);
+        }
 
         $this->header->setCodeNumberByNext($currentMonth, $currentYear);
     }
@@ -35,9 +36,9 @@ class Purchase extends CComponent {
                 }
             }
 
-            if ($exist)
+            if ($exist) {
                 $this->details[$i]->quantity++;
-            else {
+            } else {
                 $detail = new PurchaseDetail();
                 $detail->product_id = $product->id;
                 $this->details[] = $detail;
@@ -53,10 +54,11 @@ class Purchase extends CComponent {
         $dbTransaction = $dbConnection->beginTransaction();
         try {
             $valid = $this->validate() && IdempotentManager::build()->save() && $this->flush();
-            if ($valid)
+            if ($valid) {
                 $dbTransaction->commit();
-            else
+            } else {
                 $dbTransaction->rollback();
+            }
         } catch (Exception $e) {
             $dbTransaction->rollback();
             $valid = false;
@@ -75,9 +77,9 @@ class Purchase extends CComponent {
                 $fields = array('quantity', 'unit_price');
                 $valid = $detail->validate($fields) && $valid;
             }
-        }
-        else
+        } else {
             $valid = false;
+        }
 
         return $valid;
     }
@@ -93,15 +95,16 @@ class Purchase extends CComponent {
     }
 
     public function flush() {
-//        $this->header->tax = $this->getTaxPercentage();
         $valid = $this->header->save(false);
 
         foreach ($this->details as $detail) {
-            if ($detail->quantity <= 0)
+            if ($detail->quantity <= 0) {
                 continue;
+            }
 
-            if ($detail->isNewRecord)
+            if ($detail->isNewRecord) {
                 $detail->purchase_header_id = $this->header->id;
+            }
 
             $valid = $detail->save(false) && $valid;
         }
@@ -110,7 +113,7 @@ class Purchase extends CComponent {
     }
 
     public function getSubTotal() {
-        $total = 0.00;
+        $total = '0.00';
         
         foreach ($this->details as $detail) {
             $total += $detail->total;
@@ -119,17 +122,21 @@ class Purchase extends CComponent {
         return ((int)$this->header->is_non_tax == PurchaseHeader::INCLUDE_TAX) ? $total / (1 + ($this->header->tax / 100)) : $total;
     }
 
-    public function getTaxPercentage() {
-        
-        return empty($this->header->branch_id) ? 0 : ((int)$this->header->branch->is_tax == 0) ? 0 : 10;
-    }
+//    public function getTaxPercentage() {
+//        
+//        return empty($this->header->branch_id) ? 0 : ((int)$this->header->branch->is_tax == 0) ? 0 : 10;
+//    }
 
     public function getCalculatedTax() {
         return ($this->subTotal - $this->header->discount) * ($this->header->tax / 100);
     }
 
+    public function getCalculatedTaxService() {
+        return ($this->subTotal - $this->header->discount) * ($this->header->tax_service_percentage / 100);
+    }
+
     public function getGrandTotal() {
-        return $this->subTotal - $this->header->discount + $this->calculatedTax + $this->header->shipping_fee;
+        return $this->subTotal - $this->header->discount + $this->calculatedTax - $this->calculatedTaxService + $this->header->shipping_fee;
     }
 
 }

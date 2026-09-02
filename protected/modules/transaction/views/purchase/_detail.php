@@ -80,7 +80,10 @@
                         )),
                     )); ?>
                 <?php else: ?>
-                    <?php echo CHtml::activeDropDownList($detail, "[$i]is_inactive", array(ActiveRecord::ACTIVE => 'Active', ActiveRecord::INACTIVE => 'Inactive')); ?>
+                    <?php echo CHtml::activeDropDownList($detail, "[$i]is_inactive", array(
+                        ActiveRecord::ACTIVE => 'Active', 
+                        ActiveRecord::INACTIVE => 'Inactive'
+                    )); ?>
                 <?php endif; ?>
             </td>
         </tr>
@@ -96,11 +99,46 @@
     </tr>
     <tr style="background-color: aquamarine">
         <td colspan="5" style="text-align: right">
-            PPN <?php echo CHtml::activeTextField($purchase->header, 'tax'); ?>%
+            PPN <?php echo CHtml::activeTextField($purchase->header, 'tax', array(
+                'style' => 'width: 50px',
+                'onchange' => CHtml::ajax(array(
+                    'type' => 'POST',
+                    'dataType' => 'JSON',
+                    'url' => CController::createUrl('ajaxJsonGrandTotal', array('id' => $purchase->header->id)),
+                    'success' => 'function(data) {
+                        $("#sub_total").html(data.subTotal);
+                        $("#tax_value").html(data.taxValue);
+                        $("#grand_total").html(data.grandTotal);
+                    }',
+                )),
+            )); ?>%
         </td>
         <td style="text-align: right">
-            <span id="taxValue">
+            <span id="tax_value">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->calculatedTax)); ?>
+            </span>
+        </td>
+        <td></td>
+    </tr>
+    <tr style="background-color: aquamarine">
+        <td colspan="5" style="text-align: right">
+            PPh <?php echo CHtml::activeTextField($purchase->header, 'tax_service_percentage', array(
+                'style' => 'width: 50px',
+                'onchange' => CHtml::ajax(array(
+                    'type' => 'POST',
+                    'dataType' => 'JSON',
+                    'url' => CController::createUrl('ajaxJsonGrandTotal', array('id' => $purchase->header->id)),
+                    'success' => 'function(data) {
+                        $("#sub_total").html(data.subTotal);
+                        $("#tax_service_value").html(data.taxServiceValue);
+                        $("#grand_total").html(data.grandTotal);
+                    }',
+                )),
+            )); ?>%
+        </td>
+        <td style="text-align: right">
+            <span id="tax_service_value">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $purchase->calculatedTaxService)); ?>
             </span>
         </td>
         <td></td>

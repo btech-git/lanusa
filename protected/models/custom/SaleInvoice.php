@@ -127,5 +127,4 @@ class SaleInvoice extends SaleInvoiceBase {
             ),
         ));
     }
-
 }

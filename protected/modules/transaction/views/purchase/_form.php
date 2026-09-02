@@ -2,12 +2,12 @@
     <?php echo CHtml::beginForm(); ?>
     <div class="container">
         <div class="span-12">
-            <div class="row">
-                <?php echo CHtml::label('Pembelian #', false); ?>
+<!--            <div class="row">
+                <?php /*echo CHtml::label('Pembelian #', false); ?>
                 <span id="code_number">
-                    <?php echo CHtml::encode($purchase->header->getCodeNumber(PurchaseHeader::CN_CONSTANT)); ?>
+                    <?php echo CHtml::encode($purchase->header->getCodeNumber(PurchaseHeader::CN_CONSTANT));*/ ?>
                 </span>
-            </div>
+            </div>-->
 
             <div class="row">
                 <?php echo CHtml::label('Tanggal', false); ?>
@@ -25,6 +25,30 @@
                 <?php echo CHtml::error($purchase->header, 'date'); ?>
             </div>
 
+            <div class="row">
+                <?php echo CHtml::activeLabelEx($purchase->header, 'branch_id'); ?>
+                <?php echo CHtml::activeDropDownList($purchase->header, 'branch_id', CHtml::listData(Branch::model()->findAll(array('order' => 't.name')), 'id', 'name'), array(
+                    'empty' => '-- Pilih Perusahaan --',
+                    'onchange' => '
+                        if ($(this).val() == 4) {
+                            $(".tax_type").hide();
+                        } else {
+                            $(".tax_type").show();
+                        }
+                    ' .
+                    CHtml::ajax(array(
+                        'type' => 'POST',
+                        'dataType' => "JSON",
+                        'url' => CController::createUrl('ajaxJsonCodeNumberTaxTotal', array('id' => $purchase->header->id)),
+                        'success' => 'function(data) {
+                            $("#code_number").html(data.codeNumber);
+                            $("#taxPercentage").html(data.taxPercentage);
+                        }',
+                    )),
+                )); ?>
+                <?php echo CHtml::error($purchase->header, 'branch_id'); ?>
+            </div>
+            
             <div class="row">
                 <?php echo CHtml::label('Supplier', ''); ?>
                 <?php $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
@@ -62,30 +86,6 @@
         </div>
 
         <div class="span-12 last">
-            <div class="row">
-                <?php echo CHtml::activeLabelEx($purchase->header, 'branch_id'); ?>
-                    <?php echo CHtml::activeDropDownList($purchase->header, 'branch_id', CHtml::listData(Branch::model()->findAll(array('order' => 't.name')), 'id', 'name'), array(
-                        'empty' => '-- Pilih Perusahaan --',
-                        'onchange' => '
-                            if ($(this).val() == 4) {
-                                $(".tax_type").hide();
-                            } else {
-                                $(".tax_type").show();
-                            }
-                        ' .
-                        CHtml::ajax(array(
-                            'type' => 'POST',
-                            'dataType' => "JSON",
-                            'url' => CController::createUrl('ajaxJsonCodeNumberTaxTotal', array('id' => $purchase->header->id)),
-                            'success' => 'function(data) {
-                                $("#code_number").html(data.codeNumber);
-                                $("#taxPercentage").html(data.taxPercentage);
-                            }',
-                        )),
-                    )); ?>
-                    <?php echo CHtml::error($purchase->header, 'branch_id'); ?>
-            </div>
-            
             <div class="tax_type">
                 <div class="row">
                     <?php echo CHtml::activeLabelEx($purchase->header, 'Include / Exclude'); ?>
@@ -97,11 +97,11 @@
                         'onchange' => CHtml::ajax(array(
                             'type' => 'POST',
                             'dataType' => "JSON",
-                            'url' => CController::createUrl('ajaxJsonCodeNumberTaxTotal', array('id' => $purchase->header->id)),
+                            'url' => CController::createUrl('ajaxJsonGrandTotal', array('id' => $purchase->header->id)),
                             'success' => 'function(data) {
                                 $("#sub_total").html(data.subTotal);
-                                $("#taxPercentage").html(data.taxPercentage);
-                                $("#taxValue").html(data.taxValue);
+                                $("#tax_value").html(data.taxValue);
+                                $("#tax_service_value").html(data.taxServiceValue);
                                 $("#grand_total").html(data.grandTotal);
                             }',
                         )),

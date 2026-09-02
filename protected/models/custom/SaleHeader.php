@@ -109,10 +109,13 @@ class SaleHeader extends SaleHeaderBase {
     public function getTotalPayment() {
         $total = $this->grandTotal;
 
-        foreach ($this->deliveryHeaders as $deliveryHeader)
-            foreach ($deliveryHeader->saleInvoices as $invoiceHeader)
-                foreach ($invoiceHeader->saleReturnHeaders as $saleReturnHeader)
+        foreach ($this->deliveryHeaders as $deliveryHeader) {
+            foreach ($deliveryHeader->saleInvoices as $invoiceHeader) {
+                foreach ($invoiceHeader->saleReturnHeaders as $saleReturnHeader) {
                     $total -= $saleReturnHeader->grandTotal;
+                }
+            }
+        }
 
         return $total;
     }
@@ -121,8 +124,9 @@ class SaleHeader extends SaleHeaderBase {
         $total = 0.00;
 
         foreach ($this->deliveryHeaders as $deliveryHeader) {
-            foreach ($deliveryHeader->saleInvoices as $invoiceHeader)
+            foreach ($deliveryHeader->saleInvoices as $invoiceHeader) {
                 $total += $invoiceHeader->grandTotal;
+            }
         }
 
         return $total;
@@ -136,8 +140,9 @@ class SaleHeader extends SaleHeaderBase {
     public function getTotalQuantity() {
         $totalQuantity = 0;
 
-        foreach ($this->saleDetails as $detail)
+        foreach ($this->saleDetails as $detail) {
             $totalQuantity += $detail->quantity;
+        }
 
         return $totalQuantity;
     }
@@ -146,8 +151,9 @@ class SaleHeader extends SaleHeaderBase {
         $quantityDelivery = 0;
 
         foreach ($this->deliveryHeaders as $deliveryHeader) {
-            if ($deliveryHeader->is_inactive == 0)
+            if ($deliveryHeader->is_inactive == 0) {
                 $quantityDelivery += $deliveryHeader->totalQuantity;
+            }
         }
 
         return $this->totalQuantity - $quantityDelivery;
@@ -186,8 +192,9 @@ class SaleHeader extends SaleHeaderBase {
     public static function makeChartAxisY($chartData, $part) {
         $total = 0;
         foreach ($chartData as $data) {
-            if ($total < $data[1])
+            if ($total < $data[1]) {
                 $total = $data[1];
+            }
         }
 
         $top = $total * (1 + 1 / ($part * 2));
@@ -211,8 +218,9 @@ class SaleHeader extends SaleHeaderBase {
 
     public static function makeChartAxisX($chartData) {
         $labels = array();
-        foreach ($chartData as $data)
+        foreach ($chartData as $data) {
             $labels[] = array($data[0], substr($data[2], 6, 8));
+        }
 
         return array('min' => 0, 'max' => count($chartData) + 1, 'ticks' => $labels);
     }
@@ -231,10 +239,10 @@ class SaleHeader extends SaleHeaderBase {
         }
 
         $sql = "SELECT SUBSTRING(h.date, 1, 7) AS date, SUM(d.quantity * d.unit_price*(1-d.discount/100)) AS total
-				FROM " . SaleHeader::model()->tableName() . " h 
+                FROM " . SaleHeader::model()->tableName() . " h 
                 INNER JOIN " . SaleDetail::model()->tableName() . " d ON h.id = d.sale_header_id
-				WHERE SUBSTRING(h.date, 1, 7) <= :end AND SUBSTRING(h.date, 1, 7) >= :start
-				GROUP BY SUBSTRING(h.date, 1, 7)";
+                WHERE SUBSTRING(h.date, 1, 7) <= :end AND SUBSTRING(h.date, 1, 7) >= :start
+                GROUP BY SUBSTRING(h.date, 1, 7)";
 
         $rows = CActiveRecord::$db->createCommand($sql)->queryAll(true, array(
             ':start' => $dateList[0],
@@ -242,8 +250,9 @@ class SaleHeader extends SaleHeaderBase {
         ));
 
         foreach ($rows as $row) {
-            if (in_array($row['date'], $dateList))
+            if (in_array($row['date'], $dateList)) {
                 $dataRows[$row['date']]['total'] = $row['total'];
+            }
         }
 
         $counter = 1;
@@ -258,4 +267,13 @@ class SaleHeader extends SaleHeaderBase {
         return $data;
     }
 
+    public function getTotalAdditionalFee() {
+        $total = '0.00';
+        
+        foreach ($this->saleDetails as $detail) {
+            $total += $detail->additional_fee_amount;
+        }
+        
+        return $total;
+    }
 }

@@ -7,12 +7,14 @@ Yii::app()->clientScript->registerCss('_report', '
     .width1-5 { width: 15% }
 
 
-    .width2-1 { width: 20% }
-    .width2-2 { width: 15% }
-    .width2-3 { width: 20% }
-    .width2-4 { width: 20% }
-    .width2-5 { width: 10% }
-    .width2-6 { width: 15% }
+    .width2-1 { width: 15% }
+    .width2-2 { width: 10% }
+    .width2-3 { width: 15% }
+    .width2-4 { width: 15% }
+    .width2-5 { width: 15% }
+    .width2-6 { width: 10% }
+    .width2-7 { width: 10% }
+    .width2-8 { width: 15% }
 ');
 ?>
 
@@ -39,10 +41,12 @@ Yii::app()->clientScript->registerCss('_report', '
                 <tr>
                     <th class="width2-1">Penerimaan #</th>
                     <th class="width2-2">Tanggal</th>
-                    <th class="width2-3">Faktur Pajak #</th>
-                    <th class="width2-4">SJ #</th>
-                    <th class="width2-5">Quantity</th>
-                    <th class="width2-6">Total</th>
+                    <th class="width2-3">SJ #</th>
+                    <th class="width2-4">Invoice #</th>
+                    <th class="width2-5">F. Pajak #</th>
+                    <th class="width2-6">Tanggal F. Pajak</th>
+                    <th class="width2-7">Quantity</th>
+                    <th class="width2-8">Total</th>
                 </tr>
             </table>
         </td>
@@ -57,29 +61,41 @@ Yii::app()->clientScript->registerCss('_report', '
         <?php endif; ?>
             <td class="width1-1" style="text-align: center"><?php echo CHtml::encode($header->getCodeNumber(PurchaseHeader::CN_CONSTANT)); ?></td>
             <td class="width1-2" style="text-align: center"><?php echo CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($header->date))); ?></td>
-            <td class="width1-3" style="text-align: left"><?php echo CHtml::encode(CHtml::value($header, isset($header->supplier->company) ? 'supplier.company' : 'supplier.name')); ?></td>
+            <td class="width1-3"><?php echo CHtml::encode(CHtml::value($header, isset($header->supplier->company) ? 'supplier.company' : 'supplier.name')); ?></td>
             <td class="width1-4" style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $header->totalQuantity)); ?></td>
             <td class="width1-5" style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', ($header->grandTotal))); ?></td>
         </tr>
         <tr class="items2">
             <td colspan="5">
                 <table>
-                    <?php $totalReceiveValue = 0.00; ?>
+                    <?php $totalReceiveValue = '0.00'; ?>
                     <?php foreach ($header->receiveHeaders as $detail): ?>
                         <?php $totalPurchase = $detail->grandTotalReceipt; ?>
                         <tr>
                             <td class="width2-1" style="text-align: center"><?php echo CHtml::encode($detail->getCodeNumber(ReceiveHeader::CN_CONSTANT)); ?></td>
-                            <td class="width2-2" style="text-align: center"><?php echo CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->date))); ?></td>
-                            <td class="width2-3" style="text-align: center"><?php echo CHtml::encode($detail->supplier_tax_number); ?></td>
-                            <td class="width2-4" style="text-align: right"><?php echo CHtml::encode(CHtml::value($detail, 'reference')); ?></td>
-                            <td class="width2-5" style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', ($detail->totalQuantity))); ?></td>
-                            <td class="width2-6" style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', ($totalPurchase))); ?></td>
+                            <td class="width2-2" style="text-align: center">
+                                <?php echo CHtml::encode(Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($detail->date))); ?>
+                            </td>
+                            <td class="width2-3" style="text-align: right"><?php echo CHtml::encode(CHtml::value($detail, 'reference')); ?></td>
+                            <td class="width2-4" style="text-align: right"><?php echo CHtml::encode(CHtml::value($detail, 'supplier_invoice_number')); ?></td>
+                            <td class="width2-5" style="text-align: center"><?php echo CHtml::encode($detail->supplier_tax_number); ?></td>
+                            <td class="width2-6" style="text-align: center">
+                                <?php echo CHtml::encode(Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($detail->purchase_tax_date))); ?>
+                            </td>
+                            <td class="width2-7" style="text-align: right">
+                                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', ($detail->totalQuantity))); ?>
+                            </td>
+                            <td class="width2-8" style="text-align: right">
+                                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', ($totalPurchase))); ?>
+                            </td>
                         </tr>
                         <?php $totalReceiveValue += $totalPurchase; ?>
                     <?php endforeach; ?>
                     <tr>
-                        <td colspan="5" style="border-top: 0px solid;text-align: right;font-weight:bold">Total</td>
-                        <td class="width2-6" style="border-top: 1px solid;text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $totalReceiveValue)); ?></td>
+                        <td colspan="7" style="border-top: 0px solid;text-align: right;font-weight:bold">Total</td>
+                        <td class="width2-8" style="border-top: 1px solid;text-align: right">
+                            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $totalReceiveValue)); ?>
+                        </td>
                     </tr>
                 </table>
             </td>
@@ -88,6 +104,8 @@ Yii::app()->clientScript->registerCss('_report', '
     <?php endforeach; ?>
     <tr>
         <td colspan="4" style="border-top: 1px solid; font-weight: bold; text-align: right">TOTAL PEMBELIAN</td>
-        <td class="width1-5" style="border-top: 1px solid; font-weight: bold; text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $grandTotalPurchase)); ?></td>
+        <td class="width1-5" style="border-top: 1px solid; font-weight: bold; text-align: right">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $grandTotalPurchase)); ?>
+        </td>
     </tr>
 </table>

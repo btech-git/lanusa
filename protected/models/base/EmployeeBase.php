@@ -39,13 +39,13 @@ class EmployeeBase extends ActiveRecord {
     public function attributeLabels() {
         return array(
             'id' => 'ID',
-            'name' => 'Nama',
-            'address' => 'Alamat',
-            'mobile_phone' => 'HP #',
+            'name' => 'Name',
+            'address' => 'Address',
+            'mobile_phone' => 'Mobile Phone',
             'email' => 'Email',
-            'identity_number' => 'KTP #',
-            'tax_personal_number' => 'NPWP #',
-            'position' => 'Posisi',
+            'identity_number' => 'Identity Number',
+            'tax_personal_number' => 'Tax Personal Number',
+            'position' => 'Position',
             'is_inactive' => 'Is Inactive',
         );
     }

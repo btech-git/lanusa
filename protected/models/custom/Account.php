@@ -171,8 +171,9 @@ class Account extends AccountBase {
         ));
 
         if ($accountingJournals != null) {
-            foreach ($accountingJournals as $accountingJournal)
+            foreach ($accountingJournals as $accountingJournal) {
                 $balanceTotal += $accountingJournal->debit - $accountingJournal->credit;
+            }
         }
 
         return $balanceTotal;
@@ -190,8 +191,9 @@ class Account extends AccountBase {
         ));
 
         if ($accountingJournals != null) {
-            foreach ($accountingJournals as $accountingJournal)
+            foreach ($accountingJournals as $accountingJournal) {
                 $balanceTotal += $accountingJournal->credit - $accountingJournal->debit;
+            }
         }
 
         return $balanceTotal;
@@ -207,9 +209,9 @@ class Account extends AccountBase {
         ));
     }
 
-    public function search() {
+    public function searchByReport() {
         $criteria = new CDbCriteria;
-//		$criteria->with = array('tblla_journal_accounting');
+
         $criteria->compare('id', $this->id);
         $criteria->compare('t.code', $this->code, true);
         $criteria->compare('t.name', $this->name, true);
@@ -220,6 +222,12 @@ class Account extends AccountBase {
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
+            'sort' => array(
+                'defaultOrder' => 't.code ASC',
+            ),
+            'pagination' => array(
+                'pageSize' => 50,
+            ),
         ));
     }
 

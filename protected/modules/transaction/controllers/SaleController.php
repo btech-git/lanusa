@@ -280,7 +280,10 @@ class SaleController extends SelectionController {
         $worksheet->getColumnDimension('L')->setWidth('2');
 
         $worksheet->getColumnDimension('M')->setAutoSize(false);
-        $worksheet->getColumnDimension('M')->setWidth('22');
+        $worksheet->getColumnDimension('M')->setWidth('15');
+
+        $worksheet->getColumnDimension('N')->setAutoSize(false);
+        $worksheet->getColumnDimension('N')->setWidth('15');
 
         $counter = 2;
         //add image
@@ -360,7 +363,6 @@ class SaleController extends SelectionController {
         if ($sale->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
             $worksheet->setCellValue("L{$counter}", ':');
-//            $worksheet->setCellValue("M{$counter}", $sale->reference);
         }
         
         $counter++;
@@ -388,46 +390,64 @@ class SaleController extends SelectionController {
         $worksheet->setCellValue("M{$counter}", $sale->customer->npwp);
 
         $counter++;
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setBold(true);
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-        $worksheet->setCellValue("A{$counter}", 'No.');
+        
+        $columnHeaderAmount = $sale->totalAdditionalFee > 0 ? 'N': 'M';
         $worksheet->mergeCells("B{$counter}:G{$counter}");
+        $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->mergeCells("L{$counter}:M{$counter}");
+        
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:{$columnHeaderAmount}{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        
+        $worksheet->setCellValue("A{$counter}", 'No.');
         $worksheet->setCellValue("B{$counter}", 'Nama Barang');
         $worksheet->setCellValue("H{$counter}", 'Qty');
         $worksheet->setCellValue("I{$counter}", 'Satuan');
-        $worksheet->mergeCells("J{$counter}:K{$counter}");
         $worksheet->setCellValue("J{$counter}", 'Harga');
-        $worksheet->mergeCells("L{$counter}:M{$counter}");
-        $worksheet->setCellValue("L{$counter}", 'Total (IDR)');
+        if ($sale->totalAdditionalFee > 0) {
+            $worksheet->setCellValue("L{$counter}", 'Ongkos');
+            $worksheet->setCellValue("{$columnHeaderAmount}{$counter}", 'Total (IDR)');
+        } else {
+            $worksheet->setCellValue("L{$counter}", 'Total (IDR)');
+        }
 
         $counter++;
         $pageSize = 6;
         $emptyCells = 0;
         $itemNumber = 1;
         foreach ($sale->saleDetails as $detail) {
+            $columnBodyAmount = $detail->additional_fee_amount > 0 ? 'N': 'M';
+            
+            $worksheet->mergeCells("B{$counter}:G{$counter}");
+            $worksheet->mergeCells("J{$counter}:K{$counter}");
+            $worksheet->mergeCells("L{$counter}:M{$counter}");
+
             $worksheet->getStyle("A{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("B{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("{$columnBodyAmount}{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("{$columnBodyAmount}{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             $worksheet->getStyle("J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->getStyle("{$columnBodyAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $worksheet->getStyle("I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-
-            $worksheet->mergeCells("B{$counter}:G{$counter}");
-            $worksheet->mergeCells("J{$counter}:K{$counter}");
-            $worksheet->mergeCells("L{$counter}:M{$counter}");
 
             $worksheet->setCellValue("A{$counter}", $itemNumber);
             $worksheet->setCellValue("B{$counter}", $detail->product_name);
             $worksheet->setCellValue("H{$counter}", $detail->quantity);
             $worksheet->setCellValue("I{$counter}", $detail->product->unit->name);
             $worksheet->setCellValue("J{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->unit_price));
-            $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+            if ($detail->additional_fee_amount > 0) {
+                $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->additional_fee_amount));
+                $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+            } else {
+                $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+            }
 
             $counter++;
             $emptyCells++;
@@ -445,29 +465,38 @@ class SaleController extends SelectionController {
             $worksheet->getStyle("H{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-            $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            if ($detail->additional_fee_amount > 0) {
+                $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+                $worksheet->getStyle("N{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+                $worksheet->getStyle("N{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            } else {
+                $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+                $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            }
 
             $counter++;
         }
+        $columnFooterAmount = $sale->totalAdditionalFee > 0 ? 'N': 'M';
 
         $worksheet->mergeCells("H{$counter}:I{$counter}");
         $worksheet->setCellValue("H{$counter}", 'Hormat Kami,');
         
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:{$columnFooterAmount}{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
         $worksheet->setCellValue("J{$counter}", 'Sub Total');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->subTotal));
+        $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->subTotal));
 
         $counter++;
+        
         if ($sale->branch_id != 4) {
             $worksheet->setCellValue("A{$counter}", 'Keterangan:');
         }
+        
         $worksheet->setCellValue("J{$counter}", 'DPP lain-lain');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->costOfGoodsSold));
+        $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->costOfGoodsSold));
 
         $counter++;
         
@@ -476,8 +505,8 @@ class SaleController extends SelectionController {
         }
         $worksheet->setCellValue("J{$counter}", 'Disc');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->discount));
+        $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->discount));
 
         $counter++;
         
@@ -485,21 +514,21 @@ class SaleController extends SelectionController {
         if ($sale->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'PPN');
             $worksheet->setCellValue("L{$counter}", ':');
-            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
+            $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->calculatedTax));
         } else {
             $worksheet->setCellValue("J{$counter}", 'Ongkos Kirim');
             $worksheet->setCellValue("L{$counter}", ':');
-            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->shipping_fee));
+            $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->shipping_fee));
         }
 
         $counter++;
         
         $worksheet->setCellValue("J{$counter}", 'Grand Total');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
+        $worksheet->getStyle("{$columnFooterAmount}{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("{$columnFooterAmount}{$counter}", Yii::app()->numberFormatter->format('#,##0', $sale->grandTotal));
 
         header('Content-Type: application/xls');
         header('Content-Disposition: attachment;filename="proforma_invoice.xls"');
@@ -833,6 +862,7 @@ class SaleController extends SelectionController {
             $this->loadState($sale);
 
             $unitPrice = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($sale->details[$index], 'unit_price')));
+            $additionalFee = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($sale->details[$index], 'additional_fee_amount')));
             $total = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($sale->details[$index], 'total')));
             $subTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->subTotal));
             $taxPercentage = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->getTaxPercentage()));
@@ -841,6 +871,7 @@ class SaleController extends SelectionController {
 
             echo CJSON::encode(array(
                 'unitPrice' => $unitPrice,
+                'additionalFee' => $additionalFee,
                 'total' => $total,
                 'subTotal' => $subTotal,
                 'taxPercentage' => $taxPercentage,
@@ -855,14 +886,14 @@ class SaleController extends SelectionController {
             $sale = $this->instantiate($id);
             $this->loadState($sale);
 
-            $sale->generateCodeNumber($sale->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($sale->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($sale->header->date)));
-            $codeNumber = CHtml::encode($sale->header->getCodeNumber(SaleHeader::CN_CONSTANT));
+//            $sale->generateCodeNumber($sale->header->branch_id, Yii::app()->dateFormatter->format('M', strtotime($sale->header->date)), Yii::app()->dateFormatter->format('yy', strtotime($sale->header->date)));
+//            $codeNumber = CHtml::encode($sale->header->getCodeNumber(SaleHeader::CN_CONSTANT));
             $taxPercentage = $sale->getTaxPercentage();
             $taxValue = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->getCalculatedTax()));
             $grandTotal = CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $sale->getGrandTotal()));
 
             echo CJSON::encode(array(
-                'codeNumber' => $codeNumber,
+//                'codeNumber' => $codeNumber,
                 'taxPercentage' => $taxPercentage,
                 'taxValue' => $taxValue,
                 'grandTotal' => $grandTotal,

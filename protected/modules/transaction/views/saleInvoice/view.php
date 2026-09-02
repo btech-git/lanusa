@@ -64,6 +64,13 @@ $this->widget('zii.widgets.grid.CGridView', array(
             ),
         ),
         array(
+            'header' => 'Ongkos',
+            'value' => 'number_format($data->saleDetail->additional_fee_amount, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        array(
             'header' => 'Total',
             'value' => 'number_format($data->getTotal(), 2)',
             'htmlOptions' => array(
@@ -76,34 +83,34 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <div>
     <table>
         <tr>
-            <td style="text-align: right">Sub Total</td>
-            <td style="text-align: right; width: 20%">
+            <td style="text-align: right; font-weight: bold">Sub Total</td>
+            <td style="text-align: right; font-weight: bold; width: 20%">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal)); ?>
             </td>
         </tr>
         <?php if ($saleInvoice->is_non_tax === 0): ?>
             <tr>
-                <td style="text-align: right;">DPP lain-lain</td>
-                <td style="text-align: right;">
+                <td style="text-align: right; font-weight: bold;">DPP lain-lain</td>
+                <td style="text-align: right; font-weight: bold;">
                     <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($saleInvoice, 'costOfGoodsSold'))); ?>
                 </td>
             </tr>
         <?php endif; ?>
         <tr>
+            <td style="text-align: right; font-weight: bold">PPn <?php echo CHtml::encode(CHtml::value($saleInvoice, 'tax_percentage')); ?>%</td>
+            <td style="text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax)); ?></td>
+        </tr>
+<!--        <tr>
             <td style="text-align: right">Diskon</td>
-            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount)); ?></td>
+            <td style="text-align: right"><?php //echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount)); ?></td>
+        </tr>-->
+        <tr>
+            <td style="text-align: right; font-weight: bold">Ongkos Kirim</td>
+            <td style="text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee)); ?></td>
         </tr>
         <tr>
-            <td style="text-align: right">Ongkos Kirim</td>
-            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee)); ?></td>
-        </tr>
-        <tr>
-            <td style="text-align: right">PPn <?php echo CHtml::encode(CHtml::value($saleInvoice, 'tax_percentage')); ?>%</td>
-            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax)); ?></td>
-        </tr>
-        <tr>
-            <td style="text-align: right">Grand Total</td>
-            <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal)); ?></td>
+            <td style="text-align: right; font-weight: bold">Grand Total</td>
+            <td style="text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal)); ?></td>
         </tr>
     </table>
 </div>

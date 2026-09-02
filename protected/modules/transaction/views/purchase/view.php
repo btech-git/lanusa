@@ -73,15 +73,27 @@ $this->breadcrumbs=array(
 <table>
     <tr>
         <td style="width:80% ;text-align: right; font-weight: bold">Sub Total</td>
-        <td style="width:20% ;text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'subTotal'))); ?></td>
+        <td style="width:20% ;text-align: right; font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'subTotal'))); ?>
+        </td>
     </tr>
     <tr>
         <td style="text-align: right; font-weight: bold">PPn <?php echo $purchase->getTaxType($purchase->is_non_tax); ?></td>
-        <td style="text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'calculatedTax'))); ?></td>
+        <td style="text-align: right; font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'calculatedTax'))); ?>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: right; font-weight: bold">PPh 21</td>
+        <td style="text-align: right; font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'calculatedTaxService'))); ?>
+        </td>
     </tr>
     <tr>
         <td style="text-align: right; font-weight: bold">Grand Total</td>
-        <td style="text-align: right; font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'grandTotal'))); ?></td>
+        <td style="text-align: right; font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($purchase, 'grandTotal'))); ?>
+        </td>
     </tr>
 </table>
 

@@ -27,23 +27,23 @@ class Sale extends CComponent {
         $product = Product::model()->findByPk($id);
 
         if ($product !== null) {
-            $exist = false;
-            foreach ($this->details as $i => $detail) {
-                if ($product->id === $detail->product_id) {
-                    $exist = true;
-                    break;
-                }
-            }
+//            $exist = false;
+//            foreach ($this->details as $i => $detail) {
+//                if ($product->id === $detail->product_id) {
+//                    $exist = true;
+//                    break;
+//                }
+//            }
 
-            if ($exist)
-                $this->details[$i]->quantity++;
-            else {
+//            if ($exist)
+//                $this->details[$i]->quantity++;
+//            else {
                 $detail = new SaleDetail();
                 $detail->product_id = $product->id;
                 $detail->product_name = $product->name;
                 $detail->unit_price = $product->selling_price;
                 $this->details[] = $detail;
-            }
+//            }
         }
     }
 

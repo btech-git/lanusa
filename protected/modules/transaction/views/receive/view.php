@@ -24,12 +24,24 @@ $this->widget('zii.widgets.CDetailView', array(
             'value' => $purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT),
         ),
         array(
-            'label' => 'No SJ Supplier #',
+            'label' => 'Supplier',
+            'value' => $purchaseHeader->supplier->company,
+        ),
+        array(
+            'label' => 'SJ Supplier #',
             'value' => $receive->reference,
         ),
         array(
-            'label' => 'Supplier',
-            'value' => $purchaseHeader->supplier->company,
+            'label' => 'Invoice Supplier #',
+            'value' => $receive->supplier_invoice_number,
+        ),
+        array(
+            'label' => 'F. Pajak Supplier #',
+            'value' => $receive->supplier_tax_number,
+        ),
+        array(
+            'label' => 'Tanggal F. Pajak',
+            'value' => Yii::app()->dateFormatter->format("d MMMM yyyy", $receive->purchase_tax_date),
         ),
         array(
             'label' => 'Catatan',

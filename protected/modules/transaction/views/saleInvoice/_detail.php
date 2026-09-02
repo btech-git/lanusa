@@ -1,9 +1,11 @@
 <table style="border: 1px solid">
     <tr style="background-color: skyblue">
         <th style="text-align: center">Nama Barang</th>
+        <th style="text-align: center">Ukuran</th>
         <th style="text-align: center">Jumlah</th>
         <th style="text-align: center">Satuan</th>
         <th style="text-align: center">Harga Satuan</th>
+        <th style="text-align: center">Ongkos</th>
         <th style="text-align: center">Total</th>
     </tr>
     
@@ -12,17 +14,17 @@
         <?php $detailProduct = $detail->product(array('scopes' => 'resetScope', 'with' => 'unit:resetScope')); ?>
 
         <tr style="background-color: azure">
-            <td style="width: auto">
-                <?php echo CHtml::encode($detail->getProductName($delivery->sale_header_id)); ?>
-            </td>
-            <td style="text-align: center; width: 10%">
-                <?php echo CHtml::encode(CHtml::value($detail, 'quantity')); ?>
-            </td>
+            <td style="width: auto"><?php echo CHtml::encode(CHtml::value($detail, 'product.name')); ?></td>
+            <td style="text-align: center; width: 10%"><?php echo CHtml::encode(CHtml::value($detail, 'product.size')); ?></td>
+            <td style="text-align: center; width: 10%"><?php echo CHtml::encode(CHtml::value($detail, 'quantity')); ?></td>
             <td style="text-align: center; width: 5%">
-                <?php echo CHtml::encode($detail->getProductUnit($delivery->sale_header_id)); ?>
+                <?php echo CHtml::encode(CHtml::value($detail, 'product.unit.name')); ?>
             </td>
             <td style="text-align: right; width: 15%">
-                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $detail->getUnitPrice($delivery->sale_header_id))); ?>
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'saleDetail.unit_price'))); ?>
+            </td>
+            <td style="text-align: right; width: 15%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($detail, 'saleDetail.additional_fee_amount'))); ?>
             </td>
             <td style="text-align: right; width: 15%">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $detail->getTotal($delivery->sale_header_id))); ?>
@@ -30,14 +32,14 @@
         </tr>
     <?php endforeach; ?>
     <tr style="background-color: aquamarine">
-        <td colspan="4" style="text-align: right">Sub Total:</td>
+        <td colspan="6" style="text-align: right">Sub Total:</td>
         <td style="text-align: right">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $delivery->subTotal)); ?>
         </td>
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="4" style="text-align: right">
+        <td colspan="6" style="text-align: right">
             Diskon:
         </td>
         <td style="text-align: right">
@@ -58,7 +60,7 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="4" style="text-align: right">Ongkos Kirim:</td>
+        <td colspan="6" style="text-align: right">Ongkos Kirim:</td>
         <td style="text-align: right">
             <?php echo CHtml::activeTextField($saleInvoice->header, 'shipping_fee', array(
                 'size' => 7, 
@@ -77,7 +79,7 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td colspan="4" style="text-align: right">
+        <td colspan="6" style="text-align: right">
             PPN 
             <?php echo CHtml::activeTextField($saleInvoice->header, 'tax_percentage', array(
                 'size' => 1, 
@@ -92,7 +94,6 @@
                     }',
                 )),
             )); ?>%:
-            <?php //echo CHtml::encode(CHtml::value($saleHeader, 'tax')); ?>
         </td>
         <td style="text-align: right">
             <span id="tax">
@@ -102,7 +103,7 @@
     </tr>
     
     <tr style="background-color: aquamarine">
-        <td  colspan="4" style="font-weight: bold; text-align: right">Grand Total:</td>
+        <td  colspan="6" style="font-weight: bold; text-align: right">Grand Total:</td>
         <td style="font-weight: bold; text-align: right">
             <span id="grand_total">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->header->grandTotal)); ?>

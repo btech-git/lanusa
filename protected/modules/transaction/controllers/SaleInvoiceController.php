@@ -689,7 +689,10 @@ class SaleInvoiceController extends Controller {
         $worksheet->getColumnDimension('L')->setWidth('2');
 
         $worksheet->getColumnDimension('M')->setAutoSize(false);
-        $worksheet->getColumnDimension('M')->setWidth('22');
+        $worksheet->getColumnDimension('M')->setWidth('15');
+        
+        $worksheet->getColumnDimension('N')->setAutoSize(false);
+        $worksheet->getColumnDimension('N')->setWidth('15');
 
         $counter = 2;
         //add image
@@ -750,6 +753,7 @@ class SaleInvoiceController extends Controller {
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'Tgl Faktur');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->setCellValue("M{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($saleInvoice->date)));
@@ -763,6 +767,7 @@ class SaleInvoiceController extends Controller {
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'No Faktur');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->getStyle("M{$counter}")->getFont()->setBold(true);
@@ -776,6 +781,7 @@ class SaleInvoiceController extends Controller {
         $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->company);
 
         $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->mergeCells("M{$counter}:N{$counter}");
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
             $worksheet->setCellValue("L{$counter}", ':');
@@ -790,19 +796,20 @@ class SaleInvoiceController extends Controller {
         $worksheet->setCellValue("A{$counter}", strip_tags(nl2br($saleInvoice->deliveryHeader->saleHeader->customer->address)));
 
         $worksheet->mergeCells("J{$counter}:K{$counter}");
+        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'No PO');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->setCellValue("M{$counter}", CHtml::value($saleInvoice, 'deliveryHeader.saleHeader.reference'));
 
         $counter++;
         $counter++;
-        $worksheet->mergeCells("A{$counter}:G{$counter}");
+        $worksheet->mergeCells("A{$counter}:I{$counter}");
         $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->npwp);
 
         $counter++;
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getFont()->setBold(true);
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getFont()->setBold(true);
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
         $worksheet->setCellValue("A{$counter}", 'No.');
         $worksheet->mergeCells("B{$counter}:G{$counter}");
         $worksheet->setCellValue("B{$counter}", 'Nama Barang');
@@ -811,7 +818,8 @@ class SaleInvoiceController extends Controller {
         $worksheet->mergeCells("J{$counter}:K{$counter}");
         $worksheet->setCellValue("J{$counter}", 'Harga');
         $worksheet->mergeCells("L{$counter}:M{$counter}");
-        $worksheet->setCellValue("L{$counter}", 'Total (IDR)');
+        $worksheet->setCellValue("L{$counter}", 'Ongkos');
+        $worksheet->setCellValue("N{$counter}", 'Total (IDR)');
 
         $counter++;
         $pageSize = 6;
@@ -824,10 +832,14 @@ class SaleInvoiceController extends Controller {
             $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("M{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("N{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("N{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            
             $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             $worksheet->getStyle("J{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $worksheet->getStyle("L{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $worksheet->getStyle("I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
             $worksheet->mergeCells("B{$counter}:G{$counter}");
@@ -839,7 +851,8 @@ class SaleInvoiceController extends Controller {
             $worksheet->setCellValue("H{$counter}", $detail->quantity);
             $worksheet->setCellValue("I{$counter}", $detail->productUnit);
             $worksheet->setCellValue("J{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->getUnitPrice()));
-            $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
+            $worksheet->setCellValue("L{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->saleDetail->additional_fee_amount));
+            $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $detail->total));
 
             $counter++;
             $emptyCells++;
@@ -858,7 +871,9 @@ class SaleInvoiceController extends Controller {
             $worksheet->getStyle("I{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("J{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("L{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-            $worksheet->getStyle("M{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("M{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("N{$counter}")->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+            $worksheet->getStyle("N{$counter}")->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
 
             $counter++;
         }
@@ -866,52 +881,58 @@ class SaleInvoiceController extends Controller {
         $worksheet->mergeCells("H{$counter}:I{$counter}");
         $worksheet->setCellValue("H{$counter}", 'Hormat Kami,');
         
-        $worksheet->getStyle("A{$counter}:M{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("A{$counter}:N{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        $worksheet->getStyle("J{$counter}:N{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("J{$counter}", 'Sub Total');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal));
+        $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal));
 
         $counter++;
+        
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("A{$counter}", 'Keterangan:');
         }
+        $worksheet->getStyle("J{$counter}:N{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("J{$counter}", 'DPP lain-lain');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->costOfGoodsSold));
+        $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->costOfGoodsSold));
 
         $counter++;
         
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("A{$counter}", 'Pembayaran a/n ' . $saleInvoice->branch->name);
         }
+        $worksheet->getStyle("J{$counter}:N{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("J{$counter}", 'Disc');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount));
+        $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->discount));
 
         $counter++;
         
+        $worksheet->getStyle("J{$counter}:N{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("A{$counter}", $saleInvoice->branch->bank_account);
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'PPN');
             $worksheet->setCellValue("L{$counter}", ':');
-            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax));
+            $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->calculatedTax));
         } else {
             $worksheet->setCellValue("J{$counter}", 'Ongkos Kirim');
             $worksheet->setCellValue("L{$counter}", ':');
-            $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee));
+            $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->shipping_fee));
         }
 
         $counter++;
         
+        $worksheet->getStyle("J{$counter}:N{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("J{$counter}", 'Grand Total');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->getStyle("M{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-        $worksheet->setCellValue("M{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal));
+        $worksheet->getStyle("N{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        $worksheet->setCellValue("N{$counter}", Yii::app()->numberFormatter->format('#,##0', $saleInvoice->grandTotal));
 
         header('Content-Type: application/xls');
         header('Content-Disposition: attachment;filename="invoice.xls"');

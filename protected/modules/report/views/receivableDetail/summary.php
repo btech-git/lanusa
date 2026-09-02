@@ -52,7 +52,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
 
             Halaman saat ini
-<?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
+            <?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
         </div>
 
         <div class="row">
@@ -62,8 +62,8 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
@@ -77,8 +77,8 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
@@ -88,37 +88,37 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         </div>
 
         <div class="row">
-<?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
+            <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
         </div>
 
         <div class="row button">
-        <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
-        <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
         </div>
 
         <div class="row button">
-<?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
+            <?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
         </div>
 
-    <?php echo CHtml::endForm(); ?>
+        <?php echo CHtml::endForm(); ?>
     </div>
     <hr />
     <div class="clear"></div>
 </div>
 
 <div>
-        <?php $this->renderPartial('_summary', array('saleReceiptSummary' => $receivableDetailSummary, 'branch' => $branch, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
+    <?php $this->renderPartial('_summary', array('receivableDetailSummary' => $receivableDetailSummary, 'branch' => $branch, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
 </div>
 
 <div class="hide">
     <div class="right">
-<?php
-$this->widget('system.web.widgets.pagers.CLinkPager', array(
-    'itemCount' => $receivableDetailSummary->dataProvider->pagination->itemCount,
-    'pageSize' => $receivableDetailSummary->dataProvider->pagination->pageSize,
-    'currentPage' => $receivableDetailSummary->dataProvider->pagination->getCurrentPage(false),
-));
-?>
+        <?php
+        $this->widget('system.web.widgets.pagers.CLinkPager', array(
+            'itemCount' => $receivableDetailSummary->dataProvider->pagination->itemCount,
+            'pageSize' => $receivableDetailSummary->dataProvider->pagination->pageSize,
+            'currentPage' => $receivableDetailSummary->dataProvider->pagination->getCurrentPage(false),
+        ));
+        ?>
     </div>
     <div class="clear"></div>
 </div>

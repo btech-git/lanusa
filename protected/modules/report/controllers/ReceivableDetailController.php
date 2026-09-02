@@ -52,8 +52,9 @@ class ReceivableDetailController extends Controller {
         );
         $receivableDetailSummary->setupFilter($filters);
 
-        if (isset($_GET['SaveExcel']))
-            $this->saveToExcel($receivableDetailSummary, $branch, $receivableDetailSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+        if (isset($_GET['SaveExcel'])) {
+            $this->saveToExcel($receivableDetailSummary, $branch, array('startDate' => $startDate, 'endDate' => $endDate));
+        }
 
         $this->render('summary', array(
             'saleReceipt' => $saleReceipt,
@@ -88,7 +89,10 @@ class ReceivableDetailController extends Controller {
         }
     }
     
-    protected function saveToExcel($receivableDetailSummary, $branch, $dataProvider, array $options = array()) {
+    protected function saveToExcel($receivableDetailSummary, $branch, array $options = array()) {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
         spl_autoload_unregister(array('YiiBase', 'autoload'));
         include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
         spl_autoload_register(array('YiiBase', 'autoload'));
@@ -102,88 +106,85 @@ class ReceivableDetailController extends Controller {
         $worksheet = $objPHPExcel->setActiveSheetIndex(0);
         $worksheet->setTitle('Piutang Detail');
 
-        $worksheet->getColumnDimension('A')->setAutoSize(true);
-        $worksheet->getColumnDimension('B')->setAutoSize(true);
-        $worksheet->getColumnDimension('C')->setAutoSize(true);
-        $worksheet->getColumnDimension('D')->setAutoSize(true);
-        $worksheet->getColumnDimension('E')->setAutoSize(true);
-        $worksheet->getColumnDimension('F')->setAutoSize(true);
+        $worksheet->mergeCells('A1:I1');
+        $worksheet->mergeCells('A2:I2');
+        $worksheet->mergeCells('A3:I3');
 
-        $worksheet->mergeCells('A1:F1');
-        $worksheet->mergeCells('A2:F2');
-        $worksheet->mergeCells('A3:F3');
-
-        $worksheet->getStyle('A1:F7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle('A1:F7')->getFont()->setBold(true);
+        $worksheet->getStyle('A1:I7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A1:I7')->getFont()->setBold(true);
 
 
-        $worksheet->setCellValue('A1', CHtml::encode(CHtml::value($branch, 'name')));
+        $worksheet->setCellValue('A1', CHtml::value($branch, 'name'));
         $worksheet->setCellValue('A2', 'Laporan Piutang Detail');
         $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['startDate'])) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['endDate'])));
 
-        $worksheet->getStyle('A5:F5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle('A5:I5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
-        $worksheet->setCellValue('A5', 'Tanda Terima Penjualan #');
+        $worksheet->setCellValue('A5', 'Tanda Terima #');
         $worksheet->setCellValue('B5', 'Tanggal');
-        $worksheet->setCellValue('C5', 'Customer');
-        $worksheet->mergeCells('D5:F5');
-        $worksheet->setCellValue('D5', 'Catatan');
+        $worksheet->setCellValue('C5', 'Jatuh Tempo');
+        $worksheet->setCellValue('D5', 'Umur (hari)');
+        $worksheet->setCellValue('E5', 'Customer');
+        $worksheet->setCellValue('F5', 'Catatan');
+        $worksheet->setCellValue('G5', 'Total');
+        $worksheet->setCellValue('H5', 'Pelunasan');
+        $worksheet->setCellValue('I5', 'Sisa');
 
         $worksheet->setCellValue('A6', 'Faktur');
-        $worksheet->mergeCells('B6:C6');
         $worksheet->setCellValue('B6', 'Tanggal');
         $worksheet->setCellValue('D6', 'Total');
         $worksheet->setCellValue('E6', 'Memo');
         $worksheet->setCellValue('F6', 'PO #');
 
         $worksheet->setCellValue('A7', 'Pembayaran');
-        $worksheet->mergeCells('B7:C7');
         $worksheet->setCellValue('B7', 'Tanggal');
         $worksheet->setCellValue('D7', 'Total');
         $worksheet->setCellValue('E7', 'Total Piutang');
 
-        $worksheet->getStyle('A7:F7')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle('A7:I7')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
         $counter = 8;
-        $totalReceipt = 0.00;
-        $grandTotalPayment = 0.00;
-        $grandTotalInvoice = 0.00;
-        $grandTotalCredit = 0.00;
-        foreach ($dataProvider->data as $header) {
-            $worksheet->getStyle("A{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-
-            $worksheet->setCellValue("A{$counter}", CHtml::encode($header->getCodeNumber(SaleReceiptHeader::CN_CONSTANT)));
-            $worksheet->setCellValue("B{$counter}", CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($header->date))));
-            $worksheet->setCellValue("C{$counter}", CHtml::encode(CHtml::value($header, 'customer.company')));
-            $worksheet->mergeCells("D{$counter}:F{$counter}");
-            $worksheet->setCellValue("D{$counter}", nl2br(CHtml::encode(CHtml::value($header, 'note'))));
+        $totalReceipt = '0.00';
+        $grandTotalPayment = '0.00';
+        $grandTotalInvoice = '0.00';
+        $grandTotalCredit = '0.00';
+        foreach ($receivableDetailSummary->dataProvider->data as $header) {
+            if (strtotime($header->date) < strtotime('2 months ago')) {
+                $worksheet->getStyle("A{$counter}:I{$counter}")->getFont()->getColor()->setARGB('FFFF0000');
+            }
+            $worksheet->setCellValue("A{$counter}", $header->getCodeNumber(SaleReceiptHeader::CN_CONSTANT));
+            $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($header->date)));
+            $worksheet->setCellValue("C{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($header->due_date)));
+            $outstandingDays = date_diff(date_create($header->date), date_create(date('Y-m-d')));
+            $worksheet->setCellValue("D{$counter}", $outstandingDays->format("%a days"));
+            $worksheet->setCellValue("E{$counter}", CHtml::value($header, 'customer.company'));
+            $worksheet->setCellValue("F{$counter}", nl2br(CHtml::value($header, 'note')));
+            $worksheet->setCellValue("G{$counter}", CHtml::value($header, 'grand_total'));
+            $worksheet->setCellValue("H{$counter}", CHtml::value($header, 'total_payment'));
+            $worksheet->setCellValue("I{$counter}", CHtml::value($header, 'remaining'));
 
             $counter++;
 
             foreach ($header->saleReceiptDetails as $detail) {
-                $worksheet->getStyle("A{$counter}:C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-                $worksheet->getStyle("E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-                $worksheet->getStyle("D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-                $worksheet->setCellValue("A{$counter}", CHtml::encode($detail->saleInvoice ? $detail->saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT) : ''));
+                $worksheet->setCellValue("A{$counter}", $detail->saleInvoice ? $detail->saleInvoice->getCodeNumber(SaleInvoice::CN_CONSTANT) : '');
                 $worksheet->mergeCells("B{$counter}:C{$counter}");
-                $worksheet->setCellValue("B{$counter}", CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->saleInvoice->date))));
-//                                $worksheet->setCellValue("C{$counter}", CHtml::encode(CHtml::value($detail, 'saleInvoice.deliveryHeader.saleHeader.customer.company')));
-                $worksheet->setCellValue("D{$counter}", CHtml::encode(CHtml::value($detail, 'saleInvoice.grandTotal')));
-                $worksheet->setCellValue("E{$counter}", CHtml::encode(CHtml::value($detail, 'memo')));
-                $worksheet->setCellValue("F{$counter}", CHtml::encode(CHtml::value($detail, 'saleInvoice.deliveryHeader.saleHeader.reference')));
+                $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($detail->saleInvoice->date)));
+                $worksheet->setCellValue("D{$counter}", CHtml::value($detail, 'saleInvoice.grandTotal'));
+                $worksheet->setCellValue("E{$counter}", CHtml::value($detail, 'memo'));
+                $worksheet->setCellValue("F{$counter}", CHtml::value($detail, 'saleInvoice.deliveryHeader.saleHeader.reference'));
 
                 $counter++;
             }
 
             $worksheet->getStyle("D{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-
             $worksheet->getStyle("C{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
             $worksheet->getStyle("C{$counter}:F{$counter}")->getFont()->setBold(true);
+            
             $worksheet->setCellValue("C{$counter}", 'Total');
-            $worksheet->setCellValue("D{$counter}", CHtml::encode($header->totalInvoice));
+            $worksheet->setCellValue("D{$counter}", $header->totalInvoice);
             if ($header->salePaymentHeaders == null) {
-                $worksheet->setCellValue("E{$counter}", CHtml::encode($header->totalInvoice));
+                $worksheet->setCellValue("E{$counter}", $header->totalInvoice);
             }
 
             $counter++;
@@ -192,18 +193,13 @@ class ReceivableDetailController extends Controller {
             $grandTotalInvoice += $header->totalInvoice;
 
             if ($header->salePaymentHeaders != null) {
-                $totalPayment = 0.00;
+                $totalPayment = '0.00';
                 foreach ($header->salePaymentHeaders as $detail) {
-                    $worksheet->getStyle("A{$counter}:C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-                    $worksheet->getStyle("E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
                     $worksheet->getStyle("D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-                    $worksheet->setCellValue("A{$counter}", CHtml::encode($detail->getCodeNumber(SalePaymentHeader::CN_CONSTANT)));
-                    $worksheet->mergeCells("B{$counter}:C{$counter}");
-                    $worksheet->setCellValue("B{$counter}", CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->date))));
-                    //                                $worksheet->setCellValue("C{$counter}", CHtml::encode(CHtml::value($detail, 'saleInvoice.deliveryHeader.saleHeader.customer.company')));
-                    $worksheet->setCellValue("D{$counter}", CHtml::encode(CHtml::value($detail, 'amountPaid')));
-//                    $worksheet->setCellValue("E{$counter}", CHtml::encode(CHtml::value($detail, 'memo')));
+                    $worksheet->setCellValue("A{$counter}", $detail->getCodeNumber(SalePaymentHeader::CN_CONSTANT));
+                    $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->date)));
+                    $worksheet->setCellValue("D{$counter}", CHtml::value($detail, 'amountPaid'));
 
                     $counter++;
                     $totalPayment += $detail->amountPaid;
@@ -217,8 +213,8 @@ class ReceivableDetailController extends Controller {
                 $worksheet->getStyle("C{$counter}:E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
                 $worksheet->getStyle("C{$counter}:E{$counter}")->getFont()->setBold(true);
                 $worksheet->setCellValue("C{$counter}", 'Total');
-                $worksheet->setCellValue("D{$counter}", CHtml::encode($totalPayment));
-                $worksheet->setCellValue("E{$counter}", CHtml::encode($totalCredit));
+                $worksheet->setCellValue("D{$counter}", $totalPayment);
+                $worksheet->setCellValue("E{$counter}", $totalCredit);
                 $counter++;
                 $counter++;
             } else {
@@ -231,21 +227,29 @@ class ReceivableDetailController extends Controller {
         $worksheet->getStyle("C{$counter}:D{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
         $worksheet->getStyle("C{$counter}:D{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("C{$counter}", 'GRAND TOTAL INVOICE');
-        $worksheet->setCellValue("D{$counter}", CHtml::encode($grandTotalInvoice));
+        $worksheet->setCellValue("D{$counter}", $grandTotalInvoice);
         $counter++;
 
         $worksheet->getStyle("C{$counter}:E{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
         $worksheet->getStyle("C{$counter}:E{$counter}")->getFont()->setBold(true);
         $worksheet->setCellValue("C{$counter}", 'GRAND TOTAL PAYMENT');
-        $worksheet->setCellValue("D{$counter}", CHtml::encode($grandTotalPayment));
-        $worksheet->setCellValue("E{$counter}", CHtml::encode($grandTotalCredit));
+        $worksheet->setCellValue("D{$counter}", $grandTotalPayment);
+        $worksheet->setCellValue("E{$counter}", $grandTotalCredit);
         $counter++;
 
-        header('Content-Type: application/xlsx');
+        for ($col = 'A'; $col !== 'Z'; $col++) {
+            $objPHPExcel->getActiveSheet()
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
+        }
+
+        ob_end_clean();
+
+        header('Content-type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="Laporan Piutang Detail.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
 
         Yii::app()->end();

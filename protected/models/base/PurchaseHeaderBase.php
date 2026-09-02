@@ -15,6 +15,8 @@
  * @property integer $supplier_id
  * @property integer $is_non_tax
  * @property integer $is_inactive
+ * @property integer $is_service_tax
+ * @property string $tax_service_percentage
  *
  * @property PurchaseDetail[] $purchaseDetails
  * @property Supplier $supplier
@@ -32,11 +34,12 @@ class PurchaseHeaderBase extends MonthlyTransactionActiveRecord {
     public function rules() {
         return array(
             array('cn_ordinal, cn_month, cn_year, date, branch_id, admin_id, supplier_id', 'required'),
-            array('cn_ordinal, cn_month, cn_year, tax, branch_id, admin_id, supplier_id, is_non_tax, is_inactive', 'numerical', 'integerOnly' => true),
+            array('cn_ordinal, cn_month, cn_year, tax, branch_id, admin_id, supplier_id, is_non_tax, is_inactive, is_service_tax', 'numerical', 'integerOnly' => true),
             array('discount, shipping_fee', 'length', 'max' => 18),
+            array('tax_service_percentage', 'length', 'max' => 10),
             array('note', 'safe'),
             // The following rule is used by search().
-            array('id, cn_ordinal, cn_month, cn_year, date, tax, discount, shipping_fee, note, branch_id, admin_id, supplier_id, is_non_tax, is_inactive', 'safe', 'on' => 'search'),
+            array('id, cn_ordinal, cn_month, cn_year, date, tax, discount, shipping_fee, note, branch_id, admin_id, supplier_id, is_non_tax, is_inactive, tax_service_percentage, is_service_tax', 'safe', 'on' => 'search'),
         );
     }
 

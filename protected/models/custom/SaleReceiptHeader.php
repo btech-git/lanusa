@@ -45,8 +45,9 @@ class SaleReceiptHeader extends SaleReceiptHeaderBase {
     public function getTotalInvoice() {
         $total = 0.00;
 
-        foreach ($this->saleReceiptDetails as $detail)
+        foreach ($this->saleReceiptDetails as $detail) {
             $total += ($detail->saleInvoice === null) ? 0.00 : $detail->saleInvoice->grandTotal;
+        }   
 
         return $total;
     }

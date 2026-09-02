@@ -10,6 +10,7 @@
  * @property integer $product_id
  * @property integer $unit_id
  * @property integer $is_inactive
+ * @property string $additional_fee_amount
  *
  * @property DeliveryDetail[] $deliveryDetails
  * @property Product $product
@@ -28,9 +29,9 @@ class SaleDetailBase extends ActiveRecord {
             array('sale_header_id, product_id, unit_id, is_inactive', 'numerical', 'integerOnly' => true),
             array('product_name', 'length', 'max' => 200),
             array('quantity, discount', 'length', 'max' => 10),
-            array('unit_price', 'length', 'max' => 18),
+            array('unit_price, additional_fee_amount', 'length', 'max' => 18),
             // The following rule is used by search().
-            array('id, product_name, quantity, unit_price, discount, sale_header_id, product_id, unit_id, is_inactive', 'safe', 'on' => 'search'),
+            array('id, product_name, quantity, unit_price, discount, sale_header_id, product_id, unit_id, is_inactive, additional_fee_amount', 'safe', 'on' => 'search'),
         );
     }
 
@@ -74,5 +75,4 @@ class SaleDetailBase extends ActiveRecord {
             'criteria' => $criteria,
         ));
     }
-
 }

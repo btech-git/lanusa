@@ -67,6 +67,13 @@ $this->breadcrumbs = array(
         ),
         'discount: Diskon (%)',
         array(
+            'header' => 'Ongkos',
+            'value' => 'number_format($data->additional_fee_amount, 2)',
+            'htmlOptions' => array(
+                'style' => 'text-align: right',
+            ),
+        ),
+        array(
             'header' => 'Total',
             'value' => 'number_format($data->total, 2)',
             'htmlOptions' => array(
@@ -78,39 +85,37 @@ $this->breadcrumbs = array(
 
 <table>
     <tr>
-        <td style="width:80% ;text-align: right; font-weight: bold">Total Quantity</td>
-        <td style="width:20% ;text-align: right; font-weight: bold">
+        <td style="width:40% ;text-align: right; font-weight: bold">Total Quantity</td>
+        <td style="width:10% ;text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($sale, 'totalQuantity'))); ?>
         </td>
-    </tr>
-    <tr>
-        <td style="width:80% ;text-align: right; font-weight: bold">Sub Total</td>
-        <td style="width:20% ;text-align: right; font-weight: bold">
+        <td style="width:35% ;text-align: right; font-weight: bold">Sub Total</td>
+        <td style="width:15% ;text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'subTotal'))); ?>
         </td>
     </tr>
     <?php if ($sale->is_non_tax === 0): ?>
         <tr>
-            <td style="width:80% ;text-align: right; font-weight: bold">DPP lain-lain</td>
-            <td style="width:20% ;text-align: right; font-weight: bold">
+            <td style="text-align: right; font-weight: bold" colspan="3">DPP lain-lain</td>
+            <td style="text-align: right; font-weight: bold">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'costOfGoodsSold'))); ?>
             </td>
         </tr>
     <?php endif; ?>
     <tr>
-        <td style="text-align: right; font-weight: bold">PPn <?php echo CHtml::encode(CHtml::value($sale, 'tax')); ?>%</td>
+        <td style="text-align: right; font-weight: bold" colspan="3">PPn <?php echo CHtml::encode(CHtml::value($sale, 'tax')); ?>%</td>
         <td style="text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'calculatedTax'))); ?>
         </td>
     </tr>
     <tr>
-        <td style="text-align: right; font-weight: bold">Ongkos Kirim</td>
+        <td style="text-align: right; font-weight: bold" colspan="3">Ongkos Kirim</td>
         <td style="text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'shipping_fee'))); ?>
         </td>
     </tr>
     <tr>
-        <td style="text-align: right; font-weight: bold">Grand Total</td>
+        <td style="text-align: right; font-weight: bold" colspan="3">Grand Total</td>
         <td style="text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'grandTotal'))); ?>
         </td>

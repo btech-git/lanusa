@@ -5,17 +5,16 @@
 
     <div class="container">
         <div class="span-12">
-            <div class="row">
-                <?php echo CHtml::label('Penerimaan #', false); ?>
+<!--            <div class="row">
+                <?php //echo CHtml::label('Penerimaan #', false); ?>
                 <span id="receive_header_codeNumber">
-                    <?php echo CHtml::encode($receive->header->getCodeNumber(ReceiveHeader::CN_CONSTANT)); ?>
+                    <?php //echo CHtml::encode($receive->header->getCodeNumber(ReceiveHeader::CN_CONSTANT)); ?>
                 </span>
-            </div>
+            </div>-->
 
             <div class="row">
                 <?php echo CHtml::label('Tanggal', false); ?>
-                <?php
-                $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+                <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                     'model' => $receive->header,
                     'attribute' => 'date',
                     // additional javascript options for the date picker plugin
@@ -25,15 +24,20 @@
                     'htmlOptions' => array(
                         'readonly' => true,
                     ),
-                ));
-                ?>
+                )); ?>
                 <?php echo CHtml::error($receive->header, 'date'); ?>
             </div>
 
             <div class="row">
-                <?php echo CHtml::activeLabelEx($receive->header, 'No SJ Supplier #'); ?>
+                <?php echo CHtml::activeLabelEx($receive->header, 'SJ Supplier #'); ?>
                 <?php echo CHtml::activeTextField($receive->header, 'reference'); ?>
                 <?php echo CHtml::error($receive->header, 'reference'); ?>
+            </div>
+
+            <div class="row">
+                <?php echo CHtml::activeLabelEx($receive->header, 'Invoice Supplier #'); ?>
+                <?php echo CHtml::activeTextField($receive->header, 'supplier_invoice_number'); ?>
+                <?php echo CHtml::error($receive->header, 'supplier_invoice_number'); ?>
             </div>
 
             <div class="row">
@@ -42,14 +46,27 @@
                 <?php echo CHtml::error($receive->header, 'supplier_tax_number'); ?>
             </div>
 
+            <div class="row">
+                <?php echo CHtml::label('Tanggal F. Pajak', false); ?>
+                <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+                    'model' => $receive->header,
+                    'attribute' => 'purchase_tax_date',
+                    // additional javascript options for the date picker plugin
+                    'options' => array(
+                        'dateFormat' => 'yy-mm-dd',
+                    ),
+                    'htmlOptions' => array(
+                        'readonly' => true,
+                    ),
+                )); ?>
+                <?php echo CHtml::error($receive->header, 'date'); ?>
+            </div>
         </div>
 
-        <?php
-        $receivePurchase = $receive->header->purchaseHeader(array(
+        <?php $receivePurchase = $receive->header->purchaseHeader(array(
             'scopes' => 'resetScope',
             'with' => 'supplier:resetScope',
-        ));
-        ?>
+        )); ?>
 
         <div class="span-12 last">
             <div class="row">
@@ -61,8 +78,7 @@
                     <?php echo CHtml::closeTag('span'); ?>
                     <?php echo CHtml::error($receive->header, 'purchase_header_id'); ?>
 
-                    <?php
-                    $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+                    <?php $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
                         'id' => 'purchase-header-dialog',
                         // additional javascript options for the dialog plugin
                         'options' => array(
@@ -71,10 +87,9 @@
                             'width' => 'auto',
                             'modal' => true,
                         ),
-                    ));
-                    ?>
-                    <?php
-                    $this->widget('zii.widgets.grid.CGridView', array(
+                    )); ?>
+                
+                    <?php $this->widget('zii.widgets.grid.CGridView', array(
                         'id' => 'purchase-header-grid',
                         'dataProvider' => $dataProvider,
                         'filter' => $purchaseHeader,
@@ -135,8 +150,7 @@
                                 'value' => 'CHtml::value($data, "branch.name")',
                             ),
                         ),
-                    ));
-                    ?>
+                    )); ?>
                     <?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
                 <?php else: ?>
                     <?php echo CHtml::encode($receivePurchase->getCodeNumber(PurchaseHeader::CN_CONSTANT)); ?>
@@ -160,7 +174,7 @@
 
             <div class="row">
                 <?php echo CHtml::label('Catatan', ''); ?>
-                <?php echo CHtml::activeTextArea($receive->header, 'note', array('rows' => 5, 'cols' => 30)); ?>
+                <?php echo CHtml::activeTextArea($receive->header, 'note', array('rows' => 5, 'cols' => 50)); ?>
                 <?php echo CHtml::error($receive->header, 'note'); ?>
             </div>
         </div>

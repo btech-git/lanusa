@@ -77,9 +77,9 @@ class PurchaseHeader extends PurchaseHeaderBase {
     public function normalizeCnMonthBy($romanNum) {
         $arr = array_flip(array('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'));
 
-        if ($romanNum === '')
+        if ($romanNum === '') {
             $this->cn_month = '';
-        else {
+        } else {
             $romanNum = strtoupper($romanNum);
             $this->cn_month = isset($arr[$romanNum]) ? $arr[$romanNum] + 1 : 0;
         }
@@ -117,8 +117,12 @@ class PurchaseHeader extends PurchaseHeaderBase {
         return $this->totalBeforeTax * ($this->tax / 100);
     }
 
+    public function getCalculatedTaxService() {
+        return $this->totalBeforeTax * ($this->tax_service_percentage / 100);
+    }
+
     public function getGrandTotal() {
-        return $this->totalBeforeTax + $this->calculatedTax + $this->shipping_fee;
+        return $this->totalBeforeTax + $this->calculatedTax + $this->shipping_fee - $this->calculatedTaxService;
     }
 
     public function getTotalPayment() {
@@ -179,8 +183,9 @@ class PurchaseHeader extends PurchaseHeaderBase {
     public static function makeChartAxisY($chartData, $part) {
         $total = 0;
         foreach ($chartData as $data) {
-            if ($total < $data[1])
+            if ($total < $data[1]) {
                 $total = $data[1];
+            }
         }
 
         $top = $total * (1 + 1 / ($part * 2));
@@ -204,8 +209,9 @@ class PurchaseHeader extends PurchaseHeaderBase {
 
     public static function makeChartAxisX($chartData) {
         $labels = array();
-        foreach ($chartData as $data)
+        foreach ($chartData as $data) {
             $labels[] = array($data[0], substr($data[2], 6, 8));
+        }
 
         return array('min' => 0, 'max' => count($chartData) + 1, 'ticks' => $labels);
     }
@@ -224,10 +230,10 @@ class PurchaseHeader extends PurchaseHeaderBase {
         }
 
         $sql = "SELECT SUBSTRING(h.date, 1, 7) AS date, SUM(d.quantity * d.unit_price) AS total
-				FROM " . PurchaseHeader::model()->tableName() . " h 
+                FROM " . PurchaseHeader::model()->tableName() . " h 
                 INNER JOIN " . PurchaseDetail::model()->tableName() . " d ON h.id = d.purchase_header_id 
-				WHERE SUBSTRING(h.date, 1, 7) <= :end AND SUBSTRING(h.date, 1, 7) >= :start
-				GROUP BY SUBSTRING(h.date, 1, 7)";
+                WHERE SUBSTRING(h.date, 1, 7) <= :end AND SUBSTRING(h.date, 1, 7) >= :start
+                GROUP BY SUBSTRING(h.date, 1, 7)";
 
         $rows = CActiveRecord::$db->createCommand($sql)->queryAll(true, array(
             ':start' => $dateList[0],
@@ -235,8 +241,9 @@ class PurchaseHeader extends PurchaseHeaderBase {
                 ));
 
         foreach ($rows as $row) {
-            if (in_array($row['date'], $dateList))
+            if (in_array($row['date'], $dateList)) {
                 $dataRows[$row['date']]['total'] = $row['total'];
+            }
         }
 
         $counter = 1;

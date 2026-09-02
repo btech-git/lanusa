@@ -1,0 +1,192 @@
+<?php
+
+class FastMovingProductsController extends Controller {
+
+    public $layout = '//layouts/column1';
+
+    public function filters() {
+        return array(
+//            'access',
+        );
+    }
+
+    public function filterAccess($filterChain) {
+        if ($filterChain->action->id === 'summary') {
+            if (!(Yii::app()->user->checkAccess('stockAnalysisReport'))) {
+                $this->redirect(array('/site/login'));
+            }
+        }
+
+        $filterChain->run();
+    }
+
+    public function actionSummary() {
+        $deliveryDetail = Search::bind(new DeliveryDetail(), isset($_GET['DeliveryDetail']) ? $_GET['DeliveryDetail'] : '');
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : date('Y-m-d');
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : date('Y-m-d');
+        
+        $date1 = new DateTime($startDate);
+        $date2 = new DateTime($endDate);
+        $interval = $date1->diff($date2);
+        $numberOfDays = $interval->format('%a days'); 
+        
+        if (isset($_GET['ResetFilter'])) {
+            $this->redirect(array('summary'));
+        }
+        
+        if (isset($_GET['SaveExcel'])) {
+            $this->saveToExcel($deliveryDetail, array(
+                'startDate' => $startDate, 
+                'endDate' => $endDate,
+                'numberOfDays' => $numberOfDays,
+            ));
+        }
+        
+        $this->render('summary', array(
+            'deliveryDetail' => $deliveryDetail,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'numberOfDays' => $numberOfDays,
+        ));
+    }
+    
+    protected function saveToExcel($inventoryDetail, array $options = array()) {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+        
+        $startDate = (empty($options['startDate'])) ? date('Y-m-d') : $options['startDate'];
+        $endDate = (empty($options['endDate'])) ? date('Y-m-d') : $options['endDate'];
+        $productId = (empty($options['productId'])) ? '' : $options['productId'];
+        $productCode = (empty($options['productCode'])) ? '' : $options['productCode'];
+        $productName = (empty($options['productName'])) ? '' : $options['productName'];
+        $branchId = (!empty($options['branchId'])) ? $options['branchId'] : '';
+        $brandId = (!empty($options['brandId'])) ? $options['brandId'] : '';
+        $subBrandId = (!empty($options['subBrandId'])) ? $options['subBrandId'] : '';
+        $subBrandSeriesId = (!empty($options['subBrandSeriesId'])) ? $options['subBrandSeriesId'] : '';
+        $productMasterCategoryId = (!empty($options['productMasterCategoryId'])) ? $options['productMasterCategoryId'] : '';
+        $productSubMasterCategoryId = (!empty($options['productSubMasterCategoryId'])) ? $options['productSubMasterCategoryId'] : '';
+        $productSubCategoryId = (!empty($options['productSubCategoryId'])) ? $options['productSubCategoryId'] : '';
+        $numberOfDays = (empty($options['numberOfDays'])) ? '' : $options['numberOfDays'];
+
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
+        spl_autoload_register(array('YiiBase', 'autoload'));
+
+        $objPHPExcel = new PHPExcel();
+
+        $documentProperties = $objPHPExcel->getProperties();
+        $documentProperties->setCreator('PT. Raperind Motor');
+        $documentProperties->setTitle('Laporan Stok Analisis');
+
+        $worksheet = $objPHPExcel->setActiveSheetIndex(0);
+        $worksheet->setTitle('Laporan Stok Analisis');
+
+        $worksheet->mergeCells('A1:I1');
+        $worksheet->mergeCells('A2:I2');
+        $worksheet->mergeCells('A3:I3');
+        $worksheet->mergeCells('A5:I5');
+
+        $worksheet->getStyle('A1:I6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A1:I6')->getFont()->setBold(true);
+
+        $branch = Branch::model()->findByPk($branchId);
+        $worksheet->setCellValue('A1', 'PT. Raperind Motor');
+        $worksheet->setCellValue('A2', 'Laporan Stok Analisis' . $branchId);
+        $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($startDate)) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($endDate)));
+
+        $worksheet->getStyle('A5:I5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+        $worksheet->setCellValue('A5', 'Fast Moving Items ' . CHtml::value($branch, 'code'));
+        $worksheet->setCellValue('A6', 'No');
+        $worksheet->setCellValue('B6', 'ID');
+        $worksheet->setCellValue('C6', 'Code');
+        $worksheet->setCellValue('D6', 'Product Name');
+        $worksheet->setCellValue('E6', 'Category');
+        $worksheet->setCellValue('F6', 'Brand');
+        $worksheet->setCellValue('G6', 'Quantity Sales');
+        $worksheet->setCellValue('H6', 'Average per Month');
+        $worksheet->setCellValue('I6', 'Average per Week');
+
+        $worksheet->getStyle('A6:I6')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+        $counter = 7; 
+        
+        $numberOfMonths = floor($numberOfDays / 30);
+        $numberOfWeeks = floor($numberOfDays / 7);
+        $fastMovingItems = $inventoryDetail->getFastMovingItems($startDate, $endDate, $brandId, $subBrandId, $subBrandSeriesId, $productMasterCategoryId, $productSubMasterCategoryId, $productSubCategoryId, $branchId, $productId, $productCode, $productName);
+        
+        foreach ($fastMovingItems as $i => $fastMovingItem) {
+            $worksheet->setCellValue("A{$counter}", $i + 1);
+            $worksheet->setCellValue("B{$counter}", $fastMovingItem['id']);
+            $worksheet->setCellValue("C{$counter}", $fastMovingItem['code']);
+            $worksheet->setCellValue("D{$counter}", $fastMovingItem['product_name']);
+            $worksheet->setCellValue("E{$counter}", $fastMovingItem['category']);
+            $worksheet->setCellValue("F{$counter}", $fastMovingItem['brand'] . ' - ' . $fastMovingItem['sub_brand'] . ' - ' . $fastMovingItem['sub_brand_series']);
+            $worksheet->setCellValue("G{$counter}", $fastMovingItem['total_sale']);
+            $worksheet->setCellValue("H{$counter}", round($fastMovingItem['total_sale'] / $numberOfMonths, 2));
+            $worksheet->setCellValue("I{$counter}", round($fastMovingItem['total_sale'] / $numberOfWeeks, 2));
+            
+            $counter++;
+        }
+        $counter++;
+        
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getFont()->setBold(true);
+        $worksheet->mergeCells("A{$counter}:I{$counter}");
+
+        $worksheet->setCellValue("A{$counter}", 'Slow Moving Items ' . CHtml::value($branch, 'code'));
+        $counter++;
+        
+        $worksheet->setCellValue("A{$counter}", 'No');
+        $worksheet->setCellValue("B{$counter}", 'ID');
+        $worksheet->setCellValue("C{$counter}", 'Code');
+        $worksheet->setCellValue("D{$counter}", 'Product Name');
+        $worksheet->setCellValue("E{$counter}", 'Category');
+        $worksheet->setCellValue("F{$counter}", 'Brand');
+        $worksheet->setCellValue("G{$counter}", 'Quantity Sales');
+        $worksheet->setCellValue("H{$counter}", 'Average per Month');
+        $worksheet->setCellValue("I{$counter}", 'Average per Week');
+
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle("A{$counter}:I{$counter}")->getFont()->setBold(true);
+        $counter++;
+        
+        $slowMovingItems = $inventoryDetail->getSlowMovingItems($startDate, $endDate, $brandId, $subBrandId, $subBrandSeriesId, $productMasterCategoryId, $productSubMasterCategoryId, $productSubCategoryId, $branchId, $productId, $productCode, $productName);
+        
+        foreach ($slowMovingItems as $i => $slowMovingItem) {
+            $worksheet->setCellValue("A{$counter}", $i + 1);
+            $worksheet->setCellValue("B{$counter}", $slowMovingItem['id']);
+            $worksheet->setCellValue("C{$counter}", $slowMovingItem['code']);
+            $worksheet->setCellValue("D{$counter}", $slowMovingItem['product_name']);
+            $worksheet->setCellValue("E{$counter}", $slowMovingItem['category']);
+            $worksheet->setCellValue("F{$counter}", $slowMovingItem['brand'] . ' - ' . $slowMovingItem['sub_brand'] . ' - ' . $slowMovingItem['sub_brand_series']);
+            $worksheet->setCellValue("G{$counter}", $slowMovingItem['total_sale']);
+            $worksheet->setCellValue("H{$counter}", round($slowMovingItem['total_sale'] / $numberOfMonths, 2));
+            $worksheet->setCellValue("I{$counter}", round($slowMovingItem['total_sale'] / $numberOfWeeks, 2));
+            
+            $counter++;
+        }
+        $counter++;
+
+        for ($col = 'A'; $col !== 'Z'; $col++) {
+            $objPHPExcel->getActiveSheet()
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
+        }
+
+        ob_end_clean();
+        // We'll be outputting an excel file
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="laporan_stok_analisis.xls"');
+        header('Cache-Control: max-age=0');
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
+
+        Yii::app()->end();
+    }
+    
+}
