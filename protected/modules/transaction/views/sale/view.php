@@ -109,6 +109,12 @@ $this->breadcrumbs = array(
         </td>
     </tr>
     <tr>
+        <td style="text-align: right; font-weight: bold" colspan="3">Diskon</td>
+        <td style="text-align: right; font-weight: bold"">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', CHtml::value($sale, 'discount'))); ?>
+        </td>
+    </tr>
+    <tr>
         <td style="text-align: right; font-weight: bold" colspan="3">Ongkos Kirim</td>
         <td style="text-align: right; font-weight: bold">
             <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', CHtml::value($sale, 'shipping_fee'))); ?>

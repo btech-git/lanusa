@@ -131,7 +131,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         'generalLedgerSummary' => $generalLedgerSummary,
         'startDate' => $startDate,
         'endDate' => $endDate,
-//        'ledgerBeginningBalanceData' => $ledgerBeginningBalanceData,
+        'ledgerBeginningBalanceData' => $ledgerBeginningBalanceData,
         'generalLedgerReportData' => $generalLedgerReportData,
     )); ?>
 </div>

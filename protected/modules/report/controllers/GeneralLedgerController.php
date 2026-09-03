@@ -43,11 +43,11 @@ class GeneralLedgerController extends Controller {
         
         $coaIds = array_map(function($coa) { return $coa->id; }, $generalLedgerSummary->dataProvider->data);
         
-//        $ledgerBeginningBalances = JournalAccounting::getLedgerBeginningBalances($coaIds, $startDate, $branchId);
-//        $ledgerBeginningBalanceData = array();
-//        foreach ($ledgerBeginningBalances as $ledgerBeginningBalance) {
-//            $ledgerBeginningBalanceData[$ledgerBeginningBalance['coa_id']] = $ledgerBeginningBalance['beginning_balance'];
-//        }
+        $ledgerBeginningBalances = JournalAccounting::getLedgerBeginningBalances($coaIds, $startDate);
+        $ledgerBeginningBalanceData = array();
+        foreach ($ledgerBeginningBalances as $ledgerBeginningBalance) {
+            $ledgerBeginningBalanceData[$ledgerBeginningBalance['account_id']] = $ledgerBeginningBalance['beginning_balance'];
+        }
         
         $generalLedgerReport = JournalAccounting::getGeneralLedgerReport($coaIds, $startDate, $endDate);
         $generalLedgerReportData = array();
@@ -69,7 +69,7 @@ class GeneralLedgerController extends Controller {
             'currentSort' => $currentSort,
             'pageSize' => $pageSize,
             'currentPage' => $currentPage,
-//            'ledgerBeginningBalanceData' => $ledgerBeginningBalanceData,
+            'ledgerBeginningBalanceData' => $ledgerBeginningBalanceData,
             'generalLedgerReportData' => $generalLedgerReportData,
         ));
     }

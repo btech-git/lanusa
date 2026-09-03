@@ -43,7 +43,7 @@ class DeliveryDetail extends DeliveryDetailBase {
     }
 
     public function getTotal($saleHeaderId = null) {
-        return $this->quantity * $this->getUnitPrice($saleHeaderId) * (1 - ($this->getDiscountSale($saleHeaderId) / 100)) + $this->saleDetail->additional_fee_amount;
+        return $this->quantity * $this->saleDetail->unit_price + $this->saleDetail->additional_fee_amount;
     }
 
     public function getQuantityOrdered($saleHeaderId = null) {

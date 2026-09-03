@@ -8,43 +8,27 @@ class JournalAccounting extends JournalAccountingBase {
         return parent::model($className);
     }
 
-//    public static function getLedgerBeginningBalances($coaIds, $startDate, $branchId) {
-//        $inIdsSql = 'NULL';
-//        if (!empty($coaIds)) {
-//            $inIdsSql = implode(',', $coaIds);
-//        }
-//        
-//        $branchConditionSql = '';
-//        
-//        $params = array(
-//            ':start_date' => $startDate,
-//        );
-//        
-//        if (!empty($branchId)) {
-//            $branchConditionSql = ' AND j.branch_id = :branch_id';
-//            $params[':branch_id'] = $branchId;
-//        }
-//        
-//        $sql = "
-//            SELECT j.coa_id, IF(a.normal_balance = 'Debit', COALESCE(SUM(j.amount), 0), COALESCE(SUM(j.amount), 0) * -1) AS beginning_balance 
-//            FROM (
-//                SELECT coa_id, tanggal_transaksi, total AS amount, branch_id
-//                FROM " . JurnalUmum::model()->tableName() . "
-//                WHERE debet_kredit = 'D' AND is_coa_category = 0 AND tanggal_transaksi >= '" . AppParam::BEGINNING_TRANSACTION_DATE . "'
-//                UNION ALL
-//                SELECT coa_id, tanggal_transaksi, total * -1 AS amount, branch_id
-//                FROM " . JurnalUmum::model()->tableName() . "
-//                WHERE debet_kredit = 'K' AND is_coa_category = 0 AND tanggal_transaksi >= '" . AppParam::BEGINNING_TRANSACTION_DATE . "'
-//            ) j
-//            INNER JOIN " . Coa::model()->tableName() . " a ON a.id = j.coa_id
-//            WHERE j.coa_id IN ({$inIdsSql}) AND j.tanggal_transaksi < :start_date" . $branchConditionSql . " 
-//            GROUP BY j.coa_id
-//        ";
-//
-//        $resultSet = Yii::app()->db->createCommand($sql)->queryAll(true, $params);
-//
-//        return $resultSet;
-//    }
+    public static function getLedgerBeginningBalances($coaIds, $startDate) {
+        $inIdsSql = 'NULL';
+        if (!empty($coaIds)) {
+            $inIdsSql = implode(',', $coaIds);
+        }
+        
+        $params = array(
+            ':start_date' => $startDate,
+        );
+        
+        $sql = "
+            SELECT j.account_id, COALESCE(SUM(j.debit - j.credit), 0) AS beginning_balance 
+            FROM " . JournalAccounting::model()->tableName() . " j
+            WHERE j.account_id IN ({$inIdsSql}) AND j.date < :start_date 
+            GROUP BY j.account_id
+        ";
+
+        $resultSet = Yii::app()->db->createCommand($sql)->queryAll(true, $params);
+
+        return $resultSet;
+    }
     
     public static function getGeneralLedgerReport($coaIds, $startDate, $endDate) {
         $inIdsSql = 'NULL';

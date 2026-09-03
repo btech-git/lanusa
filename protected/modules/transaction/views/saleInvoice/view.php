@@ -83,6 +83,12 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <div>
     <table>
         <tr>
+            <td style="text-align: right; font-weight: bold">Total Quantity</td>
+            <td style="text-align: right; font-weight: bold; width: 20%">
+                <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->totalQuantity)); ?>
+            </td>
+        </tr>
+        <tr>
             <td style="text-align: right; font-weight: bold">Sub Total</td>
             <td style="text-align: right; font-weight: bold; width: 20%">
                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $saleInvoice->deliveryHeader->subTotal)); ?>

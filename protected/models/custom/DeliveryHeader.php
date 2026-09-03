@@ -116,8 +116,9 @@ class DeliveryHeader extends DeliveryHeaderBase {
     public function getTotalQuantity() {
         $total = 0;
 
-        foreach ($this->deliveryDetails as $detail)
+        foreach ($this->deliveryDetails as $detail) {
             $total += $detail->quantity;
+        }
 
         return $total;
     }
@@ -125,8 +126,11 @@ class DeliveryHeader extends DeliveryHeaderBase {
     public function getSubTotal() {
         $total = 0.00;
 
-        foreach ($this->deliveryDetails as $detail)
-            $total += $detail->total;
+        foreach ($this->deliveryDetails as $detail) {
+            if ($detail->is_inactive == 0) {
+                $total += $detail->total;
+            }
+        }
 
         return $total;
     }
@@ -136,16 +140,17 @@ class DeliveryHeader extends DeliveryHeaderBase {
             $saleDownpayment = ($this->saleHeader->saleDownpayment === null) ? 0 : $this->saleHeader->saleDownpayment->amount;
 
             return $this->subTotal - $this->saleHeader->discount - $saleDownpayment;
-        }
-        else
+        } else {
             return $this->subTotal;
+        }
     }
 
     public function getCalculatedTax() {
         $tax = ($this->saleHeader === null) ? 0.00 : $this->saleHeader->tax;
 
-        if (!empty($this->saleHeader))
+        if (!empty($this->saleHeader)) {
             return $this->totalBeforeTax * $tax / 100;
+        }
     }
 
     public function getGrandTotal() {

@@ -46,12 +46,12 @@ Yii::app()->clientScript->registerCss('_report', '
     </tr>
     <?php $accountNumber = $generalLedgerSummary->dataProvider->pagination->getCurrentPage(false) * $generalLedgerSummary->dataProvider->pagination->pageSize + 1; ?>
     <?php foreach ($generalLedgerSummary->dataProvider->data as $i => $header): ?>
-        <?php //$beginningBalance = isset($ledgerBeginningBalanceData[$header->id]) ? $ledgerBeginningBalanceData[$header->id] : '0.00'; ?>
+        <?php $beginningBalance = isset($ledgerBeginningBalanceData[$header->id]) ? $ledgerBeginningBalanceData[$header->id] : '0.00'; ?>
             <tr class="items1">
                 <td class="width1-1"><?php echo $accountNumber++; ?></td>
                 <td class="width1-2"><?php echo CHtml::encode(CHtml::value($header, 'id')); ?> - <?php echo CHtml::encode(CHtml::value($header, 'name')); ?></td>
                 <td class="width1-3" style="text-align: right; font-weight: bold">
-                    <?php //echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $beginningBalance)); ?>0
+                    <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $beginningBalance)); ?>0
                 </td>
             </tr>
 
@@ -62,7 +62,7 @@ Yii::app()->clientScript->registerCss('_report', '
                         <?php $totalCredit = '0.00'; ?>
                         <?php if (isset($generalLedgerReportData[$header->id])): ?>
                             <?php $generalLedgerData = $generalLedgerReportData[$header->id]; ?>
-                            <?php $currentBalance = 0; //$beginningBalance; ?>
+                            <?php $currentBalance = $beginningBalance; ?>
                             <?php foreach ($generalLedgerData as $generalLedgerRow): ?>
                                 <?php $debitAmount = $generalLedgerRow['debit']; ?>
                                 <?php $creditAmount = $generalLedgerRow['credit']; ?>

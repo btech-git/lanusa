@@ -49,7 +49,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
     'columns' => array(
         array(
             'header' => 'Nama Barang',
-            'value' => '$data->getProductName()',
+            'value' => '$data->saleDetail->product_name',
         ),
         'product.size: Ukuran',
         array(
