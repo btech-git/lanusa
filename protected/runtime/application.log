@@ -3800,3 +3800,79 @@ Stack trace:
 REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
 HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report%2FgeneralLedger%2Fsummary&PageSize=1000&page=1&StartDate=2026-09-03&EndDate=2026-09-03&AccountIds=1%2C2%2C3&sort=&yt0=Show
 ---
+2026/09/04 16:06:38 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ajaxJsonCoa".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('ajaxJsonCoa')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('ajaxJsonCoa')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/generalL...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/generalLedger/summary
+---
+2026/09/04 16:06:42 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ajaxJsonCoa".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('ajaxJsonCoa')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('ajaxJsonCoa')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/generalL...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/generalLedger/summary
+---
+2026/09/04 16:06:48 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ajaxJsonCoa".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('ajaxJsonCoa')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('ajaxJsonCoa')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/generalL...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/generalLedger/summary
+---
+2026/09/05 12:05:28 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ajaxJsonCoa".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('ajaxJsonCoa')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('ajaxJsonCoa')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/generalL...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/generalLedger/summary
+---
+2026/09/05 12:05:56 [error] [php] include(ZipArchive.php): failed to open stream: No such file or directory (/home/pmahendro/public_html/yii/framework/YiiBase.php:427)
+Stack trace:
+#0 /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php(234): spl_autoload_call()
+#1 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/GeneralLedgerController.php(199): PHPExcel_Writer_Excel2007->save()
+#2 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/GeneralLedgerController.php(59): GeneralLedgerController->saveToExcel()
+#3 /home/pmahendro/public_html/yii/framework/web/actions/CInlineAction.php(49): GeneralLedgerController->actionSummary()
+#4 /home/pmahendro/public_html/yii/framework/web/CController.php(308): CInlineAction->runWithParams()
+#5 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(133): GeneralLedgerController->runAction()
+#6 /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/GeneralLedgerController.php(18): CFilterChain->run()
+#7 /home/pmahendro/public_html/yii/framework/web/filters/CInlineFilter.php(58): GeneralLedgerController->filterAccess()
+#8 /home/pmahendro/public_html/yii/framework/web/filters/CFilterChain.php(130): CInlineFilter->filter()
+#9 /home/pmahendro/public_html/yii/framework/web/CController.php(291): CFilterChain->run()
+#10 /home/pmahendro/public_html/yii/framework/web/CController.php(265): GeneralLedgerController->runActionWithFilters()
+#11 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): GeneralLedgerController->run()
+#12 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#13 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#14 /home/pmahendro/public_html/lanusa/index.php(13): CWebApplication->run()
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report%2FgeneralLedger%2Fsummary&PageSize=1000&page=1&StartDate=2026-01-01&EndDate=2026-09-05&AccountIds=333%2C2122%2C336%2C327&sort=&SaveExcel=Save+to+Excel
+in /home/pmahendro/public_html/lanusa/protected/extensions/phpexcel/Classes/PHPExcel/Writer/Excel2007.php (234)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/GeneralLedgerController.php (199)
+in /home/pmahendro/public_html/lanusa/protected/modules/report/controllers/GeneralLedgerController.php (59)
+2026/09/09 09:06:10 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "ajaxJsonCoa".' in /home/pmahendro/public_html/yii/framework/web/CController.php:483
+Stack trace:
+#0 /home/pmahendro/public_html/yii/framework/web/CController.php(270): CController->missingAction('ajaxJsonCoa')
+#1 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(282): CController->run('ajaxJsonCoa')
+#2 /home/pmahendro/public_html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController('report/generalL...')
+#3 /home/pmahendro/public_html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /home/pmahendro/public_html/lanusa/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/~pmahendro/lanusa/index.php?r=report/generalLedger/ajaxJsonCoa
+HTTP_REFERER=http://localhost/~pmahendro/lanusa/index.php?r=report/generalLedger/summary
+---

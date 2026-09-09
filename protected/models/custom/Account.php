@@ -102,7 +102,7 @@ class Account extends AccountBase {
     public function searchByCategory() {
         $criteria = new CDbCriteria;
 
-        $criteria->condition = 't.account_category_id=1 OR t.account_category_id=2';
+        $criteria->condition = 't.account_category_id=1 OR t.account_category_id = 2';
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -226,7 +226,7 @@ class Account extends AccountBase {
                 'defaultOrder' => 't.code ASC',
             ),
             'pagination' => array(
-                'pageSize' => 50,
+                'pageSize' => 500,
             ),
         ));
     }

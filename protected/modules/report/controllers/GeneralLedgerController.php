@@ -56,7 +56,7 @@ class GeneralLedgerController extends Controller {
         }
 
         if (isset($_GET['SaveExcel'])) {
-            $this->saveToExcel($generalLedgerSummary, $branch, $generalLedgerSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+            $this->saveToExcel($generalLedgerReportData, $ledgerBeginningBalanceData, $generalLedgerSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
         }
 
         $this->render('summary', array(
@@ -86,12 +86,6 @@ class GeneralLedgerController extends Controller {
 
     public function actionAjaxHtmlAccount() {
         if (Yii::app()->request->isAjaxRequest) {
-
-//            $startAccount = (isset($_GET['StartAccount'])) ? $_GET['StartAccount'] : '';
-//            $endAccount = (isset($_GET['EndAccount'])) ? $_GET['EndAccount'] : '';
-//            $accounts = Account::model()->findAllByAttributes(array('branch_id' => $_POST['BranchId'],), array('order' => 'code ASC',));
-//            $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
-
             $accountIds = (isset($_GET['AccountIds'])) ? $_GET['AccountIds'] : '';
             
             $account = Search::bind(new Account('search'), isset($_GET['Account']) ? $_GET['Account'] : array());
@@ -107,7 +101,7 @@ class GeneralLedgerController extends Controller {
         }
     }
 
-    protected function saveToExcel($generalLedgerSummary, $branch, $dataProvider, array $options = array()) {
+    protected function saveToExcel($generalLedgerReportData, $ledgerBeginningBalanceData, $dataProvider, array $options = array()) {
         spl_autoload_unregister(array('YiiBase', 'autoload'));
         include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
         spl_autoload_register(array('YiiBase', 'autoload'));
@@ -121,13 +115,6 @@ class GeneralLedgerController extends Controller {
         $worksheet = $objPHPExcel->setActiveSheetIndex(0);
         $worksheet->setTitle('Laporan Buku Besar');
 
-        $worksheet->getColumnDimension('A')->setAutoSize(true);
-        $worksheet->getColumnDimension('B')->setAutoSize(true);
-        $worksheet->getColumnDimension('C')->setAutoSize(true);
-        $worksheet->getColumnDimension('D')->setAutoSize(true);
-        $worksheet->getColumnDimension('E')->setAutoSize(true);
-        $worksheet->getColumnDimension('F')->setAutoSize(true);
-
         $worksheet->mergeCells('A1:F1');
         $worksheet->mergeCells('A2:F2');
         $worksheet->mergeCells('A3:F3');
@@ -135,21 +122,19 @@ class GeneralLedgerController extends Controller {
         $worksheet->getStyle('A1:F6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $worksheet->getStyle('A1:F6')->getFont()->setBold(true);
 
-        $worksheet->setCellValue('A1', CHtml::encode(CHtml::value($branch, 'name')));
+//        $worksheet->setCellValue('A1', CHtml::encode(CHtml::value($branch, 'name')));
         $worksheet->setCellValue('A2', 'Laporan Buku Besar');
         $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['startDate'])) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['endDate'])));
 
         $worksheet->getStyle('A5:F5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
-        $worksheet->setCellValue('A5', 'Akun');
-        $worksheet->setCellValue('B5', 'Total Debit');
-        $worksheet->setCellValue('C5', 'Total Kredit');
-        $worksheet->mergeCells('D5:F5');
-        $worksheet->setCellValue('D5', 'Saldo Akhir');
+        $worksheet->setCellValue('B5', 'Code');
+        $worksheet->setCellValue('C5', 'Akun');
+        $worksheet->setCellValue('D5', 'Saldo Awal');
 
         $worksheet->setCellValue('A6', 'Transaksi #');
-        $worksheet->setCellValue('B6', 'Memo');
-        $worksheet->setCellValue('C6', 'Tanggal');
+        $worksheet->setCellValue('B6', 'Tanggal');
+        $worksheet->setCellValue('C6', 'Memo');
         $worksheet->setCellValue('D6', 'Debit');
         $worksheet->setCellValue('E6', 'Kredit');
         $worksheet->setCellValue('F6', 'Saldo');
@@ -157,53 +142,61 @@ class GeneralLedgerController extends Controller {
         $worksheet->getStyle('A6:F6')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
         $counter = 7;
+        $accountNumber = $dataProvider->pagination->getCurrentPage(false) * $dataProvider->pagination->pageSize + 1;
 
-        foreach ($dataProvider->data as $header) {
-            $worksheet->getStyle("A{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-            $worksheet->getStyle("B{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+        foreach ($dataProvider->data as $i => $header) {
+            $beginningBalance = isset($ledgerBeginningBalanceData[$header->id]) ? $ledgerBeginningBalanceData[$header->id] : '0.00';
 
-            $worksheet->setCellValue("A{$counter}", CHtml::encode(CHtml::value($header, 'code')) . '-' . CHtml::encode(CHtml::value($header, 'name')));
-            $worksheet->setCellValue("B{$counter}", $header->getEndDebitLedger($header->id, $options['startDate'], $options['endDate']));
-            $worksheet->setCellValue("C{$counter}", $header->getEndCreditLedger($header->id, $options['startDate'], $options['endDate']));
-            $worksheet->mergeCells("D{$counter}:F{$counter}");
-            $worksheet->setCellValue("D{$counter}", $header->getEndBalanceLedger($header->id, $options['endDate']));
+            $worksheet->setCellValue("A{$counter}", $accountNumber++);
+            $worksheet->setCellValue("B{$counter}", CHtml::value($header, 'code'));
+            $worksheet->setCellValue("C{$counter}", CHtml::value($header, 'name'));
+            $worksheet->setCellValue("D{$counter}", $beginningBalance);
             $counter++;
 
-            $worksheet->getStyle("A{$counter}:F{$counter}")->getFont()->setBold(true);
-            $worksheet->getStyle("A{$counter}:C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-            $worksheet->getStyle("D{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("A{$counter}", 'SALDO AWAL');
-            $worksheet->mergeCells("A{$counter}:C{$counter}");
-            $worksheet->mergeCells("D{$counter}:F{$counter}");
-            $worksheet->setCellValue("D{$counter}", $header->getBeginningBalanceLedger($header->id, $options['startDate']));
-            $counter++;
+            $totalDebit = '0.00';
+            $totalCredit = '0.00';
+            if (isset($generalLedgerReportData[$header->id])) {
+                $generalLedgerData = $generalLedgerReportData[$header->id];
+                $currentBalance = $beginningBalance; 
+                
+                foreach ($generalLedgerData as $generalLedgerRow) {
+                    $debitAmount = $generalLedgerRow['debit'];
+                    $creditAmount = $generalLedgerRow['credit'];
+                    $currentBalance += $debitAmount - $creditAmount;
 
-            foreach ($header->journalAccountings as $detail) {
-                $worksheet->getStyle("A{$counter}:C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-                $worksheet->getStyle("D{$counter}:F{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+                    $worksheet->setCellValue("A{$counter}", $generalLedgerRow['transaction_number']);
+                    $worksheet->setCellValue("B{$counter}", $generalLedgerRow['date']);
+                    $worksheet->setCellValue("C{$counter}", $generalLedgerRow['memo']);
+                    $worksheet->setCellValue("D{$counter}", $debitAmount);
+                    $worksheet->setCellValue("E{$counter}", $creditAmount);
+                    $worksheet->setCellValue("F{$counter}", $currentBalance);
 
-                $worksheet->setCellValue("A{$counter}", CHtml::encode(CHtml::value($detail, 'transaction_number')));
-                $worksheet->setCellValue("B{$counter}", CHtml::encode(CHtml::value($detail, 'memo')));
-                $worksheet->setCellValue("C{$counter}", CHtml::encode(Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->date))));
-                $worksheet->setCellValue("D{$counter}", CHtml::encode($detail->debit));
-                $worksheet->setCellValue("E{$counter}", CHtml::encode($detail->credit));
-                $worksheet->setCellValue("F{$counter}", CHtml::encode($detail->currentSaldo));
-
-                $counter++;
+                    $totalDebit += $debitAmount;
+                    $totalCredit += $creditAmount;
+                    $counter++;
+                }
             }
+            $worksheet->getStyle("A{$counter}:F{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+            $worksheet->getStyle("A{$counter}:F{$counter}")->getFont()->setBold(true);
+            $worksheet->mergeCells("A{$counter}:C{$counter}");
+            
+            $worksheet->setCellValue("A{$counter}", 'TOTAL');
+            $worksheet->setCellValue("D{$counter}", $totalDebit);
+            $worksheet->setCellValue("E{$counter}", $totalCredit);
         }
 
-        for ($col = 'A'; $col !== 'F'; $col++) {
+        for ($col = 'A'; $col !== 'Z'; $col++) {
             $objPHPExcel->getActiveSheet()
-                    ->getColumnDimension($col)
-                    ->setAutoSize(true);
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
         }
 
-        header('Content-Type: application/xlsx');
-        header('Content-Disposition: attachment;filename="Laporan Buku Besar.xlsx"');
+        // We'll be outputting an excel file
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="buku_besar.xls"');
         header('Cache-Control: max-age=0');
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
 
         Yii::app()->end();

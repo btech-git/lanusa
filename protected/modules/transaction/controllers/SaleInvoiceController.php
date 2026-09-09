@@ -658,7 +658,7 @@ class SaleInvoiceController extends Controller {
         $worksheet->getColumnDimension('B')->setWidth('2');
 
         $worksheet->getColumnDimension('C')->setAutoSize(false);
-        $worksheet->getColumnDimension('C')->setWidth('10');
+        $worksheet->getColumnDimension('C')->setWidth('15');
 
         $worksheet->getColumnDimension('D')->setAutoSize(false);
         $worksheet->getColumnDimension('D')->setWidth('7');
@@ -688,10 +688,10 @@ class SaleInvoiceController extends Controller {
         $worksheet->getColumnDimension('L')->setWidth('2');
 
         $worksheet->getColumnDimension('M')->setAutoSize(false);
-        $worksheet->getColumnDimension('M')->setWidth('15');
+        $worksheet->getColumnDimension('M')->setWidth('20');
         
         $worksheet->getColumnDimension('N')->setAutoSize(false);
-        $worksheet->getColumnDimension('N')->setWidth('15');
+        $worksheet->getColumnDimension('N')->setWidth('20');
 
         $counter = 2;
         //add image
@@ -752,7 +752,6 @@ class SaleInvoiceController extends Controller {
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
-        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'Tgl Faktur');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->setCellValue("M{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($saleInvoice->date)));
@@ -766,7 +765,6 @@ class SaleInvoiceController extends Controller {
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
-        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'No Faktur');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->getStyle("M{$counter}")->getFont()->setBold(true);
@@ -780,7 +778,6 @@ class SaleInvoiceController extends Controller {
         $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->company);
 
         $worksheet->mergeCells("J{$counter}:K{$counter}");
-        $worksheet->mergeCells("M{$counter}:N{$counter}");
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
             $worksheet->setCellValue("L{$counter}", ':');
@@ -795,7 +792,6 @@ class SaleInvoiceController extends Controller {
         $worksheet->setCellValue("A{$counter}", strip_tags(nl2br($saleInvoice->deliveryHeader->saleHeader->customer->address)));
 
         $worksheet->mergeCells("J{$counter}:K{$counter}");
-        $worksheet->mergeCells("M{$counter}:N{$counter}");
         $worksheet->setCellValue("J{$counter}", 'No PO');
         $worksheet->setCellValue("L{$counter}", ':');
         $worksheet->setCellValue("M{$counter}", CHtml::value($saleInvoice, 'deliveryHeader.saleHeader.reference'));

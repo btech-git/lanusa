@@ -194,7 +194,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                     array(
                         'id' => 'CoaIds',
                         'class' => 'CCheckBoxColumn',
-                        'selectableRows' => '10',
+                        'selectableRows' => '1000',
                     ),
                     'code',
                     'name',
