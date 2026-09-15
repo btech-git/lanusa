@@ -194,7 +194,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                     array(
                         'id' => 'CoaIds',
                         'class' => 'CCheckBoxColumn',
-                        'selectableRows' => '1000',
+                        'selectableRows' => '100',
                     ),
                     'code',
                     'name',
@@ -215,7 +215,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                     $("#coa-dialog").dialog("close");
                     var coaIds = [];
                     $("input[name^=CoaIds]:checked").each(function() {
-                        coaIds.push($(this).val());
+                        if ($(this).attr("id") !== "CoaIds_all") {coaIds.push($(this).val());}
                     });
                     $("#AccountIds").val(coaIds.join(","));
                 ',

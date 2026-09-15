@@ -17,8 +17,9 @@ class Sale extends CComponent {
             'params' => array(':branch_id' => $branchId, ':cn_year' => $currentYear, ':cn_month' => $currentMonth),
         ));
 
-        if ($saleHeader !== null)
+        if ($saleHeader !== null) {
             $this->header->setCodeNumber($saleHeader->cn_ordinal, $saleHeader->cn_month, $saleHeader->cn_year, $saleHeader->branch_id);
+        }
 
         $this->header->setCodeNumberByNext($currentMonth, $currentYear);
     }
@@ -54,6 +55,7 @@ class Sale extends CComponent {
     public function validate() {
         $valid = $this->header->validate();
 
+        $valid = $this->validateCustomerOrderNumber() && $valid;
         $valid = $this->validateDetailsCount() && $valid;
 
         if (count($this->details) > 0) {
@@ -61,8 +63,21 @@ class Sale extends CComponent {
                 $fields = array('quantity', 'product_id');
                 $valid = $detail->validate($fields) && $valid;
             }
-        } else
+        } else {
             $valid = false;
+        }
+
+        return $valid;
+    }
+
+    public function validateCustomerOrderNumber() {
+        $valid = true;
+        $saleHeader = SaleHeader::model()->findByAttributes(array('reference' => $this->header->reference));
+        
+        if (!empty($saleHeader)) {
+            $valid = false;
+            $this->header->addError('error', 'Customer PO sudah terinput.');
+        }
 
         return $valid;
     }
@@ -81,10 +96,11 @@ class Sale extends CComponent {
         $dbTransaction = $dbConnection->beginTransaction();
         try {
             $valid = $this->validate() && IdempotentManager::build()->save() && $this->flush();
-            if ($valid)
+            if ($valid) {
                 $dbTransaction->commit();
-            else
+            } else {
                 $dbTransaction->rollback();
+            }
         } catch (Exception $e) {
             $dbTransaction->rollback();
             $valid = false;
@@ -98,11 +114,13 @@ class Sale extends CComponent {
         $valid = $this->header->save(false);
 
         foreach ($this->details as $detail) {
-            if ($detail->quantity <= 0)
+            if ($detail->quantity <= 0) {
                 continue;
+            }
 
-            if ($detail->isNewRecord)
+            if ($detail->isNewRecord) {
                 $detail->sale_header_id = $this->header->id;
+            }
 
             $valid = $detail->save(false) && $valid;
         }
@@ -112,16 +130,12 @@ class Sale extends CComponent {
 
     public function getSubTotal() {
         $total = 0.00;
-        foreach ($this->details as $detail)
+        foreach ($this->details as $detail) {
             $total += $detail->total;
+        }
 
         return $total;
     }
-
-//	public function getCalculatedDiscount()
-//	{
-//		return $this->subTotal * $this->header->discount / 100;
-//	}
 
     public function getTotalBeforeTax() {
         return $this->subTotal - $this->header->discount - (($this->header->saleDownpayment === null) ? 0 : $this->header->saleDownpayment->amount) + $this->header->shipping_fee;
@@ -144,5 +158,4 @@ class Sale extends CComponent {
     public function getGrandTotal() {
         return $this->totalBeforeTax + $this->calculatedTax;
     }
-
 }
