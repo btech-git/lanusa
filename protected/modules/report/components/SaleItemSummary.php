@@ -41,14 +41,12 @@ class SaleItemSummary extends CComponent {
         $this->dataProvider->criteria->order = $this->dataProvider->sort->orderBy;
     }
 
-    public function setupFilter($startDate, $endDate, $category, $branch, $customerCompany) {
-        $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
-        $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
+    public function setupFilter($startDate, $endDate, $categoryId, $branchId, $customerCompany) {
 
         $this->dataProvider->criteria->addBetweenCondition('saleHeader.date', $startDate, $endDate);
-        $this->dataProvider->criteria->compare('t.category_id', $category);
+        $this->dataProvider->criteria->compare('t.category_id', $categoryId);
         $this->dataProvider->criteria->compare('t.is_inactive', 0);
-        $this->dataProvider->criteria->compare('saleHeader.branch_id', $branch);
+        $this->dataProvider->criteria->compare('saleHeader.branch_id', $branchId);
         $this->dataProvider->criteria->compare('saleHeader.is_inactive', 0);
         $this->dataProvider->criteria->compare('customer.company', $customerCompany, true);
     }
@@ -56,10 +54,10 @@ class SaleItemSummary extends CComponent {
     public function getGrandTotal() {
         $grandTotal = 0.00;
 
-        foreach ($this->dataProvider->data as $data)
+        foreach ($this->dataProvider->data as $data) {
             $grandTotal += $data->grandTotal;
+        }
 
         return $grandTotal;
     }
-
 }

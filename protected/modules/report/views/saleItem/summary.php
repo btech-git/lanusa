@@ -23,19 +23,16 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             Nama Produk
             <?php echo CHtml::activeTextField($product, 'name'); ?>
             Kategori
-            <?php
-            echo CHtml::dropDownList('category', 'id', $listDataCategory, array(
+            <?php echo CHtml::dropDownList('CategoryId', $categoryId, $listDataCategory, array(
                 'empty' => '-Pilih Kategori-',
-                'options' => array($category => array('selected' => TRUE))
-            ));
-            ?>	
+            )); ?>	
             Ukuran
-<?php echo CHtml::activeTextField($product, 'size'); ?>			
+            <?php echo CHtml::activeTextField($product, 'size'); ?>			
         </div>
 
         <div class="row" style="background-color: #DFDFDF">
             Customer
-<?php echo CHtml::textField('CustomerCompany', $customerCompany); ?>
+            <?php echo CHtml::textField('CustomerCompany', $customerCompany); ?>
         </div>
 
         <div class="row">
@@ -43,7 +40,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
 
             Halaman saat ini
-<?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
+            <?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
         </div>
 
         <div class="row">
@@ -63,8 +60,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             ?>
 
             Sampai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -74,8 +70,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
         </div>
 
         <div class="row">
@@ -84,24 +79,21 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <div class="row">
             Cabang
-<?php
-echo CHtml::dropDownList('branch', 'id', $listData, array(
-    'empty' => '-Pilih Cabang-',
-    'options' => array($branch => array('selected' => TRUE))
-));
-?>				
+            <?php echo CHtml::dropDownList('BranchId', $branchId, $listData, array(
+                'empty' => '-Pilih Cabang-',
+            )); ?>				
         </div>
 
         <div class="row button">
-<?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
-        <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
         </div>
 
         <div class="row button">
-<?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
+            <?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
         </div>
 
-<?php echo CHtml::endForm(); ?>
+        <?php echo CHtml::endForm(); ?>
 
     </div>
 
@@ -110,24 +102,22 @@ echo CHtml::dropDownList('branch', 'id', $listData, array(
     <div class="right"><?php echo ReportHelper::summaryText($saleItemSummary->dataProvider); ?></div>
     <div class="clear"></div>
     <div class="right">
-    <?php echo ReportHelper::sortText($saleItemSummary->dataProvider->sort, array('Nama Produk', 'Kategori')); ?>
+        <?php echo ReportHelper::sortText($saleItemSummary->dataProvider->sort, array('Nama Produk', 'Kategori')); ?>
     </div>
     <div class="clear"></div>
 </div>
 
 <div>
-        <?php $this->renderPartial('_summary', array('saleItemSummary' => $saleItemSummary, 'branch' => $branch, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
+    <?php $this->renderPartial('_summary', array('saleItemSummary' => $saleItemSummary, 'branchId' => $branchId, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
 </div>
 
 <div class="hide">
     <div class="right">
-<?php
-$this->widget('system.web.widgets.pagers.CLinkPager', array(
-    'itemCount' => $saleItemSummary->dataProvider->pagination->itemCount,
-    'pageSize' => $saleItemSummary->dataProvider->pagination->pageSize,
-    'currentPage' => $saleItemSummary->dataProvider->pagination->getCurrentPage(false),
-));
-?>
+        <?php $this->widget('system.web.widgets.pagers.CLinkPager', array(
+            'itemCount' => $saleItemSummary->dataProvider->pagination->itemCount,
+            'pageSize' => $saleItemSummary->dataProvider->pagination->pageSize,
+            'currentPage' => $saleItemSummary->dataProvider->pagination->getCurrentPage(false),
+        )); ?>
     </div>
     <div class="clear"></div>
 </div>

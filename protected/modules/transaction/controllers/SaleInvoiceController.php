@@ -118,6 +118,7 @@ class SaleInvoiceController extends Controller {
             ),
             'branch:resetScope',
         );
+        $dataProvider->criteria->order = 't.id DESC';
 
         $saleInvoice->customerCompany = $customerCompany;
         $dataProvider->criteria->compare('customer.company', $customerCompany, true);
@@ -159,6 +160,8 @@ class SaleInvoiceController extends Controller {
             ),
             'branch:resetScope',
         );
+        $dataProvider->criteria->addCondition("t.is_inactive = 0");
+        $dataProvider->criteria->order = 't.id DESC';
 
         $saleInvoice->customerCompany = $customerCompany;
         $dataProvider->criteria->compare('customer.company', $customerCompany, true);
@@ -180,6 +183,77 @@ class SaleInvoiceController extends Controller {
             'startDate' => $startDate,
             'endDate' => $endDate,
         ));
+    }
+
+    public function actionIndexCoretax() {
+        $saleInvoice = Search::bind(new SaleInvoice('search'), isset($_GET['SaleInvoice']) ? $_GET['SaleInvoice'] : array());
+        $customerCompany = (isset($_GET['CustomerCompany'])) ? $_GET['CustomerCompany'] : '';
+
+        $dataProvider = $saleInvoice->resetScope()->searchWithPaging();
+        $dataProvider->criteria->with = array(
+            'deliveryHeader:resetScope' => array(
+                'with' => array(
+                    'saleHeader:resetScope' => array(
+                        'with' => 'customer:resetScope'
+                    ),
+                ),
+            ),
+            'branch:resetScope',
+        );
+        $dataProvider->criteria->addCondition("t.tax_percentage > 0 AND (t.reference is null OR t.reference ='') AND t.is_inactive = 0 AND t.date > '2023-12-31'");
+        $dataProvider->criteria->order = 't.id DESC';
+
+        $saleInvoice->customerCompany = $customerCompany;
+        $dataProvider->criteria->compare('customer.company', $customerCompany, true);
+
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+
+        if ($startDate != '' || $endDate != '') {
+            $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
+            $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
+
+            $dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
+        }
+
+        $arr_category = array();
+        if (isset($_GET['SaveXml'])) {
+            if (isset($_GET['selectedIds'])) {
+                foreach ($_GET['selectedIds'] as $id) {
+                    $saleInvoice = $this->loadModel($id);
+                    array_push($arr_category, $saleInvoice);
+                }
+            }
+        }
+
+        if ($arr_category) {
+            if (isset($_GET['SaveXml'])) {
+                $this->saveToXml($arr_category);
+            }
+        }
+
+        $this->render('indexCoretax', array(
+            'saleInvoice' => $saleInvoice,
+            'dataProvider' => $dataProvider,
+            'customerCompany' => $customerCompany,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ));
+    }
+
+    protected function saveToXml($saleInvoiceHeaders) {
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
+        header('Content-type: text/xml');
+        header('Content-Disposition: attachment;filename="eFaktur Invoice Coretax.xml"');
+        header('Cache-Control: max-age=0');
+        
+        $this->renderPartial('exportXml', array(
+            'saleInvoiceHeaders' => $saleInvoiceHeaders,
+        ));
+
+        Yii::app()->end();
     }
 
     public function actionMemo($id) {

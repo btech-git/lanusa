@@ -55,7 +55,10 @@ class Sale extends CComponent {
     public function validate() {
         $valid = $this->header->validate();
 
-        $valid = $this->validateCustomerOrderNumber() && $valid;
+        if ($this->header->reference !== '' && $this->header->isNewRecord) {
+            $valid = $this->validateCustomerOrderNumber() && $valid;
+        }
+        
         $valid = $this->validateDetailsCount() && $valid;
 
         if (count($this->details) > 0) {

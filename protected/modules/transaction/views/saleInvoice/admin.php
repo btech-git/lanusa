@@ -1,7 +1,8 @@
 <h1>Manage Invoice</h1>
 
 <div id="link">
-    <?php echo CHtml::link('Unprocessed Invoice', array('adminUnprocessed'), array('target' => '_blank')); ?>
+    <?php echo CHtml::link('Unprocessed Invoice', array('adminUnprocessed'), array('target' => '_blank', 'style' => 'color:red; font-weight:bold;')); ?>
+    <?php echo CHtml::link('Export Invoice Coretax', array('indexCoretax'), array('target' => '_blank', 'style' => 'color:green; font-weight:bold;')); ?>
 </div>
 
 <center>
@@ -95,6 +96,7 @@
             'value' => 'CHtml::encode(CHtml::value($data, "branch.code"))',
         ),
         array(
+            'header' => 'Status',
             'name' => 'is_inactive',
             'filter' => array(ActiveRecord::ACTIVE => 'Active', ActiveRecord::INACTIVE => 'Inactive'),
             'value' => '$data->Status',

@@ -22,14 +22,15 @@ class SaleItemController extends Controller {
 		ini_set('memory_limit', '1024M');
        
         $product = Search::bind(new Product('search'), isset($_GET['Product']) ? $_GET['Product'] : array());
-        $branch = isset($_GET['branch']) ? $_GET['branch'] : '';
-        $category = isset($_GET['category']) ? $_GET['category'] : '';
+        $branchId = isset($_GET['BranchId']) ? $_GET['BranchId'] : '';
+        $categoryId = isset($_GET['CategoryId']) ? $_GET['CategoryId'] : '';
         $customerCompany = isset($_GET['CustomerCompany']) ? $_GET['CustomerCompany'] : '';
+        
         $listData = CHtml::listData(Branch::model()->findAll(), 'id', 'name');
         $listDataCategory = CHtml::listData(Category::model()->findAll(array('order' => 'name ASC')), 'id', 'name');
 
-        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
-        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : date('Y-m-d');
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : date('Y-m-d');
         $pageSize = (isset($_GET['PageSize'])) ? $_GET['PageSize'] : '';
         $currentPage = (isset($_GET['page'])) ? $_GET['page'] : '';
         $currentSort = (isset($_GET['sort'])) ? $_GET['sort'] : '';
@@ -38,19 +39,20 @@ class SaleItemController extends Controller {
         $saleItemSummary->setupLoading();
         $saleItemSummary->setupPaging($pageSize, $currentPage);
         $saleItemSummary->setupSorting();
-        $saleItemSummary->setupFilter($startDate, $endDate, $category, $branch, $customerCompany);
+        $saleItemSummary->setupFilter($startDate, $endDate, $categoryId, $branchId, $customerCompany);
 
-        if (isset($_GET['SaveExcel']))
-            $this->saveToExcel($saleItemSummary, $branch, $saleItemSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+        if (isset($_GET['SaveExcel'])) {
+            $this->saveToExcel($saleItemSummary, $branchId, $saleItemSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+        }
 
         $this->render('summary', array(
             'product' => $product,
             'saleItemSummary' => $saleItemSummary,
-            'branch' => $branch,
+            'branchId' => $branchId,
             'startDate' => $startDate,
             'endDate' => $endDate,
             'currentSort' => $currentSort,
-            'category' => $category,
+            'categoryId' => $categoryId,
             'customerCompany' => $customerCompany,
             'listData' => $listData,
             'listDataCategory' => $listDataCategory,

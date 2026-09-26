@@ -46,6 +46,16 @@ class DeliveryDetail extends DeliveryDetailBase {
         return $this->quantity * $this->saleDetail->unit_price + $this->saleDetail->additional_fee_amount;
     }
 
+    public function getTotalWithTax() {
+
+        return round($this->total * ($this->saleDetail->saleHeader->tax / 100), 0);
+    }
+
+    public function getTotalWithCoretax() {
+
+        return round($this->total * 11 / 12, 2);
+    }
+
     public function getQuantityOrdered($saleHeaderId = null) {
 //		$sql = "SELECT sale.quantity - COALESCE(delivery.quantity_delivery, 0) AS quantity_sale
 //				FROM

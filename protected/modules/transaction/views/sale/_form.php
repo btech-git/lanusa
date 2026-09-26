@@ -1,7 +1,8 @@
 <div class="form">
 
     <?php echo CHtml::beginForm(); ?>
-<?php echo CHtml::errorSummary($sale->header); ?>
+    <?php echo CHtml::errorSummary($sale->header); ?>
+    
     <div class="container">
         <div class="span-12">
             <div class="row">
