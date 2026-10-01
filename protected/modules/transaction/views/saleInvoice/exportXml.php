@@ -29,8 +29,8 @@
                         <GoodService>
                             <Opt>A</Opt>
                             <Code>720000</Code>
-                            <Name><?php echo htmlspecialchars(CHtml::value($saleInvoiceDetail, 'saleDetail.product_name', ''), ENT_XML1); ?> - <?php echo htmlspecialchars(CHtml::value($saleInvoiceDetail, 'saleDetail.product.size', ''), ENT_XML1); ?></Name>
-                            <Unit>UM.0021</Unit>
+                            <Name><?php echo htmlspecialchars(CHtml::value($saleInvoiceDetail, 'saleDetail.product_name', ''), ENT_XML1); ?></Name>
+                            <Unit><?php echo htmlspecialchars(CHtml::value($saleInvoiceDetail, 'saleDetail.unit.coretax_code', ''), ENT_XML1); ?></Unit>
                             <Price><?php echo CHtml::value($saleInvoiceDetail, 'saleDetail.unit_price'); ?></Price>
                             <Qty><?php echo CHtml::value($saleInvoiceDetail, 'quantity'); ?></Qty>
                             <TotalDiscount>0.00</TotalDiscount>

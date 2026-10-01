@@ -80,20 +80,20 @@ $this->widget('zii.widgets.grid.CGridView', array(
         array(
             'header' => 'Customer',
             'name' => 'customerName',
-            'filter' => CHtml::activeTextField($delivery, 'customerName'),
+            'filter' => CHtml::textField('CustomerName', $customerName),
             'value' => 'CHtml::encode(CHtml::value($data, "saleHeader.customer.company"))',
         ),
         array(
             'header' => 'Reference',
             'name' => 'referenceNumber',
-            'filter' => CHtml::activeTextField($delivery, 'referenceNumber'),
+            'filter' => CHtml::textField('ReferenceNumber', $referenceNumber),
             'value' => 'CHtml::value($data, "saleHeader.reference")',
         ),
         array(
             'header' => 'Branch',
             'name' => 'branch_id',
-            'filter' => CHtml::listData(Branch::model()->findAll(), 'id', 'name'),
-            'value' => 'CHtml::encode(CHtml::value($data, "branch.name"))'
+            'filter' => CHtml::activeDropdownList($delivery, 'branch_id', CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array('empty' => '-- All --')),
+            'value' => 'CHtml::encode(CHtml::value($data, "branch.name"))',
         ),
         array(
             'name' => 'is_inactive',

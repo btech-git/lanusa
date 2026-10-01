@@ -1,6 +1,7 @@
 <?php
 
 class DeliveryHeader extends DeliveryHeaderBase {
+
     const CN_CONSTANT = 'DLV';
 
     public $referenceNumber;
@@ -60,27 +61,25 @@ class DeliveryHeader extends DeliveryHeaderBase {
         $criteria = new CDbCriteria;
 
         $criteria->condition = "EXISTS (
-			SELECT delivery.quantity - SUM(COALESCE(returned.quantity, 0)) AS quantity_sold
-			FROM
-			(
-				SELECT h.id, d.quantity, d.product_id
-				FROM " . DeliveryHeader::model()->tableName() . " h 
-				INNER JOIN " . DeliveryDetail::model()->tableName() . " d ON h.id = d.delivery_header_id
-				WHERE h.is_inactive = 0 AND d.is_inactive = 0
-			) delivery
-			LEFT OUTER JOIN
-			(
-				SELECT rh.delivery_header_id, rd.quantity, rd.product_id
-				FROM " . SaleReturnHeader::model()->tableName() . " rh
-				INNER JOIN " . SaleReturnDetail::model()->tableName() . " rd ON rh.id = rd.sales_return_header_id
-				WHERE rh.is_inactive = 0 AND rd.is_inactive = 0
-			) returned
-			ON delivery.id = returned.delivery_header_id
-			AND delivery.product_id = returned.product_id
-			WHERE t.id = delivery.id
-			GROUP BY delivery.id, delivery.product_id
-			HAVING quantity_sold > 0
-		)";
+            SELECT delivery.quantity - SUM(COALESCE(returned.quantity, 0)) AS quantity_sold
+            FROM (
+                SELECT h.id, d.quantity, d.product_id
+                FROM " . DeliveryHeader::model()->tableName() . " h 
+                INNER JOIN " . DeliveryDetail::model()->tableName() . " d ON h.id = d.delivery_header_id
+                WHERE h.is_inactive = 0 AND d.is_inactive = 0
+            ) delivery
+            LEFT OUTER JOIN (
+                SELECT rh.delivery_header_id, rd.quantity, rd.product_id
+                FROM " . SaleReturnHeader::model()->tableName() . " rh
+                INNER JOIN " . SaleReturnDetail::model()->tableName() . " rd ON rh.id = rd.sales_return_header_id
+                WHERE rh.is_inactive = 0 AND rd.is_inactive = 0
+            ) returned
+            ON delivery.id = returned.delivery_header_id
+            AND delivery.product_id = returned.product_id
+            WHERE t.id = delivery.id
+            GROUP BY delivery.id, delivery.product_id
+            HAVING quantity_sold > 0
+        )";
 
         $criteria->compare('cn_ordinal', $this->cn_ordinal, true);
         $criteria->compare('cn_month', $this->cn_month, true);
@@ -161,8 +160,9 @@ class DeliveryHeader extends DeliveryHeaderBase {
         $total = $this->grandTotal;
 
         foreach ($this->saleInvoices as $invoiceHeader) {
-            foreach ($invoiceHeader->saleReturnHeaders as $saleReturnHeader)
+            foreach ($invoiceHeader->saleReturnHeaders as $saleReturnHeader) {
                 $total -= $saleReturnHeader->grandTotal;
+            }
         }
 
         return $total;
@@ -183,15 +183,23 @@ class DeliveryHeader extends DeliveryHeaderBase {
         $criteria->compare('t.is_non_tax', $this->is_non_tax);
         $criteria->compare('t.is_inactive', $this->is_inactive);
 
+        $criteria->with = array(
+            'saleHeader:resetScope' => array(
+                'with' => array(
+                    'customer:resetScope'
+                )
+            )
+        );
+
         return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-			'pagination' => array(
-				'pageSize' => Yii::app()->user->getState( 'pageSize', Yii::app()->params[ 'defaultPageSize' ] ),
-			),
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState('pageSize', Yii::app()->params['defaultPageSize']),
+            ),
             'sort' => array(
                 'defaultOrder' => 't.id DESC',
             ),
-		));
+        ));
     }
 
 }

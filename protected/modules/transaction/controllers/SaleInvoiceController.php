@@ -200,7 +200,7 @@ class SaleInvoiceController extends Controller {
             ),
             'branch:resetScope',
         );
-        $dataProvider->criteria->addCondition("t.tax_percentage > 0 AND (t.reference is null OR t.reference ='') AND t.is_inactive = 0 AND t.date > '2023-12-31'");
+        $dataProvider->criteria->addCondition("t.tax_percentage > 0 AND (t.reference IS NULL OR t.reference = '') AND t.is_inactive = 0 AND t.date > '2023-12-31'");
         $dataProvider->criteria->order = 't.id DESC';
 
         $saleInvoice->customerCompany = $customerCompany;
@@ -841,7 +841,7 @@ class SaleInvoiceController extends Controller {
             $worksheet->setCellValue("D{$counter}", 'NPWP');
             $worksheet->setCellValue("E{$counter}", ':');
             $worksheet->mergeCells("F{$counter}:H{$counter}");
-            $worksheet->setCellValue("F{$counter}", $saleInvoice->branch->npwp);
+            $worksheet->setCellValueExplicit("F{$counter}", $saleInvoice->branch->npwp, PHPExcel_Cell_DataType::TYPE_STRING);
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
@@ -861,7 +861,7 @@ class SaleInvoiceController extends Controller {
         if ($saleInvoice->branch_id != 4) {
             $worksheet->setCellValue("J{$counter}", 'No Faktur Pajak');
             $worksheet->setCellValue("L{$counter}", ':');
-            $worksheet->setCellValue("M{$counter}", $saleInvoice->reference);
+            $worksheet->setCellValueExplicit("M{$counter}", $saleInvoice->reference, PHPExcel_Cell_DataType::TYPE_STRING);
         }
         
         $counter++;
@@ -879,7 +879,7 @@ class SaleInvoiceController extends Controller {
         $counter++;
         $counter++;
         $worksheet->mergeCells("A{$counter}:I{$counter}");
-        $worksheet->setCellValue("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->npwp);
+        $worksheet->setCellValueExplicit("A{$counter}", $saleInvoice->deliveryHeader->saleHeader->customer->npwp, PHPExcel_Cell_DataType::TYPE_STRING);
 
         $counter++;
         
@@ -1376,8 +1376,8 @@ class SaleInvoiceController extends Controller {
         if (empty($id)) {
             $saleInvoice = new SaleInvoiceTransaction(new SaleInvoice());
         } else {
-            $saleInvoice = $this->loadModel($id);
-            $saleInvoice = new SaleInvoiceTransaction($saleInvoice);
+            $saleInvoiceHeader = $this->loadModel($id);
+            $saleInvoice = new SaleInvoiceTransaction($saleInvoiceHeader);
         }
 
         return $saleInvoice;

@@ -28,7 +28,7 @@ $this->widget('zii.widgets.CDetailView', array(
         ),
         array(
             'label' => 'Customer',
-            'value' => $sale->customer->company,
+            'value' => CHtml::encode(CHtml::value($sale, 'customer.company')),
         ),
         array(
             'label' => 'Catatan',
@@ -36,7 +36,7 @@ $this->widget('zii.widgets.CDetailView', array(
         ),
         array(
             'label' => 'Pembuat',
-            'value' => $delivery->admin->username,
+            'value' => CHtml::encode(CHtml::value($delivery, 'admin.username')),
         ),
     ),
 ));

@@ -351,7 +351,7 @@ class DeliveryController extends SelectionController {
         $worksheet->setCellValue("D5", 'NPWP');
         $worksheet->setCellValue("E5", ':');
         $worksheet->mergeCells("F5:H5");
-        $worksheet->setCellValue("F5", $deliveryHeader->branch->npwp);
+        $worksheet->setCellValueExplicit("F5", $deliveryHeader->branch->npwp, PHPExcel_Cell_DataType::TYPE_STRING);
         
         $worksheet->setCellValue("J5", 'No PO');
         $worksheet->setCellValue("K5", ':');
@@ -436,7 +436,8 @@ class DeliveryController extends SelectionController {
 
     public function actionAdmin() {
         $delivery = Search::bind(new DeliveryHeader('search'), isset($_GET['DeliveryHeader']) ? $_GET['DeliveryHeader'] : array());
-        $delivery->customerName = isset($_GET['DeliveryHeader']['customerName']) ? $_GET['DeliveryHeader']['customerName'] : '';
+        $customerName = isset($_GET['CustomerName']) ? $_GET['CustomerName'] : '';
+        $referenceNumber = isset($_GET['ReferenceNumber']) ? $_GET['ReferenceNumber'] : '';
 
         if (isset($_GET['pageSize'])) {
             Yii::app()->user->setState('pageSize', (int) $_GET['pageSize']);
@@ -444,6 +445,16 @@ class DeliveryController extends SelectionController {
         }
         
         $dataProvider = $delivery->searchWithPaging();
+        
+        if (!empty($customerName)) {
+            $dataProvider->criteria->addCondition('customer.company LIKE :customer_company');
+            $dataProvider->criteria->params[':customer_company'] = "%{$customerName}%";
+        }
+
+        if (!empty($referenceNumber)) {
+            $dataProvider->criteria->addCondition('saleHeader.reference LIKE :reference_number');
+            $dataProvider->criteria->params[':reference_number'] = "%{$referenceNumber}%";
+        }
 
         //date filter
         $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
@@ -457,7 +468,9 @@ class DeliveryController extends SelectionController {
 
         $this->render('admin', array(
             'delivery' => $delivery,
-            'dataProvider' => $dataProvider
+            'dataProvider' => $dataProvider,
+            'customerName' => $customerName,
+            'referenceNumber' => $referenceNumber,
         ));
     }
 
@@ -490,11 +503,13 @@ class DeliveryController extends SelectionController {
 
             $this->loadState($delivery);
 
-            if (!isset($_POST['DeliveryDetail']))
+            if (!isset($_POST['DeliveryDetail'])) {
                 $delivery->details = array();
+            }
 
-            if (isset($_POST['DeliveryHeader']['sale_header_id']))
+            if (isset($_POST['DeliveryHeader']['sale_header_id'])) {
                 $delivery->addDetail($_POST['DeliveryHeader']['sale_header_id']);
+            }
 
             $this->renderPartial('_detail', array(
                 'delivery' => $delivery,
