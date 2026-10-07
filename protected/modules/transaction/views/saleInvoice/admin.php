@@ -87,7 +87,7 @@
         array(
             'header' => 'Customer',
             'filter' => CHtml::textField('CustomerCompany', $customerCompany),
-            'value' => 'CHtml::encode(CHtml::value($data, "deliveryHeader.saleHeader.customer.company"))',
+            'value' => 'CHtml::value($data, "deliveryHeader.saleHeader.customer.company")',
         ),
         'reference',
         array(

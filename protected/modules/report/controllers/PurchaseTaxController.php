@@ -9,38 +9,36 @@ class PurchaseTaxController extends SelectionController {
     }
 
     public function filterAccess($filterChain) {
-        if ($filterChain->action->id === 'summary'
-                || $filterChain->action->id === 'ajaxHtmlSupplier') {
-            if (!(Yii::app()->user->checkAccess('allAccountingReport') ))
+        if ($filterChain->action->id === 'summary') {
+            if (!(Yii::app()->user->checkAccess('allAccountingReport'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
 
         $filterChain->run();
     }
 
     public function actionSummary() {
-		set_time_limit(0);
-		ini_set('memory_limit', '1024M');
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
 
         $receiveHeader = Search::bind(new ReceiveHeader('search'), isset($_GET['ReceiveHeader']) ? $_GET['ReceiveHeader'] : array());
         $supplierId = isset($_GET['SupplierId']) ? $_GET['SupplierId'] : '';
         $branchId = isset($_GET['BranchId']) ? $_GET['BranchId'] : '';
         $reference = isset($_GET['Reference']) ? $_GET['Reference'] : '';
-		$taxNumber = isset($_GET['TaxNumber']) ? $_GET['TaxNumber'] : '';
-        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
-        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+        $taxNumber = isset($_GET['TaxNumber']) ? $_GET['TaxNumber'] : '';
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : date('Y-m-d');
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : date('Y-m-d');
         $pageSize = (isset($_GET['PageSize'])) ? $_GET['PageSize'] : '';
         $currentPage = (isset($_GET['page'])) ? $_GET['page'] : '';
         $currentSort = (isset($_GET['sort'])) ? $_GET['sort'] : '';
 
         $branch = Branch::model()->findByPk($branchId);
-        $suppliers = Supplier::model()->findAllByAttributes(
-			array(
-				'branch_id' => $branchId
-			), array(
-				'order' => 'name ASC'
-			)
-        );
+        $suppliers = Supplier::model()->findAllByAttributes(array(
+            'branch_id' => $branchId
+        ), array(
+            'order' => 'company ASC'
+        ));
 
         $purchaseRecapSummary = new PurchaseTaxSummary($receiveHeader->search());
         $purchaseRecapSummary->setupLoading();
@@ -52,7 +50,7 @@ class PurchaseTaxController extends SelectionController {
             'branchId' => $branchId,
             'reference' => $reference,
             'supplierId' => $supplierId,
-			'taxNumber' => $taxNumber,
+            'taxNumber' => $taxNumber,
         );
         $purchaseRecapSummary->setupFilter($filters);
 
@@ -66,7 +64,7 @@ class PurchaseTaxController extends SelectionController {
             'supplierId' => $supplierId,
             'branchId' => $branchId,
             'reference' => $reference,
-			'taxNumber' => $taxNumber,
+            'taxNumber' => $taxNumber,
             'startDate' => $startDate,
             'endDate' => $endDate,
             'currentSort' => $currentSort,
@@ -97,61 +95,70 @@ class PurchaseTaxController extends SelectionController {
         $worksheet->mergeCells('A1:H1');
         $worksheet->mergeCells('A2:H2');
         $worksheet->mergeCells('A3:H3');
-        $worksheet->getStyle('A1:H3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle('A1:H3')->getFont()->setBold(true);
+        
+        $worksheet->getStyle('A1:H5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A1:H5')->getFont()->setBold(true);
+        
         $worksheet->setCellValue('A1', 'Lanusa');
         $worksheet->setCellValue('A2', 'Laporan Pajak Masukan');
         $worksheet->setCellValue('A3', $startDate . ' - ' . $endDate);
 
-        $worksheet->mergeCells('A4:H4');
-        $worksheet->mergeCells('A5:H5');
+        $worksheet->getStyle("A5:H5")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A5:H5")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
-        $worksheet->getStyle("A6:H6")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
-        $worksheet->getStyle("A6:H6")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->setCellValue('A5', 'PO #');
+        $worksheet->setCellValue('B5', 'Tanggal');
+        $worksheet->setCellValue('C5', 'Invoice');
+        $worksheet->setCellValue('D5', 'Faktur Pajak');
+        $worksheet->setCellValue('E5', 'Supplier');
+        $worksheet->setCellValue('F5', 'DPP');
+        $worksheet->setCellValue('G5', 'PPN');
+        $worksheet->setCellValue('H5', 'Total');
 
-        $worksheet->getStyle('A6:H6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle('A6:H6')->getFont()->setBold(true);
-        $worksheet->setCellValue('A6', 'Penerimaan #');
-        $worksheet->setCellValue('B6', 'Tanggal');
-        $worksheet->setCellValue('C6', 'Invoice');
-		$worksheet->setCellValue('D6', 'Faktur Pajak');
-        $worksheet->setCellValue('E6', 'Supplier');
-        $worksheet->setCellValue('F6', 'DPP');
-        $worksheet->setCellValue('G6', 'PPN');
-        $worksheet->setCellValue('H6', 'Total');
+        $counter = 6;
 
-        $counter = 7;
-
+        $subTotalSum = '0.00';
+        $taxAmountSum = '0.00'; 
+        $grandTotalSum = '0.00';
+        
         foreach ($purchaseRecapSummary->dataProvider->data as $header) {
-
-            $worksheet->setCellValue("A{$counter}", $header->getCodeNumber($header::CN_CONSTANT));
-            $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($header->date)));
+            $subTotal = CHtml::value($header, 'totalPurchase');
+            $taxAmount = CHtml::value($header, 'purchaseTax');
+            $grandTotal = CHtml::value($header, 'grandTotalReceipt');
+            
+            $worksheet->setCellValue("A{$counter}", $header->purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT));
+            $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($header->purchaseHeader->date)));
             $worksheet->setCellValue("C{$counter}", CHtml::value($header, 'reference'));
-			$worksheet->setCellValue("D{$counter}", CHtml::value($header, 'supplier_tax_number'));
-            $worksheet->setCellValue("E{$counter}", CHtml::encode(CHtml::value($header, isset($header->purchaseHeader->supplier->company) ? 'purchaseHeader.supplier.company' : 'purchaseHeader.supplier.name')));
-            $worksheet->getStyle("F{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-            $worksheet->setCellValue("F{$counter}", CHtml::encode($header->totalPurchase));
-            $worksheet->setCellValue("G{$counter}", CHtml::encode($header->purchaseTax));
-            $worksheet->setCellValue("H{$counter}", CHtml::encode($header->grandTotalReceipt));
+            $worksheet->setCellValue("D{$counter}", CHtml::value($header, 'supplier_tax_number'));
+            $worksheet->setCellValue("E{$counter}", CHtml::value($header, 'purchaseHeader.supplier.company'));
+            $worksheet->setCellValue("F{$counter}", $subTotal);
+            $worksheet->setCellValue("G{$counter}", $taxAmount);
+            $worksheet->setCellValue("H{$counter}", $grandTotal);
+
+            $subTotalSum += $subTotal; 
+            $taxAmountSum += $taxAmount;
+            $grandTotalSum += $grandTotal;
 
             $counter++;
         }
 
         $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
-        $worksheet->getStyle("E{$counter}:H{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
         $worksheet->setCellValue("E{$counter}", 'Total Pembelian');
-        $worksheet->setCellValue("F{$counter}",  $this->reportGrandTotalPurchase($purchaseRecapSummary->dataProvider));
-        $worksheet->setCellValue("G{$counter}",  $this->reportGrandTotalTax($purchaseRecapSummary->dataProvider));
-        $worksheet->setCellValue("H{$counter}",  $this->reportGrandTotal($purchaseRecapSummary->dataProvider));
+        $worksheet->setCellValue("F{$counter}",  $subTotalSum);
+        $worksheet->setCellValue("G{$counter}",  $taxAmountSum);
+        $worksheet->setCellValue("H{$counter}",  $grandTotalSum);
 
         $counter++;
 
-        for ($col = 'A'; $col !== 'I'; $col++) {
-            $objPHPExcel->getActiveSheet()->getColumnDimension($col)->setAutoSize(true);
+        for ($col = 'A'; $col !== 'Z'; $col++) {
+            $objPHPExcel->getActiveSheet()
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
         }
 
         header('Content-Type: application/xlsx');
-        header('Content-Disposition: attachment;filename="Laporan Invoice.xlsx"');
+        header('Content-Disposition: attachment;filename="Laporan Pajak Masukan.xlsx"');
         header('Cache-Control: max-age=0');
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
@@ -161,28 +168,31 @@ class PurchaseTaxController extends SelectionController {
     }
 
     protected function reportGrandTotal($dataProvider) {
-        $grandTotal = 0.00;
+        $grandTotal = '0.00';
 
-        foreach ($dataProvider->data as $data)
+        foreach ($dataProvider->data as $data) {
             $grandTotal += $data->grandTotalReceipt;
+        }
 
         return $grandTotal;
     }
 
     protected function reportGrandTotalPurchase($dataProvider) {
-        $grandTotal = 0.00;
+        $grandTotal = '0.00';
 
-        foreach ($dataProvider->data as $data)
+        foreach ($dataProvider->data as $data) {
             $grandTotal += $data->totalPurchase;
+        }
 
         return $grandTotal;
     }
 
     protected function reportGrandTotalTax($dataProvider) {
-        $grandTotal = 0.00;
+        $grandTotal = '0.00';
 
-        foreach ($dataProvider->data as $data)
+        foreach ($dataProvider->data as $data) {
             $grandTotal += $data->purchaseTax;
+        }
 
         return $grandTotal;
     }
@@ -192,13 +202,11 @@ class PurchaseTaxController extends SelectionController {
             $supplierId = '';
             $branchId = isset($_POST['BranchId']) ? $_POST['BranchId'] : '';
 
-            $suppliers = Supplier::model()->findAllByAttributes(
-				array(
-					'branch_id' => $branchId
-				), array(
-					'order' => 'name ASC'
-				)
-            );
+            $suppliers = Supplier::model()->findAllByAttributes(array(
+                'branch_id' => $branchId
+            ), array(
+                'order' => 'name ASC'
+            ));
 
             $this->renderPartial('_supplier', array(
                 'suppliers' => $suppliers,
@@ -206,5 +214,4 @@ class PurchaseTaxController extends SelectionController {
             ));
         }
     }
-
 }

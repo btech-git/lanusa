@@ -16,96 +16,84 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
 <div class="hide">
     <div class="form" style="text-align: center">
-
         <?php echo CHtml::beginForm(array(''), 'get'); ?>
-        <div class="row" style="background-color: #DFDFDF">
-            Cabang
-            <?php
-            echo CHtml::dropDownList('BranchId', $branchId,
-                    CHtml::listData(Branch::model()->findAll(), 'id', 'name'),
-                    array(
-                        'empty' => '-Pilih Cabang-',
-                        'onchange' => '
-							$.ajax({
-								type: "POST",
-								url: "' . CController::createUrl('ajaxHtmlCustomer') . '",
-								data: $("#BranchId").serialize(),
-								success: function(html)
-								{
-									$("#customer_div").html(html);
-								}
-							});
-						'
-            ));
-            ?>				
-        </div>
-
-        <?php
-        $this->renderPartial('_customer', array(
-            'customers' => $customers,
-            'customerId' => $customerId
-        ));
-        ?>
-
-        <div id="customer_div" class="row" style="background-color: #DFDFDF">
-            Reference
-<?php echo CHtml::textField('Reference', $reference); ?>
-        </div>
-
-        <div class="row">
-            Jumlah per Halaman
-            <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
-
-            Halaman saat ini
-<?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
-        </div>
-
+        <table style="border: 1px solid">
+            <thead>
+                <tr>
+                    <td>Cabang</td>
+                    <td>Customer</td>
+                    <td>Jumlah per Halaman</td>
+                    <td>Halaman saat ini</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <?php echo CHtml::dropDownList('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+                            'empty' => '- Semua -',
+                            'onchange' => '
+                                $.ajax({
+                                    type: "POST",
+                                    url: "' . CController::createUrl('ajaxHtmlCustomer') . '",
+                                    data: $("#BranchId").serialize(),
+                                    success: function(html) {
+                                        $("#customer_div").html(html);
+                                    }
+                                });
+                            '
+                        )); ?>
+                    </td>
+                    <td>
+                        <?php $this->renderPartial('_customer', array(
+                            'customers' => $customers,
+                            'customerId' => $customerId
+                        )); ?>
+                    </td>
+                    <td><?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?></td>
+                    <td><?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?></td>
+                </tr>
+            </tbody>
+        </table>
+        
         <div class="row">
             Tanggal Mulai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
 
             Sampai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
         </div>
 
         <div class="row">
-        <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
+            <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
         </div>
 
         <div class="row button">
-        <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
-        <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Save To Excel', array('name' => 'SaveToExcel')); ?>
         </div>
 
-<?php echo CHtml::endForm(); ?>
-
-<?php echo CHtml::beginForm(); ?>
-<?php echo CHtml::submitButton('Save To Excel', array('name' => 'SaveToExcel')); ?>
-<?php echo CHtml::endForm(); ?>
+        <?php echo CHtml::endForm(); ?>
 
     </div>
 
@@ -114,24 +102,29 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
     <div class="right"><?php echo ReportHelper::summaryText($saleRecapSummary->dataProvider); ?></div>
     <div class="clear"></div>
     <div class="right">
-<?php echo ReportHelper::sortText($saleRecapSummary->dataProvider->sort, array('Tanggal', 'Customer')); ?>
+        <?php echo ReportHelper::sortText($saleRecapSummary->dataProvider->sort, array('Tanggal', 'Customer')); ?>
     </div>
     <div class="clear"></div>
 </div>
 
 <div>
-        <?php $this->renderPartial('_summary', array('saleRecapSummary' => $saleRecapSummary, 'branch' => $branch, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
+    <?php $this->renderPartial('_summary', array(
+        'saleRecapSummary' => $saleRecapSummary, 
+        'branch' => $branch, 
+        'startDate' => $startDate, 
+        'endDate' => $endDate
+    )); ?>
 </div>
 
 <div class="hide">
     <div class="right">
-<?php
-$this->widget('system.web.widgets.pagers.CLinkPager', array(
-    'itemCount' => $saleRecapSummary->dataProvider->pagination->itemCount,
-    'pageSize' => $saleRecapSummary->dataProvider->pagination->pageSize,
-    'currentPage' => $saleRecapSummary->dataProvider->pagination->getCurrentPage(false),
-));
-?>
+        <?php
+        $this->widget('system.web.widgets.pagers.CLinkPager', array(
+            'itemCount' => $saleRecapSummary->dataProvider->pagination->itemCount,
+            'pageSize' => $saleRecapSummary->dataProvider->pagination->pageSize,
+            'currentPage' => $saleRecapSummary->dataProvider->pagination->getCurrentPage(false),
+        ));
+        ?>
     </div>
     <div class="clear"></div>
 </div>

@@ -16,49 +16,48 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
 <div class="hide">
     <div class="form" style="text-align: center">
-
         <?php echo CHtml::beginForm(array(''), 'get'); ?>
-        <div class="row" style="background-color: #DFDFDF">
-            Cabang
-            <?php
-            echo CHtml::dropDownList('BranchId', $branchId,
-                    CHtml::listData(Branch::model()->findAll(), 'id', 'name'),
-                    array(
-                        'empty' => '-Pilih Cabang-',
-                        'onchange' => '
-							$.ajax({
-								type: "POST",
-								url: "' . CController::createUrl('ajaxHtmlSupplier') . '",
-								data: $("#BranchId").serialize(),
-								success: function(html)
-								{
-									$("#supplier_div").html(html);
-								}
-							});
-						'
-            ));
-            ?>				
-        </div>
 
-        <?php
-        $this->renderPartial('_supplier', array(
-            'suppliers' => $suppliers,
-            'supplierId' => $supplierId,
-        ));
-        ?>
-
-        <div class="row">
-            Jumlah per Halaman
-            <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
-
-            Halaman saat ini
-<?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
-        </div>
-
+        <table style="border: 1px solid">
+            <thead>
+                <tr>
+                    <td>Cabang</td>
+                    <td>Supplier</td>
+                    <td>Jumlah per Halaman</td>
+                    <td>Halaman saat ini</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <?php echo CHtml::dropDownList('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+                            'empty' => '- Semua -',
+                            'onchange' => '
+                                $.ajax({
+                                    type: "POST",
+                                    url: "' . CController::createUrl('ajaxHtmlSupplier') . '",
+                                    data: $("#BranchId").serialize(),
+                                    success: function(html) {
+                                        $("#supplier_div").html(html);
+                                    }
+                                });
+                            '
+                        )); ?>
+                    </td>
+                    <td>
+                        <?php $this->renderPartial('_supplier', array(
+                            'suppliers' => $suppliers,
+                            'supplierId' => $supplierId,
+                        )); ?>
+                    </td>
+                    <td><?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?></td>
+                    <td><?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?></td>
+                </tr>
+            </tbody>
+        </table>
         <div class="row">
             Tanggal Mulai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -68,12 +67,10 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
 
             Sampai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -83,24 +80,20 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
         </div>
 
         <div class="row">
-        <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
+            <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
         </div>
 
         <div class="row button">
-        <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
-        <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Save To Excel', array('name' => 'SaveToExcel')); ?>
         </div>
 
-<?php echo CHtml::endForm(); ?>
-
-<?php echo CHtml::beginForm(); ?>
-<?php echo CHtml::submitButton('Save To Excel', array('name' => 'SaveToExcel')); ?>
-<?php echo CHtml::endForm(); ?>
+        <?php echo CHtml::endForm(); ?>
 
     </div>
 
@@ -115,7 +108,12 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 </div>
 
 <div>
-        <?php $this->renderPartial('_summary', array('purchaseRecapSummary' => $purchaseRecapSummary, 'branch' => $branch, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
+    <?php $this->renderPartial('_summary', array(
+        'purchaseRecapSummary' => $purchaseRecapSummary, 
+        'branch' => $branch, 
+        'startDate' => $startDate, 
+        'endDate' => $endDate
+    )); ?>
 </div>
 
 <div class="hide">

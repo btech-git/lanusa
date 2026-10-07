@@ -43,6 +43,7 @@ class SaleTaxSummary extends CComponent {
         $startDate = (empty($filters['startDate'])) ? date('Y-m-d') : $filters['startDate'];
         $endDate = (empty($filters['endDate'])) ? date('Y-m-d') : $filters['endDate'];
 
+        $this->dataProvider->criteria->addCondition("t.tax_percentage > 0 AND (t.reference IS NOT NULL AND t.reference <> '')");
         $this->dataProvider->criteria->addBetweenCondition('t.date', $startDate, $endDate);
         $this->dataProvider->criteria->compare('saleHeader.customer_id', $filters['customerId']);
         $this->dataProvider->criteria->compare('t.branch_id', $filters['branchId']);

@@ -15,25 +15,11 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         <?php echo CHtml::beginForm(array(''), 'get'); ?>
 
         <div class="row" style="background-color: #DFDFDF">
-            Halaman saat ini
-            <?php echo CHtml::textField('page', $currentPage, array('size' => 3, 'id' => 'CurrentPage')); ?>
-        </div>
-
-<!--        <div class="row">
-            Branch
-            <?php /*echo CHtml::dropDownlist('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array('empty' => '-- All Branch --')); ?>
-
-            COA
-            <?php echo CHtml::textField('CoaId', $coaId, array(
-                'readonly' => true,
-                'onclick' => 'jQuery("#coa-dialog").dialog("open"); return false;',
-                'onkeypress' => 'if (event.keyCode == 13) { $("#coa-dialog").dialog("open"); return false; }'
+            Cabang
+            <?php echo CHtml::dropDownList('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+                'empty' => '- Semua -',
             )); ?>
-            <?php echo CHtml::openTag('span', array('id' => 'coa_name')); ?>
-            <?php $coa = Account::model()->findByPk($coaId); ?>
-            <?php echo CHtml::encode(CHtml::value($coa, 'name')); ?>
-            <?php echo CHtml::closeTag('span');*/ ?> 
-        </div>-->
+        </div>
 
         <div class="row">
             Tanggal Mulai

@@ -20,7 +20,7 @@
                 <BuyerDocument>TIN</BuyerDocument>
                 <BuyerCountry>IDN</BuyerCountry>
                 <BuyerDocumentNumber/>
-                <BuyerName><?php echo CHtml::value($customer, 'company'); ?></BuyerName>
+                <BuyerName><?php echo CHtml::encode(CHtml::value($customer, 'company')); ?></BuyerName>
                 <BuyerAdress><?php echo htmlspecialchars(CHtml::value($customer, 'address', ''), ENT_XML1); ?></BuyerAdress>
                 <BuyerEmail><?php echo CHtml::value($customer, 'email'); ?></BuyerEmail>
                 <BuyerIDTKU><?php echo CHtml::value($customer, 'npwp'); ?>000000</BuyerIDTKU>

@@ -77,10 +77,10 @@
                             <td colspan="2" style="text-align: right; font-weight: bold">TOTAL</td>
                             <?php $textColor = Yii::app()->numberFormatter->format('#,##0.00', $totalDebit) !== Yii::app()->numberFormatter->format('#,##0.00', $totalCredit) ? 'red' : 'black'; ?>
                             <?php $textError = Yii::app()->numberFormatter->format('#,##0.00', $totalDebit) !== Yii::app()->numberFormatter->format('#,##0.00', $totalCredit) ? 'errs' : ''; ?>
-                            <td class="width1-4" style="text-align: right; font-weight: bold; border-top: 1px solid; color: <?php echo $textColor; ?>">
+                            <td class="width2-3" style="text-align: right; font-weight: bold; border-top: 1px solid; color: <?php echo $textColor; ?>">
                                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $totalDebit)); ?>
                             </td>
-                            <td class="width1-5" style="text-align: right; font-weight: bold; border-top: 1px solid; color: <?php echo $textColor; ?>">
+                            <td class="width2-4" style="text-align: right; font-weight: bold; border-top: 1px solid; color: <?php echo $textColor; ?>">
                                 <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0.00', $totalCredit)); ?> <?php echo $textError; ?>
                             </td>
                         </tr>

@@ -14,7 +14,7 @@
         <?php $detailProduct = $detail->product(array('scopes' => 'resetScope', 'with' => 'unit:resetScope')); ?>
 
         <tr style="background-color: azure">
-            <td style="width: auto"><?php echo CHtml::encode(CHtml::value($detail, 'product.name')); ?></td>
+            <td style="width: auto"><?php echo CHtml::encode(CHtml::value($detail, 'saleDetail.product_name')); ?></td>
             <td style="text-align: center; width: 10%"><?php echo CHtml::encode(CHtml::value($detail, 'product.size')); ?></td>
             <td style="text-align: center; width: 10%"><?php echo CHtml::encode(CHtml::value($detail, 'quantity')); ?></td>
             <td style="text-align: center; width: 5%">

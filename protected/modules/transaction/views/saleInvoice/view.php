@@ -24,7 +24,7 @@ $this->widget('zii.widgets.CDetailView', array(
         ),
         array(
             'label' => 'Customer',
-            'value' => CHtml::encode(CHtml::value($deliveryHeader, 'saleHeader.customer.company')),
+            'value' => CHtml::value($deliveryHeader, 'saleHeader.customer.company'),
         ),
         array(
             'label' => 'Nomor Faktur Pajak',
