@@ -53,16 +53,9 @@ class TransactionJournalController extends Controller {
         
         if (isset($_GET['SaveExcel'])) {
             $this->saveToExcel($transactionJournalReport, $transactionJournalReportData, array(
-                'transactionJournalCount' => $transactionJournalCount,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-                'transactionType' => $transactionType,
                 'branchId' => $branchId,
-                'coaId' => $coaId,
-                'account' => $account,
-                'accountDataProvider' => $accountDataProvider,
-                'currentPage' => $currentPage,
-                'pageSize' => $pageSize,
             ));
         }
         
@@ -102,6 +95,7 @@ class TransactionJournalController extends Controller {
         
         $startDate = (empty($options['startDate'])) ? date('Y-m-d') : $options['startDate'];
         $endDate = (empty($options['endDate'])) ? date('Y-m-d') : $options['endDate'];
+        $branchId = (empty($options['branchId'])) ? '' : $options['branchId'];
 
         spl_autoload_unregister(array('YiiBase', 'autoload'));
         include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
@@ -121,11 +115,14 @@ class TransactionJournalController extends Controller {
         $worksheet->mergeCells('A3:H3');
 
         $worksheet->getStyle('A1:H5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle('A1:H6')->getFont()->setBold(true);
+        $worksheet->getStyle('A1:H5')->getFont()->setBold(true);
 
-        $worksheet->setCellValue('A1', 'Lanusa');
+        $branch = Branch::model()->findByPk($branchId);
+        $worksheet->setCellValue('A1', empty($branch) ? 'PT Logam Nusantara' : CHtml::value($branch, 'name'));
         $worksheet->setCellValue('A2', 'Jurnal Umum');
         $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($startDate)) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($endDate)));
+
+        $worksheet->getStyle('A5:H5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
         $worksheet->setCellValue('A5', 'No');
         $worksheet->setCellValue('B5', 'Tanggal');
@@ -136,13 +133,14 @@ class TransactionJournalController extends Controller {
         $worksheet->setCellValue('G5', 'Debit');
         $worksheet->setCellValue('H5', 'Kredit');
 
-        $worksheet->getStyle('A5:G5')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle('A5:H5')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
-        $counter = 7; 
+        $counter = 6; 
         
         foreach ($transactionJournalReport as $i => $header) {
-            $totalDebit = 0; 
-            $totalCredit = 0; 
+            $totalDebit = '0.00'; 
+            $totalCredit = '0.00'; 
+            
             foreach ($transactionJournalReportData[$header['transaction_number']] as $transactionJournalItemData) {
                 $debitAmount = $transactionJournalItemData->debit;
                 $creditAmount = $transactionJournalItemData->credit;
@@ -161,9 +159,11 @@ class TransactionJournalController extends Controller {
                 
                 $counter++;
             }
+            
             $worksheet->mergeCells("A{$counter}:F{$counter}");
             $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
+            
             $worksheet->setCellValue("A{$counter}", 'TOTAL');
             $worksheet->setCellValue("G{$counter}", $totalDebit);
             $worksheet->setCellValue("H{$counter}", $totalCredit);
@@ -177,7 +177,6 @@ class TransactionJournalController extends Controller {
             ->setAutoSize(true);
         }
 
-        ob_end_clean();
         // We'll be outputting an excel file
         header('Content-type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="jurnal_umum.xls"');

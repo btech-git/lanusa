@@ -30,11 +30,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <div class="row" style="background-color: #DFDFDF">
             Warehouse
-            <?php
-            echo CHtml::dropDownList('WarehouseId', $warehouseId,
-                    CHtml::listData(Warehouse::model()->findAll(), 'id', 'name'),
-                    array('empty' => '-Pilih Warehouse-'));
-            ?>	
+            <?php echo CHtml::dropDownList('WarehouseId', $warehouseId, CHtml::listData(Warehouse::model()->findAll(), 'id', 'name'), array('empty' => '-Pilih Warehouse-')); ?>	
         </div>
 
         <!--			<div class="row">

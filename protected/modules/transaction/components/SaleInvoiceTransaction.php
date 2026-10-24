@@ -65,7 +65,7 @@ class SaleInvoiceTransaction extends CComponent {
                 $this->header->branch_id, 
                 $this->header->grandTotal, 
                 3, 
-                $this->header->note
+                $this->header->reference
             );
             $valid = $accountingJournalDebit->save() && $valid;
 
@@ -91,7 +91,7 @@ class SaleInvoiceTransaction extends CComponent {
                 $this->header->branch_id, 
                 $this->header->deliveryHeader->subTotal, 
                 3, 
-                $this->header->note
+                $this->header->reference
             );
             $valid = $accountingJournalCredit->save() && $valid;
 

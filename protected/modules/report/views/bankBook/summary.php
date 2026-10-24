@@ -20,35 +20,30 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         <div class="row" style="background-color: #DFDFDF">
             Cabang
             <?php echo CHtml::hiddenField('BranchId'); ?>
-            <?php
-            echo CHtml::activeDropDownlist($branch, 'id', CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+            <?php echo CHtml::activeDropDownlist($branch, 'id', CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
                 'empty' => '-- Pilih Cabang --',
                 'onchange' => '
-						$("#BranchId").val(this.value);
-						$.ajax({
-							type: "POST",
-							url: "' . CController::createUrl('ajaxHtmlAccount') . '",
-							data: $("#BranchId").serialize(),
-							success: function(html)
-							{
-								$("#account_div").html(html);
-							}
-						});
-					'
-            ));
-            ?>
+                    $("#BranchId").val(this.value);
+                    $.ajax({
+                        type: "POST",
+                        url: "' . CController::createUrl('ajaxHtmlAccount') . '",
+                        data: $("#BranchId").serialize(),
+                        success: function(html) {
+                            $("#account_div").html(html);
+                        }
+                    });
+                '
+            )); ?>
         </div>   
 
-        <?php
-        $this->renderPartial('_account', array(
+        <?php $this->renderPartial('_account', array(
             'accounts' => $accounts,
             'accountId' => $accountId
-        ));
-        ?>
+        )); ?>
 
         <div class="row">
             Jumlah per Halaman
-<?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
+            <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
 
             Halaman saat ini
             <?php echo CHtml::textField('CurrentPage', '', array('size' => 3)); ?>
@@ -56,8 +51,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <div class="row">
             Tanggal Mulai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -67,12 +61,10 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
 
             Sampai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -82,20 +74,19 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
         </div>
 
         <div class="row button">
-        <?php echo CHtml::submitButton('Show'); ?>
-<?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show'); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
         </div>
 
         <div class="row button">
-<?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
+            <?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
         </div>
 
-<?php echo CHtml::endForm(); ?>
+        <?php echo CHtml::endForm(); ?>
     </div>
 
     <hr />
@@ -134,10 +125,12 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
             <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $data['debit'])); ?></td>
             <td style="text-align: right"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $data['credit'])); ?></td>
         </tr>
-<?php endforeach; ?>
+    <?php endforeach; ?>
     <tr>
         <td style="font-weight: bold; text-align: right" colspan="3">SALDO AKHIR</td>
-        <td style="font-weight: bold"><?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $account->getEndingBalance($accountId, $endDate, $branchId))); ?></td>
+        <td style="font-weight: bold">
+            <?php echo CHtml::encode(Yii::app()->numberFormatter->format('#,##0', $account->getEndingBalance($accountId, $endDate, $branchId))); ?>
+        </td>
         <td></td>
     </tr>
 </table>
@@ -146,14 +139,12 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
 <div class="hide">
     <div class="right">
-<?php
-$this->widget('system.web.widgets.pagers.CLinkPager', array(
-    'pages' => $dataProvider->pagination,
-    'itemCount' => $dataProvider->pagination->itemCount,
-    'pageSize' => $dataProvider->pagination->pageSize,
-    'currentPage' => $dataProvider->pagination->getCurrentPage(false),
-));
-?>
+        <?php $this->widget('system.web.widgets.pagers.CLinkPager', array(
+            'pages' => $dataProvider->pagination,
+            'itemCount' => $dataProvider->pagination->itemCount,
+            'pageSize' => $dataProvider->pagination->pageSize,
+            'currentPage' => $dataProvider->pagination->getCurrentPage(false),
+        )); ?>
     </div>
     <div class="clear"></div>
 </div>

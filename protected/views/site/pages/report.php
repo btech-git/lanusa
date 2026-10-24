@@ -33,6 +33,7 @@ Yii::app()->clientScript->registerScript('transaction', "
                 <?php if (Yii::app()->user->checkAccess('saleReport')): ?>
                     <li><?php echo CHtml::link('Penjualan Barang', array('/report/sale/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Penjualan per Item (Summary)', array('/report/saleItem/summary')); ?><br/><br/></li>
+                    <li><?php echo CHtml::link('Penjualan per Customer (Summary)', array('/report/saleCustomer/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Order Penjualan (Detail SJ & Invoice)', array('/report/saleDeliveryInvoice/summary')); ?><br/><br/></li>
                     <li><?php echo CHtml::link('Fast Moving Products', array('/report/fastMovingProducts/summary')); ?><br/><br/></li>
                 <?php endif; ?>

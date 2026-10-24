@@ -52,8 +52,8 @@ class SaleTaxController extends SelectionController {
         );
         $saleRecapSummary->setupFilter($filters);
 
-        if (isset($_POST['SaveToExcel'])) {
-            $this->saveToExcel($saleRecapSummary, $startDate, $endDate);
+        if (isset($_GET['SaveToExcel'])) {
+            $this->saveToExcel($saleRecapSummary, $startDate, $endDate, $branch);
         }
 
         $this->render('summary', array(
@@ -70,7 +70,7 @@ class SaleTaxController extends SelectionController {
         ));
     }
 
-    protected function saveToExcel($saleRecapSummary, $startDate, $endDate) {
+    protected function saveToExcel($saleRecapSummary, $startDate, $endDate, $branch) {
         spl_autoload_unregister(array('YiiBase', 'autoload'));
         include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
         spl_autoload_register(array('YiiBase', 'autoload'));
@@ -91,7 +91,7 @@ class SaleTaxController extends SelectionController {
         $worksheet->getStyle('A1:G5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $worksheet->getStyle('A1:G5')->getFont()->setBold(true);
         
-        $worksheet->setCellValue('A1', 'Lanusa');
+        $worksheet->setCellValue('A1', empty($branch) ? 'PT Logam Nusantara' : CHtml::value($branch, 'name'));
         $worksheet->setCellValue('A2', 'Laporan Pajak Keluaran');
         $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', $startDate) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', $endDate));
 
@@ -133,8 +133,9 @@ class SaleTaxController extends SelectionController {
         }
 
         $worksheet->getStyle("A{$counter}:G{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
 
-        $worksheet->setCellValue("D{$counter}", 'Total Penjualan');
+        $worksheet->setCellValue("D{$counter}", 'Total');
         $worksheet->setCellValue("E{$counter}",  $subTotalSum);
         $worksheet->setCellValue("F{$counter}",  $taxAmountSum);
         $worksheet->setCellValue("G{$counter}",  $grandTotalSum);
@@ -147,11 +148,11 @@ class SaleTaxController extends SelectionController {
             ->setAutoSize(true);
         }
 
-        header('Content-Type: application/xlsx');
-        header('Content-Disposition: attachment;filename="Laporan Pajak Keluaran.xlsx"');
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="pajak_keluaran.xls"');
         header('Cache-Control: max-age=0');
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
 
         Yii::app()->end();

@@ -54,8 +54,8 @@ class PurchaseTaxController extends SelectionController {
         );
         $purchaseRecapSummary->setupFilter($filters);
 
-        if (isset($_POST['SaveToExcel'])) {
-            $this->saveToExcel($purchaseRecapSummary, $startDate, $endDate);
+        if (isset($_GET['SaveToExcel'])) {
+            $this->saveToExcel($purchaseRecapSummary, $startDate, $endDate, $branch);
         }
 
         $this->render('summary', array(
@@ -73,12 +73,7 @@ class PurchaseTaxController extends SelectionController {
         ));
     }
 
-    protected function saveToExcel($purchaseRecapSummary, $startDate, $endDate) {
-        $startDate = (empty($startDate)) ? date('Y-m-d') : $startDate;
-        $endDate = (empty($endDate)) ? date('Y-m-d') : $endDate;
-        $startDate = Yii::app()->dateFormatter->format('d MMMM yyyy', $startDate);
-        $endDate = Yii::app()->dateFormatter->format('d MMMM yyyy', $endDate);
-
+    protected function saveToExcel($purchaseRecapSummary, $startDate, $endDate, $branch) {
         spl_autoload_unregister(array('YiiBase', 'autoload'));
         include_once Yii::getPathOfAlias('ext.phpexcel.Classes') . DIRECTORY_SEPARATOR . 'PHPExcel.php';
         spl_autoload_register(array('YiiBase', 'autoload'));
@@ -99,9 +94,9 @@ class PurchaseTaxController extends SelectionController {
         $worksheet->getStyle('A1:H5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $worksheet->getStyle('A1:H5')->getFont()->setBold(true);
         
-        $worksheet->setCellValue('A1', 'Lanusa');
+        $worksheet->setCellValue('A1', empty($branch) ? 'PT Logam Nusantara' : CHtml::value($branch, 'name'));
         $worksheet->setCellValue('A2', 'Laporan Pajak Masukan');
-        $worksheet->setCellValue('A3', $startDate . ' - ' . $endDate);
+        $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', $startDate) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', $endDate));
 
         $worksheet->getStyle("A5:H5")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
         $worksheet->getStyle("A5:H5")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
@@ -127,7 +122,7 @@ class PurchaseTaxController extends SelectionController {
             $grandTotal = CHtml::value($header, 'grandTotalReceipt');
             
             $worksheet->setCellValue("A{$counter}", $header->purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT));
-            $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMM yyyy', strtotime($header->purchaseHeader->date)));
+            $worksheet->setCellValue("B{$counter}", $header->purchaseHeader->date);
             $worksheet->setCellValue("C{$counter}", CHtml::value($header, 'reference'));
             $worksheet->setCellValue("D{$counter}", CHtml::value($header, 'supplier_tax_number'));
             $worksheet->setCellValue("E{$counter}", CHtml::value($header, 'purchaseHeader.supplier.company'));
@@ -143,8 +138,9 @@ class PurchaseTaxController extends SelectionController {
         }
 
         $worksheet->getStyle("A{$counter}:H{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle("A{$counter}:H{$counter}")->getFont()->setBold(true);
 
-        $worksheet->setCellValue("E{$counter}", 'Total Pembelian');
+        $worksheet->setCellValue("E{$counter}", 'Total');
         $worksheet->setCellValue("F{$counter}",  $subTotalSum);
         $worksheet->setCellValue("G{$counter}",  $taxAmountSum);
         $worksheet->setCellValue("H{$counter}",  $grandTotalSum);
@@ -157,11 +153,11 @@ class PurchaseTaxController extends SelectionController {
             ->setAutoSize(true);
         }
 
-        header('Content-Type: application/xlsx');
-        header('Content-Disposition: attachment;filename="Laporan Pajak Masukan.xlsx"');
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="pajak_masukan.xls"');
         header('Cache-Control: max-age=0');
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
 
         Yii::app()->end();

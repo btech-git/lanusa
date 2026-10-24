@@ -28,8 +28,8 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl.'/css/tra
                     'name'=>'EndDate',
                     'options'=>array(
                         'dateFormat'=>'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                        'changeMonth'=>true,
+                        'changeYear'=>true,
                     ),
                     'htmlOptions'=>array(
                         'readonly'=>true,
