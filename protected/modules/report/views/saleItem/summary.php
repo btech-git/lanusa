@@ -33,6 +33,10 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         <div class="row" style="background-color: #DFDFDF">
             Customer
             <?php echo CHtml::textField('CustomerCompany', $customerCompany); ?>
+            Cabang
+            <?php echo CHtml::dropDownList('BranchId', $branchId, $listData, array(
+                'empty' => '-Pilih Cabang-',
+            )); ?>	
         </div>
 
         <div class="row">
@@ -45,8 +49,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <div class="row">
             Tanggal Mulai
-            <?php
-            $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+            <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
@@ -56,8 +59,7 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'htmlOptions' => array(
                     'readonly' => true,
                 ),
-            ));
-            ?>
+            )); ?>
 
             Sampai
             <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
@@ -75,13 +77,6 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <div class="row">
             <?php echo CHtml::hiddenField('sort', '', array('id' => 'CurrentSort')); ?>
-        </div>
-
-        <div class="row">
-            Cabang
-            <?php echo CHtml::dropDownList('BranchId', $branchId, $listData, array(
-                'empty' => '-Pilih Cabang-',
-            )); ?>				
         </div>
 
         <div class="row button">
@@ -102,13 +97,18 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
     <div class="right"><?php echo ReportHelper::summaryText($saleItemSummary->dataProvider); ?></div>
     <div class="clear"></div>
     <div class="right">
-        <?php echo ReportHelper::sortText($saleItemSummary->dataProvider->sort, array('Nama Produk', 'Kategori')); ?>
+        <?php //echo ReportHelper::sortText($saleItemSummary->dataProvider->sort, array('Nama Produk', 'Kategori')); ?>
     </div>
     <div class="clear"></div>
 </div>
 
 <div>
-    <?php $this->renderPartial('_summary', array('saleItemSummary' => $saleItemSummary, 'branchId' => $branchId, 'startDate' => $startDate, 'endDate' => $endDate)); ?>
+    <?php $this->renderPartial('_summary', array(
+        'saleItemSummary' => $saleItemSummary, 
+        'branchId' => $branchId, 
+        'startDate' => $startDate, 
+        'endDate' => $endDate
+    )); ?>
 </div>
 
 <div class="hide">

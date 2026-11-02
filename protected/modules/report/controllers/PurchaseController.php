@@ -25,8 +25,8 @@ class PurchaseController extends Controller {
 
         $purchaseHeader = Search::bind(new PurchaseHeader('search'), isset($_GET['PurchaseHeader']) ? $_GET['PurchaseHeader'] : array());
 
-        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : '';
-        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : '';
+        $startDate = (isset($_GET['StartDate'])) ? $_GET['StartDate'] : date('Y-m-d');
+        $endDate = (isset($_GET['EndDate'])) ? $_GET['EndDate'] : date('Y-m-d');
         $pageSize = (isset($_GET['PageSize'])) ? $_GET['PageSize'] : '';
         $currentPage = (isset($_GET['page'])) ? $_GET['page'] : '';
         $currentSort = (isset($_GET['sort'])) ? $_GET['sort'] : '';
@@ -54,7 +54,7 @@ class PurchaseController extends Controller {
         $purchaseSummary->setupFilter($filters);
 
         if (isset($_GET['SaveExcel'])) {
-            $this->saveToExcel($purchaseSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate));
+            $this->saveToExcel($purchaseSummary->dataProvider, array('startDate' => $startDate, 'endDate' => $endDate, 'branchId' => $branchId));
         }
 
         $this->render('summary', array(
@@ -76,6 +76,10 @@ class PurchaseController extends Controller {
         spl_autoload_register(array('YiiBase', 'autoload'));
 
         $objPHPExcel = new PHPExcel();
+        $branchId = $options['branchId'];
+        if (!empty($branchId)) {
+            $branch = Branch::model()->findByPk($branchId);
+        }
 
         $documentProperties = $objPHPExcel->getProperties();
         $documentProperties->setCreator('Lanusa');
@@ -84,70 +88,94 @@ class PurchaseController extends Controller {
         $worksheet = $objPHPExcel->setActiveSheetIndex(0);
         $worksheet->setTitle('Pembelian');
 
-        $worksheet->getColumnDimension('A')->setAutoSize(true);
-        $worksheet->getColumnDimension('B')->setAutoSize(true);
-        $worksheet->getColumnDimension('C')->setAutoSize(true);
-        $worksheet->getColumnDimension('D')->setAutoSize(true);
-        $worksheet->getColumnDimension('E')->setAutoSize(true);
-        $worksheet->getColumnDimension('F')->setAutoSize(true);
-        $worksheet->getColumnDimension('G')->setAutoSize(true);
-        $worksheet->getColumnDimension('H')->setAutoSize(true);
-        $worksheet->getColumnDimension('I')->setAutoSize(true);
-        $worksheet->getColumnDimension('J')->setAutoSize(true);
-        $worksheet->getColumnDimension('K')->setAutoSize(true);
+        $worksheet->mergeCells('A1:G1');
+        $worksheet->mergeCells('A2:G2');
+        $worksheet->mergeCells('A3:G3');
 
-        $worksheet->mergeCells('A1:K1');
-        $worksheet->mergeCells('A2:K2');
-        $worksheet->mergeCells('A3:K3');
+        $worksheet->getStyle('A1:G6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $worksheet->getStyle('A1:G6')->getFont()->setBold(true);
 
-        $worksheet->getStyle('A1:K5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $worksheet->getStyle('A1:K5')->getFont()->setBold(true);
-
-        $worksheet->setCellValue('A1', '');
+        $worksheet->setCellValue('A1', empty($branchId) ? 'PT Logam Nusantara' : $branch->name);
         $worksheet->setCellValue('A2', 'Pembelian Barang');
         $worksheet->setCellValue('A3', Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['startDate'])) . ' - ' . Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($options['endDate'])));
 
-        $worksheet->getStyle('A5:K5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->getStyle('A5:G5')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
         $worksheet->setCellValue('A5', 'Pembelian #');
         $worksheet->setCellValue('B5', 'Tanggal');
         $worksheet->setCellValue('C5', 'Supplier');
-        $worksheet->setCellValue('D5', 'Nama Barang');
-        $worksheet->setCellValue('E5', 'Ukuran');
-        $worksheet->setCellValue('F5', 'Jumlah');
-        $worksheet->setCellValue('G5', 'Satuan');
-        $worksheet->setCellValue('H5', 'Harga Satuan');
-        $worksheet->setCellValue('I5', 'Diskon');
-        $worksheet->setCellValue('J5', 'Total');
-        $worksheet->setCellValue('K5', 'Catatan');
-        $worksheet->getStyle('A6:K6')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+        $worksheet->setCellValue('D5', 'Catatan');
+        $worksheet->setCellValue('A6', 'Nama Barang');
+        $worksheet->setCellValue('B6', 'Ukuran');
+        $worksheet->setCellValue('C6', 'Jumlah');
+        $worksheet->setCellValue('D6', 'Satuan');
+        $worksheet->setCellValue('E6', 'Harga Satuan');
+        $worksheet->setCellValue('F6', 'Diskon');
+        $worksheet->setCellValue('G6', 'Total');
+        $worksheet->getStyle('A6:G6')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
 
-        $counter = 8;
+        $counter = 7;
         foreach ($dataProvider->data as $header) {
-            $worksheet->getStyle("C{$counter}")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 
+            $worksheet->setCellValue("A{$counter}", $header->getCodeNumber(PurchaseHeader::CN_CONSTANT));
+            $worksheet->setCellValue("B{$counter}", CHtml::value($header, 'date'));
+            $worksheet->setCellValue("C{$counter}", CHtml::value($header, 'supplier.company'));
+            $worksheet->setCellValue("D{$counter}", CHtml::value($header, 'note'));
+            $counter++;
+            
             foreach ($header->purchaseDetails as $detail) {
-//				$worksheet->getStyle("F{$counter}:J{$counter}")->getNumberFormat()->setFormatCode('#,##0');
-                $worksheet->setCellValue("A{$counter}", $detail->purchaseHeader->getCodeNumber(PurchaseHeader::CN_CONSTANT));
-                $worksheet->setCellValue("B{$counter}", Yii::app()->dateFormatter->format('d MMMM yyyy', strtotime($detail->purchaseHeader->date)));
-                $worksheet->setCellValue("C{$counter}", $detail->purchaseHeader->supplier->company);
-                $worksheet->setCellValue("D{$counter}", $detail->product->name);
-                $worksheet->setCellValue("E{$counter}", $detail->product->size);
-                $worksheet->setCellValue("F{$counter}", $detail->quantity);
-                $worksheet->setCellValue("G{$counter}", $detail->product->unit->name);
-                $worksheet->setCellValue("H{$counter}", $detail->unit_price);
-                $worksheet->setCellValue("I{$counter}", $detail->discount);
-                $worksheet->setCellValue("J{$counter}", $detail->total);
-                $worksheet->setCellValue("K{$counter}", $header->note);
+                $worksheet->setCellValue("A{$counter}", CHtml::value($detail, 'product.name'));
+                $worksheet->setCellValue("B{$counter}", CHtml::value($detail, 'product.size'));
+                $worksheet->setCellValue("C{$counter}", CHtml::value($detail, 'quantity'));
+                $worksheet->setCellValue("D{$counter}", CHtml::value($detail, 'product.unit.name'));
+                $worksheet->setCellValue("E{$counter}", CHtml::value($detail, 'unit_price'));
+                $worksheet->setCellValue("F{$counter}", CHtml::value($detail, 'discount'));
+                $worksheet->setCellValue("G{$counter}", CHtml::value($detail, 'total'));
 
                 $counter++;
             }
+            
+            $worksheet->getStyle("f{$counter}:G{$counter}")->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+            
+            $worksheet->setCellValue("F{$counter}", 'Sub Total');
+            $worksheet->setCellValue("G{$counter}", round(CHtml::value($header, 'subTotal'), 2));
+
+            $counter++;
+            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("F{$counter}", 'Diskon');
+            $worksheet->setCellValue("G{$counter}", CHtml::value($header, 'discount'));
+
+            $counter++;
+            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("F{$counter}", 'PPn ' . CHtml::value($header, 'tax') . '%');
+            $worksheet->setCellValue("G{$counter}", round(CHtml::value($header, 'calculatedTax'), 2));
+
+            $counter++;
+            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("F{$counter}", 'Ongkos Kirim');
+            $worksheet->setCellValue("G{$counter}", CHtml::value($header, 'shipping_fee'));
+
+            $counter++;
+            $worksheet->getStyle("A{$counter}:G{$counter}")->getFont()->setBold(true);
+            $worksheet->setCellValue("F{$counter}", 'Grand Total');
+            $worksheet->setCellValue("G{$counter}", round(CHtml::value($header, 'grandTotal'), 2));
+
+            $counter++;
+            $counter++;
         }
 
-        header('Content-Type: application/xlsx');
-        header('Content-Disposition: attachment;filename="pembelian.xlsx"');
+        for ($col = 'A'; $col !== 'Z'; $col++) {
+            $objPHPExcel->getActiveSheet()
+            ->getColumnDimension($col)
+            ->setAutoSize(true);
+        }
+        
+        // We'll be outputting an excel file
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="Laporan Pembelian Barang.xls"');
         header('Cache-Control: max-age=0');
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
 
         Yii::app()->end();
@@ -156,8 +184,9 @@ class PurchaseController extends Controller {
     protected function reportGrandTotal($dataProvider) {
         $grandTotal = 0.00;
 
-        foreach ($dataProvider->data as $data)
+        foreach ($dataProvider->data as $data) {
             $grandTotal += $data->grandTotal;
+        }
 
         return $grandTotal;
     }
@@ -181,5 +210,4 @@ class PurchaseController extends Controller {
             ));
         }
     }
-
 }

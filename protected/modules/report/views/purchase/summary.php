@@ -19,41 +19,34 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
 
         <?php echo CHtml::beginForm(array(''), 'get'); ?>
 
-        <div class="row" style="background-color: #DFDFDF">
+        <div class="row" style="background-color: #DFDFDF; ">
             Cabang
-            <?php
-            echo CHtml::dropDownList('BranchId', $branchId,
-                    CHtml::listData(Branch::model()->findAll(), 'id', 'name'),
-                    array(
-                        'empty' => '-Pilih Cabang-',
-                        'onchange' => '
-						$.ajax({
-							type: "POST",
-							url: "' . CController::createUrl('ajaxHtmlSupplier') . '",
-							data: $("#BranchId").serialize(),
-							success: function(html)
-							{
-								$("#supplier_div").html(html);
-							}
-						});
-					'
-            ));
-            ?>				
+            <?php echo CHtml::dropDownList('BranchId', $branchId, CHtml::listData(Branch::model()->findAll(), 'id', 'name'), array(
+                'empty' => '-Pilih Cabang-',
+                'onchange' => '
+                    $.ajax({
+                        type: "POST",
+                        url: "' . CController::createUrl('ajaxHtmlSupplier') . '",
+                        data: $("#BranchId").serialize(),
+                        success: function(html) {
+                            $("#supplier_div").html(html);
+                        }
+                    });
+                '
+            )); ?>	
+            
+            <?php $this->renderPartial('_supplier', array(
+                'suppliers' => $suppliers,
+                'supplierId' => $supplierId
+            )); ?>
         </div>
-
-        <?php
-        $this->renderPartial('_supplier', array(
-            'suppliers' => $suppliers,
-            'supplierId' => $supplierId
-        ));
-        ?>
 
         <div class="row">
             Jumlah per Halaman
             <?php echo CHtml::textField('PageSize', '', array('size' => 3)); ?>
 
             Halaman saat ini
-<?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
+            <?php echo CHtml::textField('page', '', array('size' => 3, 'id' => 'CurrentPage')); ?>
         </div>
 
         <div class="row">
@@ -63,8 +56,8 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'name' => 'StartDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
@@ -78,8 +71,8 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 'name' => 'EndDate',
                 'options' => array(
                     'dateFormat' => 'yy-mm-dd',
-                    'changeMonth'=>true,
-                    'changeYear'=>true,
+                    'changeMonth' => true,
+                    'changeYear' => true,
                 ),
                 'htmlOptions' => array(
                     'readonly' => true,
@@ -93,11 +86,11 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
         </div>
 
         <div class="row button">
-<?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
-<?php echo CHtml::resetButton('Clear'); ?>
+            <?php echo CHtml::submitButton('Show', array('onclick' => '$("#CurrentSort").val(""); return true;')); ?>
+            <?php echo CHtml::resetButton('Clear'); ?>
         </div>
         <div class="row button">
-<?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
+            <?php echo CHtml::submitButton('Save to Excel', array('name' => 'SaveExcel')); ?>
         </div>
         <?php echo CHtml::endForm(); ?>
     </div>
@@ -107,32 +100,32 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
     <div class="right"><?php echo ReportHelper::summaryText($purchaseSummary->dataProvider); ?></div>
     <div class="clear"></div>
     <div class="right">
-    <?php echo ReportHelper::sortText($purchaseSummary->dataProvider->sort, array('Tanggal', 'Supplier')); ?>
+        <?php echo ReportHelper::sortText($purchaseSummary->dataProvider->sort, array('Tanggal', 'Supplier')); ?>
     </div>
     <div class="clear"></div>
 </div>
 
 <div>
-<?php
-$this->renderPartial('_summary', array(
-    'purchaseHeader' => $purchaseHeader,
-    'purchaseSummary' => $purchaseSummary,
-    'startDate' => $startDate,
-    'endDate' => $endDate,
-    'branch' => $branch
-));
-?>
+    <?php
+    $this->renderPartial('_summary', array(
+        'purchaseHeader' => $purchaseHeader,
+        'purchaseSummary' => $purchaseSummary,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'branch' => $branch
+    ));
+    ?>
 </div>
 
 <div class="hide">
     <div class="right">
-<?php
-$this->widget('system.web.widgets.pagers.CLinkPager', array(
-    'itemCount' => $purchaseSummary->dataProvider->pagination->itemCount,
-    'pageSize' => $purchaseSummary->dataProvider->pagination->pageSize,
-    'currentPage' => $purchaseSummary->dataProvider->pagination->getCurrentPage(false),
-));
-?>
+        <?php
+        $this->widget('system.web.widgets.pagers.CLinkPager', array(
+            'itemCount' => $purchaseSummary->dataProvider->pagination->itemCount,
+            'pageSize' => $purchaseSummary->dataProvider->pagination->pageSize,
+            'currentPage' => $purchaseSummary->dataProvider->pagination->getCurrentPage(false),
+        ));
+        ?>
     </div>
     <div class="clear"></div>
 </div>

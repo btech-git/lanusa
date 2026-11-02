@@ -13,22 +13,11 @@ class SaleItemSummary extends CComponent {
         $this->dataProvider->criteria->with = array(
             'brand:resetScope',
             'category:resetScope',
-            'material',
-            'unit',
-            'saleDetails' => array(
-                'with' => array(
-                    'saleHeader' => array(
-                        'with' => array(
-                            'customer'
-                        ),
-                    ),
-                ),
-            ),
         );
     }
 
     public function setupPaging($pageSize, $currentPage) {
-        $pageSize = (empty($pageSize)) ? 10 : $pageSize;
+        $pageSize = (empty($pageSize)) ? 100 : $pageSize;
         $pageSize = ($pageSize <= 0) ? 1 : $pageSize;
         $this->dataProvider->pagination->pageSize = $pageSize;
 
@@ -37,18 +26,27 @@ class SaleItemSummary extends CComponent {
     }
 
     public function setupSorting() {
-        $this->dataProvider->sort->attributes = array('name', 'category_id');
-        $this->dataProvider->criteria->order = $this->dataProvider->sort->orderBy;
+//        $this->dataProvider->sort->attributes = array('name', 'category_id');
+        $this->dataProvider->criteria->order = 't.name ASC, t.size ASC';
     }
 
     public function setupFilter($startDate, $endDate, $categoryId, $branchId, $customerCompany) {
 
-        $this->dataProvider->criteria->addBetweenCondition('saleHeader.date', $startDate, $endDate);
+        $this->dataProvider->criteria->addCondition("EXISTS (
+                SELECT d.product_id
+                FROM " . SaleDetail::model()->tableName() . " d
+                INNER JOIN " . SaleHeader::model()->tableName() . " h ON h.id = d.sale_header_id
+                INNER JOIN " . Customer::model()->tableName() . " c ON c.id = h.customer_id
+                WHERE d.product_id = t.id AND h.date BETWEEN :start_date AND :end_date AND c.company LIKE :customer_company AND h.branch_id = :branch_id
+                AND d.is_inactive = 0 AND h.is_inactive = 0
+        )");
+        $this->dataProvider->criteria->params[':start_date'] = $startDate;
+        $this->dataProvider->criteria->params[':end_date'] = $endDate;
+        $this->dataProvider->criteria->params[':branch_id'] = $branchId;
+        $this->dataProvider->criteria->params[':customer_company'] = "%{$customerCompany}%";
+        
         $this->dataProvider->criteria->compare('t.category_id', $categoryId);
         $this->dataProvider->criteria->compare('t.is_inactive', 0);
-        $this->dataProvider->criteria->compare('saleHeader.branch_id', $branchId);
-        $this->dataProvider->criteria->compare('saleHeader.is_inactive', 0);
-        $this->dataProvider->criteria->compare('customer.company', $customerCompany, true);
     }
 
     public function getGrandTotal() {

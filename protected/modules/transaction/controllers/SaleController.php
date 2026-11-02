@@ -343,7 +343,7 @@ class SaleController extends SelectionController {
             $worksheet->setCellValue("D{$counter}", 'NPWP');
             $worksheet->setCellValue("E{$counter}", ':');
             $worksheet->mergeCells("F{$counter}:H{$counter}");
-            $worksheet->setCellValue("F{$counter}", $sale->branch->npwp);
+            $worksheet->setCellValueExplicit("F{$counter}", $sale->branch->npwp, PHPExcel_Cell_DataType::TYPE_STRING);
         }
         
         $worksheet->mergeCells("J{$counter}:K{$counter}");
@@ -387,7 +387,7 @@ class SaleController extends SelectionController {
         $worksheet->mergeCells("J{$counter}:K{$counter}");
         $worksheet->setCellValue("J{$counter}", 'NPWP');
         $worksheet->setCellValue("L{$counter}", ':');
-        $worksheet->setCellValue("M{$counter}", $sale->customer->npwp);
+        $worksheet->setCellValueExplicit("M{$counter}", $sale->customer->npwp, PHPExcel_Cell_DataType::TYPE_STRING);
 
         $counter++;
         

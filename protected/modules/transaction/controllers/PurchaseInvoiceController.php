@@ -10,12 +10,14 @@ class PurchaseInvoiceController extends SelectionController {
 
     public function filterAccess($filterChain) {
         if ($filterChain->action->id === 'view' || $filterChain->action->id === 'create' || $filterChain->action->id === 'ajaxHtmlAddInvoice' || $filterChain->action->id === 'memo') {
-            if (!(Yii::app()->user->checkAccess('purchaseInvoiceCreate') || Yii::app()->user->checkAccess('purchaseInvoiceEdit')))
+            if (!(Yii::app()->user->checkAccess('purchaseInvoiceCreate') || Yii::app()->user->checkAccess('purchaseInvoiceEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
         if ($filterChain->action->id === 'admin' || $filterChain->action->id === 'update') {
-            if (!(Yii::app()->user->checkAccess('purchaseInvoiceEdit')))
+            if (!(Yii::app()->user->checkAccess('purchaseInvoiceEdit'))) {
                 $this->redirect(array('/site/login'));
+            }
         }
 
         $filterChain->run();
@@ -91,13 +93,13 @@ class PurchaseInvoiceController extends SelectionController {
 
         if (isset($_POST['Submit']) && IdempotentManager::check()) {
             $this->loadState($purchaseInvoice);
-//			$purchaseInvoice->generateCodeNumber($purchaseInvoice->header->branch_id, date('m'), date('y'));
 
             if ($purchaseInvoice->save(Yii::app()->db)) {
                 Yii::app()->session['PurchaseInvoiceMemoAllowed'] = true;
                 $this->redirect(array('view', 'id' => $purchaseInvoice->header->id));
-            } else
+            } else {
                 $error = true;
+            }
         }
 
         $this->render('update', array(
@@ -136,8 +138,9 @@ class PurchaseInvoiceController extends SelectionController {
 
     public function actionMemo($id) {
         if (!(Yii::app()->user->checkAccess('administrator'))) {
-            if (!(isset(Yii::app()->session['PurchaseInvoiceMemoAllowed']) && Yii::app()->session['PurchaseInvoiceMemoAllowed'] === true))
+            if (!(isset(Yii::app()->session['PurchaseInvoiceMemoAllowed']) && Yii::app()->session['PurchaseInvoiceMemoAllowed'] === true)) {
                 $this->redirect(array('admin'));
+            }
         }
 
         Yii::app()->session->remove('PurchaseInvoiceMemoAllowed');
@@ -151,7 +154,8 @@ class PurchaseInvoiceController extends SelectionController {
             'with' => array(
                 'purchaseHeader:resetScope' => array(
                     'with' => 'supplier:resetScope',
-                )),
+                )
+            ),
         ));
 
         $this->render('memo', array(
@@ -171,7 +175,6 @@ class PurchaseInvoiceController extends SelectionController {
         $supplierId = (isset($_GET['SupplierId'])) ? $_GET['SupplierId'] : '';
 
         $dataProvider = $purchaseInvoice->search();
-        //$dataProvider->criteria->join = "INNER JOIN tblla_purchase_header purchaseHeader ON (t.purchase_header_id = purchaseHeader.id) AND (purchaseHeader.is_inactive = 0)";
         $dataProvider->criteria->with = array(
             'supplier:resetScope',
         );
@@ -198,8 +201,9 @@ class PurchaseInvoiceController extends SelectionController {
                 }
             }
 
-            if (!isset($_GET['ajax']))
+            if (!isset($_GET['ajax'])) {
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+            }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
@@ -221,11 +225,11 @@ class PurchaseInvoiceController extends SelectionController {
     public function actionAjaxHtmlAddPurchase($id) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchaseInvoice = $this->instantiate($id);
-
             $this->loadState($purchaseInvoice);
 
-            if (isset($_POST['PurchaseHeaderId']))
+            if (isset($_POST['PurchaseHeaderId'])) {
                 $purchaseInvoice->addDetail($_POST['PurchaseHeaderId']);
+            }
 
             $this->renderPartial('_detail', array(
                 'purchaseInvoice' => $purchaseInvoice,
@@ -236,9 +240,7 @@ class PurchaseInvoiceController extends SelectionController {
     public function actionAjaxJsonSupplier($id) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchaseInvoice = $this->instantiate($id);
-
             $this->loadState($purchaseInvoice);
-
             $purchaseInvoiceSupplier = $purchaseInvoice->header->supplier(array('scopes' => 'resetScope'));
 
             $object = array(
@@ -253,11 +255,11 @@ class PurchaseInvoiceController extends SelectionController {
     public function actionAjaxHtmlResetDetail($id) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchaseInvoice = $this->instantiate($id);
-
             $this->loadState($purchaseInvoice);
 
-            if (isset($_POST['PurchaseInvoiceHeader']['supplier_id']))
+            if (isset($_POST['PurchaseInvoiceHeader']['supplier_id'])) {
                 $purchaseInvoice->resetDetail($_POST['PurchaseInvoiceHeader']['supplier_id']);
+            }
 
             $this->renderPartial('_detail', array(
                 'purchaseInvoice' => $purchaseInvoice,
@@ -268,9 +270,7 @@ class PurchaseInvoiceController extends SelectionController {
     public function actionAjaxHtmlRemoveDetail($id, $index) {
         if (Yii::app()->request->isAjaxRequest) {
             $purchaseInvoice = $this->instantiate($id);
-
             $this->loadState($purchaseInvoice);
-
             $purchaseInvoice->removeDetailAt($index);
 
             $this->renderPartial('_detail', array(
@@ -279,39 +279,12 @@ class PurchaseInvoiceController extends SelectionController {
         }
     }
 
-//    public function actionAjaxJsonPurchase($id)
-//    {
-//        if (Yii::app()->request->isAjaxRequest)
-//        {
-//            $purchaseInvoice = $this->instantiate($id);
-//
-//            $this->loadState($purchaseInvoice);
-//
-//			$purchaseData = $purchaseInvoice->header->purchaseHeader(array(
-//				'with' => array(
-//					'supplier:resetScope',
-//				),
-//			));
-//			
-//			$purchaseInvoice->generateCodeNumber($purchaseData->branch_id, date('m'), date('y'));
-//
-//            $object = array(
-//                'purchase_header_codeNumber' => $purchaseData->getCodeNumber(PurchaseHeader::CN_CONSTANT),
-//				'purchase_invoice_codeNumber' => $purchaseInvoice->header->getCodeNumber(PurchaseInvoice::CN_CONSTANT),
-//                'supplier_company' => $purchaseData->supplier->company,
-//				'branch' => $purchaseData->branch->name,
-//            );
-//
-//            echo CJSON::encode($object);
-//        }
-//    }
-
     public function instantiate($id) {
-        if (empty($id))
+        if (empty($id)) {
             $purchaseInvoice = new PurchaseInvoice(new PurchaseInvoiceHeader(), array());
-        else {
-            $purchaseInvoice = $this->loadModel($id);
-            $purchaseInvoice = new PurchaseInvoice($purchaseInvoice, $purchaseInvoice->purchaseInvoiceDetails);
+        } else {
+            $purchaseInvoiceHeader = $this->loadModel($id);
+            $purchaseInvoice = new PurchaseInvoice($purchaseInvoiceHeader, $purchaseInvoiceHeader->purchaseInvoiceDetails);
         }
 
         return $purchaseInvoice;
@@ -320,8 +293,9 @@ class PurchaseInvoiceController extends SelectionController {
     public function loadModel($id) {
         $model = PurchaseInvoiceHeader::model()->findByPk($id);
 
-        if ($model === null)
+        if ($model === null) {
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
 
         return $model;
     }
@@ -333,18 +307,19 @@ class PurchaseInvoiceController extends SelectionController {
 
         if (isset($_POST['PurchaseInvoiceDetail'])) {
             foreach ($_POST['PurchaseInvoiceDetail'] as $i => $item) {
-                if (isset($purchaseInvoice->details[$i]))
+                if (isset($purchaseInvoice->details[$i])) {
                     $purchaseInvoice->details[$i]->attributes = $item;
-                else {
+                } else {
                     $detail = new PurchaseInvoiceDetail();
                     $detail->attributes = $item;
                     $purchaseInvoice->details[] = $detail;
                 }
             }
-            if (count($_POST['PurchaseInvoiceDetail']) < count($purchaseInvoice->details))
+            if (count($_POST['PurchaseInvoiceDetail']) < count($purchaseInvoice->details)) {
                 array_splice($purchaseInvoice->details, $i + 1);
-        } else
+            }
+        } else {
             $purchaseInvoice->details = array();
+        }
     }
-
 }
