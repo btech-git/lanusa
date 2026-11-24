@@ -22,6 +22,10 @@ $this->breadcrumbs = array(
             'value' => CHtml::encode(CHtml::value($customer, 'company')),
         ),
         array(
+            'label' => 'Credit Limit',
+            'value' => number_format(CHtml::encode(CHtml::value($customer, 'remainingCreditLimit')), 2),
+        ),
+        array(
             'label' => 'Customer PO#',
             'value' => $sale->reference,
         ),

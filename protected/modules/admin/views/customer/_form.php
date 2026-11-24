@@ -41,6 +41,12 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->labelEx($model, 'credit_limit'); ?>
+		<?php echo $form->textField($model, 'credit_limit', array('size'=>60, 'maxlength'=>60)); ?>
+		<?php echo $form->error($model, 'credit_limit'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->labelEx($model, 'npwp'); ?>
 		<?php echo $form->textField($model, 'npwp', array('size'=>60, 'maxlength'=>60)); ?>
 		<?php echo $form->error($model, 'npwp'); ?>

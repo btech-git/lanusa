@@ -35,10 +35,12 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/t
                 '
             )); ?>	
             
-            <?php $this->renderPartial('_supplier', array(
-                'suppliers' => $suppliers,
-                'supplierId' => $supplierId
-            )); ?>
+            <div id="supplier_div">
+                <?php $this->renderPartial('_supplier', array(
+                    'suppliers' => $suppliers,
+                    'supplierId' => $supplierId
+                )); ?>
+            </div>
         </div>
 
         <div class="row">

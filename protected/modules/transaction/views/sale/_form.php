@@ -5,12 +5,12 @@
     
     <div class="container">
         <div class="span-12">
-            <div class="row">
-                <?php echo CHtml::label('Penjualan #', false); ?>
+<!--            <div class="row">
+                <?php /*echo CHtml::label('Penjualan #', false); ?>
                 <span id="code_number">
-                    <?php echo CHtml::encode($sale->header->getCodeNumber(SaleHeader::CN_CONSTANT)); ?>
+                    <?php echo CHtml::encode($sale->header->getCodeNumber(SaleHeader::CN_CONSTANT));*/ ?>
                 </span>	
-            </div>
+            </div>-->
 
             <div class="row">
                 <?php echo CHtml::label('Tanggal', false); ?>
@@ -29,6 +29,20 @@
             </div>
 
             <div class="row">
+                <?php echo CHtml::activeLabelEx($sale->header, 'employee_id_salesman'); ?>
+                <?php echo CHtml::activeDropDownList($sale->header, 'employee_id_salesman', CHtml::listData(Employee::model()->findAll(array('order' => 't.name')), 'id', 'name'), array('empty' => '-- Pilih Salesman --',)); ?>
+                <?php echo CHtml::error($sale->header, 'employee_id_salesman'); ?>
+            </div>
+            
+            <div class="row">
+                <?php echo CHtml::label('Catatan', ''); ?>
+                <?php echo CHtml::activeTextArea($sale->header, 'note', array('rows' => 5, 'cols' => 50)); ?>
+                <?php echo CHtml::error($sale->header, 'note'); ?>
+            </div>
+        </div>
+
+        <div class="span-12 last">
+            <div class="row">
                 <?php echo CHtml::activeLabelEx($sale->header, 'branch_id'); ?>
                 <?php echo CHtml::activeDropDownList($sale->header, 'branch_id', CHtml::listData(Branch::model()->findAll(array('order' => 't.name')), 'id', 'name'), array('empty' => '-- Pilih Perusahaan --',
                     'onchange' => CHtml::ajax(array(
@@ -46,15 +60,6 @@
                 )); ?>
                 <?php echo CHtml::error($sale->header, 'branch_id'); ?>
             </div>
-
-            <div class="row">
-                <?php echo CHtml::activeLabelEx($sale->header, 'employee_id_salesman'); ?>
-                <?php echo CHtml::activeDropDownList($sale->header, 'employee_id_salesman', CHtml::listData(Employee::model()->findAll(array('order' => 't.name')), 'id', 'name'), array('empty' => '-- Pilih Salesman --',)); ?>
-                <?php echo CHtml::error($sale->header, 'employee_id_salesman'); ?>
-            </div>
-        </div>
-
-        <div class="span-12 last">
 
             <div class="row">
                 <?php echo CHtml::activeLabelEx($sale->header, 'customer_id'); ?>
@@ -102,17 +107,11 @@
                 <?php echo CHtml::closeTag('span'); ?>
                 <?php echo CHtml::error($sale->header, 'customer_id'); ?>
             </div>
-            
+
             <div class="row">
                 <?php echo CHtml::label('Customer PO#', ''); ?>
                 <?php echo CHtml::activeTextField($sale->header, 'reference', array('size' => 50, 'maxlength' => 100)); ?>
                 <?php echo CHtml::error($sale->header, 'reference'); ?>
-            </div>
-
-            <div class="row">
-                <?php echo CHtml::label('Catatan', ''); ?>
-                <?php echo CHtml::activeTextArea($sale->header, 'note', array('rows' => 5, 'cols' => 30)); ?>
-                <?php echo CHtml::error($sale->header, 'note'); ?>
             </div>
         </div>
     </div>
